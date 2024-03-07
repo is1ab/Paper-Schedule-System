@@ -1,4 +1,4 @@
-# Paper Schedule System'
+# Paper Schedule System
 
 ## Installation
 
