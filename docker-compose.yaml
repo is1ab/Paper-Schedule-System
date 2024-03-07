@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  pss:
+    build: .
+    container_name: pss
+    tty: true
+    depends_on:
+      - "mariadb"
+    ports:
+      - "8080:8080"
+  mariadb:
+    image: mariadb:latest
+    container_name: is1ab-mariadb
+    restart: always
+    environment:
+      MYSQL_USER: pssa
+      MYSQL_PASSWORD: "@pssa48763"
+      MYSQL_DATABASE: pss
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: "#pssa48763"
+    ports:
+      - "3306:3306"
+  mariadb-test:
+    image: mariadb:latest
+    container_name: is1ab-mariadb-test
+    restart: always
+    environment:
+      MYSQL_USER: psst  # t refers to test
+      MYSQL_PASSWORD: "@psst48763"
+      MYSQL_DATABASE: pss-test
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: "#psst48763"
+    ports:
+      - "3307:3306"
