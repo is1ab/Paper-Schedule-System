@@ -1,5 +1,4 @@
 import { Alert, Container, Image } from "react-bootstrap"
-import Is1abNavbar from "../layout/Navbar"
 import Logo from "../assets/logo.png"
 
 function Home() {
