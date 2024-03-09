@@ -7,11 +7,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"
-import 'rsuite/dist/rsuite.min.css';
+import 'rsuite/dist/rsuite-no-reset.min.css';
 import RootLayout from './layout/RootLayout.tsx';
 import Home from './page/Home.tsx';
 import Login from './page/Login.tsx';
 import Event from './page/Event.tsx';
+import Member from './page/Member.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +20,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home/>} />
       <Route path="/Login" element={<Login/>}></Route>
       <Route path="/Event" element={<Event/>}></Route>
+      <Route path="/Member" element={<Member/>}></Route>
     </Route>
   )
 );
