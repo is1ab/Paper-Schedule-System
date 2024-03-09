@@ -12,7 +12,7 @@ function Login(){
                         </div>
                         <br/>
                         <h3>國立臺北科技大學 資訊安全實驗室</h3>
-                        <h4> Information Security Lab, NTUT </h4>
+                        <h4>Information Security Lab, NTUT </h4>
                     </div>
                 </Col>
                 <Col lg={5} md={12} className="d-flex">
