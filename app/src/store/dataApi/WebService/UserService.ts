@@ -7,6 +7,10 @@ export class UserService extends BaseService {
         super(token);
     }
 
+    getUsers = () => {
+        return axios.get("/user/", this.getAxiosRequestConfig())
+    }
+
     getUserSelfInfo = () => {
         return axios.get("/user/userInfo", this.getAxiosRequestConfig())
     }
