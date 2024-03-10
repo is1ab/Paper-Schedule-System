@@ -19,6 +19,10 @@ export const authApiSlice = createSlice({
             state.token = token;
             localStorage.setItem("token", token)
         },
+        removeToken: (state: AuthApiState) => {
+            state.token = "";
+            localStorage.removeItem("token")
+        }
     },
 })
 
@@ -41,6 +45,6 @@ export const login = createAsyncThunk(
     }
 )
 
-export const { setToken } = authApiSlice.actions;
+export const { setToken, removeToken } = authApiSlice.actions;
 export const getTokenState  = (state: AuthApiState) => state.token;
 export default authApiSlice.reducer;
