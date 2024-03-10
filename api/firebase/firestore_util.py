@@ -20,6 +20,10 @@ def fetch_users_from_firebase() -> list[dict[str, Any]]:
     return fetch_all_data("User")
 
 
+def add_user_to_firebase(user_id: str, data: dict[str, Any]):
+    add_data("User", data, user_id)
+
+
 def fetch_schedule_from_firebase(schedule_id: str) -> dict[str, Any]:
     return fetch_data("Schedule", schedule_id)
 
