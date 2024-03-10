@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'rsuite/dist/rsuite-no-reset.min.css';
+import '../src/index.css'
 import RootLayout from './layout/RootLayout.tsx';
 import Home from './page/Home.tsx';
 import Login from './page/Login.tsx';

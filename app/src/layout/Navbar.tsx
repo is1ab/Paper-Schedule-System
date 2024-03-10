@@ -1,5 +1,6 @@
 import { Container, Nav, Navbar } from "react-bootstrap"
 import logo from "../assets/logo.png"
+import UserBadge from "../components/UserBadge"
 
 function Is1abNavbar() {
   return (
@@ -22,7 +23,7 @@ function Is1abNavbar() {
             <Nav.Link href="/member">實驗室成員</Nav.Link>
           </Nav>
           <Nav>
-            <Nav.Link href="/login">登入</Nav.Link>
+            <UserBadge></UserBadge>
           </Nav>
         </Navbar.Collapse>
       </Container>
