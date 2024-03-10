@@ -1,4 +1,5 @@
 import jwt
+import re
 
 from typing import Any, Final
 from datetime import datetime, timedelta, timezone
@@ -46,7 +47,20 @@ class HS256JWTCodec:
         except (jwt.exceptions.DecodeError, jwt.exceptions.ExpiredSignatureError):
             return False
         return True
+
+
+def fetch_token(jwt: str | None): 
+    if(jwt == None):
+        return ""
     
+    pattern: re.Pattern = re.compile("Bearer (.+)")
+    groups = re.findall(pattern, jwt)
+
+    if(len(groups) == 0):
+        return ""
+    else:
+        return groups[0]
+
 
 def make_jwt(username: str, student_id: str) -> str:
     codec = HS256JWTCodec("some_random_key")
@@ -54,3 +68,8 @@ def make_jwt(username: str, student_id: str) -> str:
         "username": username, 
         "studentId": student_id
     })
+
+
+def decode_jwt(jwt: str) -> dict[str, Any]:
+    codec = HS256JWTCodec("some_random_key")
+    return codec.decode(jwt)["data"]
