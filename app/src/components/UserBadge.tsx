@@ -28,7 +28,7 @@ function UserBadge(){
 
     const logout = async () => {
         await dispatch(removeToken())
-        navigate("/")
+        location.href = "/"
     }
     
     return (
