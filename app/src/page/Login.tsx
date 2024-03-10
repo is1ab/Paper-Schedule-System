@@ -2,8 +2,8 @@ import { Button, Col, Container, Form, Image, Row } from "react-bootstrap";
 import Logo from "../assets/logo.png"
 import { useState } from "react";
 import { useAppDispatch } from "../store/hook";
-import { login } from "../store/dataApi/AuthApiSlice";
-import { LoginRequestPayload } from "../type/auth/loginPayload";
+import { login, setToken } from "../store/dataApi/AuthApiSlice";
+import { LoginRequestPayload, LoginResponse } from "../type/auth/loginPayload";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
@@ -28,13 +28,15 @@ function Login(){
             password: password
         } as LoginRequestPayload)).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
+                const payload = response.payload as LoginResponse
                 Swal.fire({
                     icon: "success",
                     title: "登入成功",
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
-                    navigate("/")
+                    dispatch(setToken(payload.token))
+                    navigate("/", { state: "login success" })
                 })
             }else{
                 Swal.fire({

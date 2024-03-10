@@ -1,8 +1,25 @@
 import { Dropdown, Nav } from "react-bootstrap";
 import { Avatar } from "rsuite";
+import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
+import { useAppDispatch } from "../store/hook";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 function UserBadge(){
-    const isLogin: boolean = false;
+    const dispatch = useAppDispatch()
+    const { state } = useLocation()
+    const [ isLogin, setIsLogin ] = useState<boolean>();
+
+    useEffect(() => {
+        dispatch(getSelfUserInfo()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                setIsLogin(true)
+            }else{
+                setIsLogin(false)
+            }
+        })
+    }, [state])
+    
     return (
         <>
         {

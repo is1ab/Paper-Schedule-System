@@ -7,7 +7,7 @@ interface AuthApiState {
 }
 
 const initialDataState: AuthApiState = {
-    token: ""
+    token: localStorage.getItem("token") ?? ""
 }
 
 export const authApiSlice = createSlice({
@@ -15,7 +15,9 @@ export const authApiSlice = createSlice({
     initialState: initialDataState,
     reducers: {
         setToken: (state: AuthApiState, action: PayloadAction<string>) => {
-            state.token = action.payload;
+            const token = action.payload;
+            state.token = token;
+            localStorage.setItem("token", token)
         },
     },
 })
@@ -30,7 +32,6 @@ export const login = createAsyncThunk(
             const service = new AuthService(null);
             const res = await service.login(payload.account, payload.password);
             const data = res.data as LoginResponse;
-            setToken(data.token)
             return data;
         } catch (err: any){
             return thunkApi.rejectWithValue(() => {
