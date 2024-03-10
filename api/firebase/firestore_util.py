@@ -24,6 +24,10 @@ def add_user_to_firebase(user_id: str, data: dict[str, Any]):
     add_data("User", data, user_id)
 
 
+def set_user_to_firebase(user_id: str, data: dict[str, Any]):
+    modify_data("User", user_id, data)
+
+
 def fetch_schedule_from_firebase(schedule_id: str) -> dict[str, Any]:
     return fetch_data("Schedule", schedule_id)
 

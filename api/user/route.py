@@ -2,7 +2,7 @@ import re
 from typing import Any
 
 from flask import Blueprint, make_response, request
-from firebase.firestore_util import add_user_to_firebase, fetch_user_from_firebase, fetch_users_from_firebase
+from firebase.firestore_util import add_user_to_firebase, fetch_user_from_firebase, fetch_users_from_firebase, set_user_to_firebase
 
 from auth.jwt_util import fetch_token, decode_jwt
 
@@ -44,6 +44,23 @@ def add_user():
 
     add_user_to_firebase(user_id, user_info_model)
     return make_response({"status": "OK", "message": f"User {user_id} added."})
+
+
+@user_bp.route("/<user_id>/", methods=["PUT"])
+def add_user(user_id: str):
+    payload: dict[str, Any] | None = request.get_json(silent=True)
+    assert payload is not None
+
+    user_info_model: dict[str, Any] = {
+        "id": user_id,
+        "name": payload["name"],
+        "role": payload["role"],
+        "email": payload["email"],
+        "blocked": False
+    }
+
+    set_user_to_firebase(user_id, user_info_model)
+    return make_response({"status": "OK", "message": f"User {user_id} set."})
 
 
 @user_bp.route("/", methods=["GET"])
