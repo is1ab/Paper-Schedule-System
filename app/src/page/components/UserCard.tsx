@@ -11,7 +11,7 @@ function UserCard(props: {
     const note = props.note
 
     return (
-        <div className="w-50 p-2">
+        <div className="col col-md-6 col-12 p-2">
             <Card className="p-3 d-flex flex-row gap-3">
                 <div className="d-flex flex-column">
                     <Avatar size="lg" className="my-auto" circle></Avatar>
@@ -19,7 +19,7 @@ function UserCard(props: {
                 <div className="d-flex flex-column text-start">
                     <span className="fs-5 font-bold">{name}</span>
                     <span><small>{note}</small></span>
-                    <span>{email}</span>
+                    <span><small>{email}</small></span>
                 </div>
             </Card>
         </div>
