@@ -13,9 +13,9 @@ def login_route() -> Response:
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
 
-    username: str = payload["username"]
+    account: str = payload["account"]
     password: str = payload["password"]
 
-    payload: dict[str, str] = ntut_login(username, password)
-    jwt: str = make_jwt(payload["username"], payload["studentId"])
+    login_result: dict[str, str] = ntut_login(account, password)
+    jwt: str = make_jwt(login_result["username"], login_result["studentId"])
     return make_response({"status": "OK", "token": jwt})
