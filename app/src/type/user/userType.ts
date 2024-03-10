@@ -3,5 +3,6 @@ export interface UserType {
     email: string,
     id: string,
     name: string,
-    role: string
+    role: string,
+    note: string
 }
