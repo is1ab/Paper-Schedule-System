@@ -14,6 +14,7 @@ import Home from './page/Home.tsx';
 import Login from './page/Login.tsx';
 import Event from './page/Event.tsx';
 import Member from './page/Member.tsx';
+import User from './page/User.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +23,7 @@ const router = createBrowserRouter(
       <Route path="/Login" element={<Login/>}></Route>
       <Route path="/Event" element={<Event/>}></Route>
       <Route path="/Member" element={<Member/>}></Route>
+      <Route path="/User/:userId" element={<User/>}></Route>
     </Route>
   )
 );
