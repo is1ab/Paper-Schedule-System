@@ -8,11 +8,14 @@ import { useLocation } from "react-router-dom";
 function UserBadge(){
     const dispatch = useAppDispatch()
     const { state } = useLocation()
-    const [ isLogin, setIsLogin ] = useState<boolean>();
+    const [ isLogin, setIsLogin ] = useState<boolean | undefined>(undefined);
+    const [ username, setUsername ] = useState<string>("");
 
     useEffect(() => {
         dispatch(getSelfUserInfo()).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload;
+                setUsername(payload["data"]["username"]);
                 setIsLogin(true)
             }else{
                 setIsLogin(false)
@@ -23,12 +26,13 @@ function UserBadge(){
     return (
         <>
         {
-            isLogin ? 
+            isLogin == undefined ? null : 
+            isLogin == true ?
             <Dropdown>
                 <Dropdown.Toggle variant="light" className="user-badge-dropdown d-flex border-0" style={{backgroundColor: "transparent"}}>
                     <Avatar size="sm"></Avatar>
-                    &nbsp;
-                    <span className="my-auto">使用者</span>
+                    &nbsp;&nbsp;
+                    <span className="my-auto">{username}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item href="/user/0">查看個人資料</Dropdown.Item>
