@@ -14,7 +14,7 @@ function UserBadge(){
                     <span className="my-auto">使用者</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                    <Dropdown.Item href="/you">查看個人資料</Dropdown.Item>
+                    <Dropdown.Item href="/user/0">查看個人資料</Dropdown.Item>
                     <Dropdown.Item href="/addSchedule">新增行程請求</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item href="/logout">登出</Dropdown.Item>
