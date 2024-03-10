@@ -39,6 +39,7 @@ def add_user():
         "name": payload["name"],
         "role": payload["role"],
         "email": payload["email"],
+        "note": payload["note"],
         "blocked": False
     }
 
@@ -47,7 +48,7 @@ def add_user():
 
 
 @user_bp.route("/<user_id>/", methods=["PUT"])
-def add_user(user_id: str):
+def modify_user(user_id: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
 
@@ -56,6 +57,7 @@ def add_user(user_id: str):
         "name": payload["name"],
         "role": payload["role"],
         "email": payload["email"],
+        "note": payload["note"],
         "blocked": False
     }
 
