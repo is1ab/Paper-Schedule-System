@@ -48,6 +48,7 @@ function UserBadge(){
                     <Dropdown.Divider />
                     <Dropdown.Item href="/user/0">管理實驗室成員</Dropdown.Item>
                     <Dropdown.Item href="/addSchedule">管理活動請求</Dropdown.Item>
+                    <Dropdown.Item href="/addSchedule">管理活動</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item onClick={() => logout()}>登出</Dropdown.Item>
                 </Dropdown.Menu>
