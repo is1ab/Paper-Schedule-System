@@ -1,4 +1,16 @@
+from http import HTTPStatus
+
+from flask import Response, make_response
+
 from dataclasses import dataclass
+
+
+def make_single_message_response(
+    status_code: HTTPStatus, message: str = None
+) -> Response:
+    status = SingleMessageStatus(status_code, message)
+    return make_response(status.message, status.code)
+
 
 @dataclass
 class SingleMessageStatus:
