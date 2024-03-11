@@ -18,6 +18,9 @@ import User from './page/User.tsx';
 import { Provider } from 'react-redux';
 import { store } from './store/store.ts';
 import AddSchedule from './page/AddSchedule.tsx';
+import ManageUser from './page/ManageUser.tsx';
+import AddUser from './page/EditUser.tsx';
+import EditUser from './page/EditUser.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +31,8 @@ const router = createBrowserRouter(
       <Route path="/Member" element={<Member/>}></Route>
       <Route path="/User/:userId" element={<User/>}></Route>
       <Route path="/AddSchedule" element={<AddSchedule/>}></Route>
+      <Route path="/ManageUser" element={<ManageUser/>}></Route>
+      <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
     </Route>
   )
 );

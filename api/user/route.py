@@ -47,7 +47,7 @@ def add_user():
     return make_response({"status": "OK", "message": f"User {user_id} added."})
 
 
-@user_bp.route("/<user_id>/", methods=["PUT"])
+@user_bp.route("/<user_id>", methods=["PUT"])
 def modify_user(user_id: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -63,6 +63,40 @@ def modify_user(user_id: str):
 
     set_user_to_firebase(user_id, user_info_model)
     return make_response({"status": "OK", "message": f"User {user_id} set."})
+
+
+@user_bp.route("/<user_id>/blocked", methods=["POST"])
+def blocked_user(user_id: str):
+    payload: dict[str, Any] = fetch_user_from_firebase(user_id)
+
+    user_info_model: dict[str, Any] = {
+        "id": user_id,
+        "name": payload["name"],
+        "role": payload["role"],
+        "email": payload["email"],
+        "note": payload["note"],
+        "blocked": True
+    }
+
+    set_user_to_firebase(user_id, user_info_model)
+    return make_response({"status": "OK", "message": f"User {user_id} blocked."})
+
+
+@user_bp.route("/<user_id>/unblocked", methods=["POST"])
+def unblocked_user(user_id: str):
+    payload: dict[str, Any] = fetch_user_from_firebase(user_id)
+    
+    user_info_model: dict[str, Any] = {
+        "id": user_id,
+        "name": payload["name"],
+        "role": payload["role"],
+        "email": payload["email"],
+        "note": payload["note"],
+        "blocked": False
+    }
+
+    set_user_to_firebase(user_id, user_info_model)
+    return make_response({"status": "OK", "message": f"User {user_id} unblocked."})
 
 
 @user_bp.route("/", methods=["GET"])
