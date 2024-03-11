@@ -136,4 +136,26 @@ export const blockedUser = createAsyncThunk(
 )
 
 
+export const unblockedUser = createAsyncThunk(
+    "authApi/unblockedUser",
+    async (
+        user_id: string,
+        thunkApi
+    ) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new UserService(token);
+            const res = await service.unblockUser(user_id);
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`authApi/modifyUser: ${err}`)
+            })
+        }
+    }
+)
+
+
 export default userApiSlice.reducer;

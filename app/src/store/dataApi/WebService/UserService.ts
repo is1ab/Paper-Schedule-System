@@ -39,6 +39,10 @@ export class UserService extends BaseService {
         return axios.post(`/user/${user_id}/blocked`, {}, this.getAxiosRequestConfig())
     }
 
+    unblockUser = (user_id: string) => {
+        return axios.post(`/user/${user_id}/unblocked`, {}, this.getAxiosRequestConfig())
+    }
+
     getUserSelfInfo = () => {
         return axios.get("/user/userInfo", this.getAxiosRequestConfig())
     }
