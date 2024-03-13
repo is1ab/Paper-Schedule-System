@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import authApiReducer from './dataApi/AuthApiSlice';
 import userApiReducer from './dataApi/UserApiSlice';
+import settingApiReducer from './dataApi/SettingApiSlice';
 
 export const store = configureStore({
     reducer: {
         authApi: authApiReducer,
-        userApi: userApiReducer
+        userApi: userApiReducer,
+        settingApi: settingApiReducer
     },
 });
 

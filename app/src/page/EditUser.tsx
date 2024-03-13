@@ -5,21 +5,24 @@ import { AddUserPayloadType } from "../type/user/userPayloadType";
 import { addUser, getUser, modifyUser } from "../store/dataApi/UserApiSlice";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router-dom";
+import { getRoles } from "../store/dataApi/SettingApiSlice";
+import { RoleType } from "../type/setting/RoleType";
 
 function EditUser(){
     const { userId } = useParams()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const [ roles, setRoles ] = useState<RoleType[]>([])
     const [ studentId, setStudentId ] = useState<string>("")
     const [ name, setName ] = useState<string>("")
     const [ email, setEmail ] = useState<string>("")
-    const [ role, setRole ] = useState<string>("1")
+    const [ role, setRole ] = useState<number>(roles.length == 0 ? 1 : roles[0].id)
     const [ note, setNote ] = useState<string>("")
 
     const handleChangeStudentId = (value: string) => { setStudentId(value) }
     const handleChangeEmail = (value: string) => { setEmail(value) }
     const handleChangeName = (value: string) => { setName(value) }
-    const handleChangeRole = (value: string) => { setRole(value) }
+    const handleChangeRole = (value: string) => { setRole(Number.parseInt(value)) }
     const handleChangeNote = (value: string) => { setNote(value) }
 
     const handleSubmit = () => {
@@ -101,6 +104,16 @@ function EditUser(){
     }
 
     useEffect(() => {
+        dispatch(getRoles()).then((response) => {
+            if(response.meta.requestStatus == "fulfilled"){
+                const payload = response.payload;
+                const roles = payload["data"] as RoleType[]
+                setRoles(roles)
+            }
+        })
+    }, [])
+
+    useEffect(() => {
         const id = userId;
         if(id === "0" || id === undefined){
             return
@@ -116,7 +129,7 @@ function EditUser(){
                 const email = data["email"]
                 setStudentId(account)
                 setName(name)
-                setRole(role)
+                setRole(role["id"])
                 setNote(note)
                 setEmail(email)
             }
@@ -162,9 +175,15 @@ function EditUser(){
                             value={role} 
                             onChange={(e) => handleChangeRole(e.target.value)}
                         >
-                            <option value={"1"}>Student</option>
-                            <option value={"2"}>Professor</option>
-                            <option value={"3"}>Guest</option>
+                            <>
+                            {
+                                roles.map((role) => {
+                                    return (
+                                        <option value={role.id}>{role.name}</option>
+                                    )
+                                })
+                            }
+                            </>
                         </Form.Select>
                     </div>
                     <div className="p-2 w-50">

@@ -5,13 +5,14 @@ import { useAppDispatch } from "../store/hook";
 import { UserType } from "../type/user/userType";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { RoleType } from "../type/setting/RoleType";
+import { getRoles } from "../store/dataApi/SettingApiSlice";
 
 function ManageUser(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
-    const [ students, setStudents ] = useState<UserType[]>([])
-    const [ guests, setGuests ] = useState<UserType[]>([])
-    const [ professors, setProfessors ] = useState<UserType[]>([])
+    const [users, setUsers] = useState<UserType[]>([]);
+    const [roles, setRoles] = useState<RoleType[]>([]);
 
     const blockUser = (user_id: string, name: string) => {
         Swal.fire({
@@ -90,15 +91,20 @@ function ManageUser(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const users = payload["data"] as UserType[]
-                const students = users.filter((user) => user.role == "Student")
-                const guests = users.filter((user) => user.role == "Guest")
-                const professors = users.filter((user) => user.role == "Professor")
-                setStudents(students)
-                setGuests(guests)
-                setProfessors(professors)
+                setUsers(users)
             }
         })
     }
+
+    useEffect(() => {
+        dispatch(getRoles()).then((response) => {
+            if(response.meta.requestStatus == "fulfilled"){
+                const payload = response.payload;
+                const roles = payload["data"] as RoleType[]
+                setRoles(roles)
+            }
+        })
+    }, [])
 
     useEffect(() => {
         refreshUsers()
@@ -112,7 +118,7 @@ function ManageUser(){
             <tr style={{verticalAlign: "middle"}}>
                 <td>{data.account}</td>
                 <td>{data.name}</td>
-                <td>{data.role}</td>
+                <td>{data.role.name}</td>
                 <td>{data.note}</td>
                 <td>{data.blocked ? "已凍結" : "可用"}</td>
                 <td className="d-flex flex-row gap-2 justify-content-center">
@@ -145,27 +151,23 @@ function ManageUser(){
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            professors.map((professor) => {
-                                return (
-                                    <UserRow data={professor}></UserRow>
-                                )
-                            })
-                        }
-                        {
-                            guests.map((guest) => {
-                                return (
-                                    <UserRow data={guest}></UserRow>
-                                )
-                            })
-                        }
-                        {
-                            students.map((student) => {
-                                return (
-                                    <UserRow data={student}></UserRow>
-                                )
-                            })
-                        }
+                    <>
+                    {
+                        roles.map((role: RoleType) => {
+                            return (
+                                <>
+                                {
+                                    users.filter((user) => user.role.id == role.id).map((user) => {
+                                        return (
+                                            <UserRow data={user}/>
+                                        )
+                                    })
+                                }
+                                </>
+                            )
+                        })
+                    }
+                    </>
                     </tbody>
                 </Table>
             </div>

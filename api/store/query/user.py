@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from psycopg.rows import TupleRow, class_row, dict_row
+from psycopg.rows import dict_row
 
 from store.db import connection
 from store.model.role import Role
@@ -20,8 +20,8 @@ def get_user(account: str) -> User | None:
         return User(
             result["id"],
             result["account"],
-            result["name"],
             result["email"],
+            result["name"],
             result["note"],
             result["blocked"],
             Role(
@@ -44,8 +44,8 @@ def get_users() -> List[User]:
         return [User(
             result["id"],
             result["account"],
-            result["name"],
             result["email"],
+            result["name"],
             result["note"],
             result["blocked"],
             Role(

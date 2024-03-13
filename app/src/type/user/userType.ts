@@ -1,9 +1,11 @@
+import { RoleType } from "../setting/RoleType";
+
 export interface UserType {
     blocked: boolean,
     email: string,
     id: string,
     account: string,
     name: string,
-    role: string,
+    role: RoleType,
     note: string
 }
