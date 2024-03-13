@@ -90,9 +90,9 @@ function ManageUser(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const users = payload["data"] as UserType[]
-                const students = users.filter((user) => user.role == "student")
-                const guests = users.filter((user) => user.role == "guest")
-                const professors = users.filter((user) => user.role == "professor")
+                const students = users.filter((user) => user.role == "Student")
+                const guests = users.filter((user) => user.role == "Guest")
+                const professors = users.filter((user) => user.role == "Professor")
                 setStudents(students)
                 setGuests(guests)
                 setProfessors(professors)
