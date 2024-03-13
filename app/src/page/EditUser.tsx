@@ -13,7 +13,7 @@ function EditUser(){
     const [ studentId, setStudentId ] = useState<string>("")
     const [ name, setName ] = useState<string>("")
     const [ email, setEmail ] = useState<string>("")
-    const [ role, setRole ] = useState<string>("student")
+    const [ role, setRole ] = useState<string>("1")
     const [ note, setNote ] = useState<string>("")
 
     const handleChangeStudentId = (value: string) => { setStudentId(value) }
@@ -109,12 +109,12 @@ function EditUser(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const data = payload["data"]
-                const id = data["id"]
+                const account = data["account"]
                 const name = data["name"]
                 const role = data["role"]
                 const note = data["note"]
                 const email = data["email"]
-                setStudentId(id)
+                setStudentId(account)
                 setName(name)
                 setRole(role)
                 setNote(note)
@@ -162,9 +162,9 @@ function EditUser(){
                             value={role} 
                             onChange={(e) => handleChangeRole(e.target.value)}
                         >
-                            <option value={"professor"}>Professor</option>
-                            <option value={"guest"}>Guest</option>
-                            <option value={"student"}>Student</option>
+                            <option value={"1"}>Student</option>
+                            <option value={"2"}>Professor</option>
+                            <option value={"3"}>Guest</option>
                         </Form.Select>
                     </div>
                     <div className="p-2 w-50">

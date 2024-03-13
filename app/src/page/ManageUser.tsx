@@ -110,16 +110,16 @@ function ManageUser(){
         const data = props.data;
         return (
             <tr style={{verticalAlign: "middle"}}>
-                <td>{data.id}</td>
+                <td>{data.account}</td>
                 <td>{data.name}</td>
                 <td>{data.role}</td>
                 <td>{data.note}</td>
                 <td>{data.blocked ? "已凍結" : "可用"}</td>
                 <td className="d-flex flex-row gap-2 justify-content-center">
-                    <Button variant={"success"} onClick={() => navigate(`/User/${data.id}/Edit`)}>編輯帳號</Button>
+                    <Button variant={"success"} onClick={() => navigate(`/User/${data.account}/Edit`)}>編輯帳號</Button>
                     { data.blocked ?
-                        <Button variant={"warning"} onClick={() => unblockUser(data.id, data.name)}>解凍帳號</Button> :
-                        <Button variant={"danger"} onClick={() => blockUser(data.id, data.name)}>凍結帳號</Button>
+                        <Button variant={"warning"} onClick={() => unblockUser(data.account, data.name)}>解凍帳號</Button> :
+                        <Button variant={"danger"} onClick={() => blockUser(data.account, data.name)}>凍結帳號</Button>
                     }
                 </td>
             </tr>
