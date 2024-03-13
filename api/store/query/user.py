@@ -1,35 +1,59 @@
 from typing import Any, List
 
-from psycopg.rows import TupleRow, class_row
+from psycopg.rows import TupleRow, class_row, dict_row
 
 from store.db import connection
+from store.model.role import Role
 from store.model.user import User
 
 def get_user(account: str) -> User | None:
-    with connection.cursor(row_factory=class_row(User)) as cursor:
+    with connection.cursor(row_factory=dict_row) as cursor:
         sql: str = """
-            select u.id, u."name", u.email, u.note, u."blocked", r.name as "role", u.account
+            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
             from "user" u 
             join "role" r on r.id = u."role"
             where u.account = %s;            
         """
         cursor.execute(sql, (account,))
-        result: User | None = cursor.fetchone()
+        result: dict[str, Any] = cursor.fetchone()
         cursor.close()
-        return result
+        return User(
+            result["id"],
+            result["account"],
+            result["name"],
+            result["email"],
+            result["note"],
+            result["blocked"],
+            Role(
+                result["roleId"],
+                result["roleName"]
+            )
+        )
 
 
 def get_users() -> List[User]:
     with connection.cursor(row_factory=class_row(User)) as cursor:
         sql: str = """
-            select u.id, u."name", u.email, u.note, u."blocked", r.name as "role", u.account
+            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
             from "user" u 
             join "role" r on r.id = u."role";       
         """
         cursor.execute(sql)
         result: List[User] = cursor.fetchall()
         cursor.close()
-        return result
+        return User(
+            result["id"],
+            result["account"],
+            result["name"],
+            result["email"],
+            result["note"],
+            result["blocked"],
+            Role(
+                result["roleId"],
+                result["roleName"]
+            )
+        )
+
         
 def add_user(user: User) -> None:
     try:
@@ -53,6 +77,7 @@ def add_user(user: User) -> None:
         connection.rollback()
         raise e
     
+
 def set_user(account: str, user: User) -> None:
     try:
         with connection.cursor() as cursor:

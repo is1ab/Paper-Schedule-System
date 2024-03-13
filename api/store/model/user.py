@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from store.model.role import Role
+
 @dataclass
 class User:
     id: int
@@ -8,7 +10,7 @@ class User:
     name: str
     note: str
     blocked: bool
-    role: str
+    role: Role
 
     def to_json(self):
         return {
@@ -18,5 +20,5 @@ class User:
             "name": self.name,
             "note": self.note,
             "blocked": self.blocked,
-            "role": self.role
+            "role": self.role.to_json()
         }
