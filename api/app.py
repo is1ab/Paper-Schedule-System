@@ -3,6 +3,7 @@ from typing import Any, Mapping
 
 from auth.route import auth_bp
 from schedule.route import schedule_bp
+from setting.route import setting_bp
 from user.route import user_bp
 
 def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
@@ -16,5 +17,6 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(schedule_bp)
+    app.register_blueprint(setting_bp)
 
     return app
