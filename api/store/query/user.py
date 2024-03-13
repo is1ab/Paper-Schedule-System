@@ -32,16 +32,16 @@ def get_user(account: str) -> User | None:
 
 
 def get_users() -> List[User]:
-    with connection.cursor(row_factory=class_row(User)) as cursor:
+    with connection.cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
             from "user" u 
             join "role" r on r.id = u."role";       
         """
         cursor.execute(sql)
-        result: List[User] = cursor.fetchall()
+        results: List[dict[str, Any]] = cursor.fetchall()
         cursor.close()
-        return User(
+        return [User(
             result["id"],
             result["account"],
             result["name"],
@@ -52,9 +52,9 @@ def get_users() -> List[User]:
                 result["roleId"],
                 result["roleName"]
             )
-        )
+        ) for result in results]
 
-        
+
 def add_user(user: User) -> None:
     try:
         with connection.cursor() as cursor:
