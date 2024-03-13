@@ -1,17 +1,18 @@
-import re
-from typing import Any
+from typing import Any, List
 
 from flask import Blueprint, make_response, request
-from firebase.firestore_util import add_user_to_firebase, fetch_user_from_firebase, fetch_users_from_firebase, set_user_to_firebase
 
+import store.query.user as user_db
 from auth.jwt_util import fetch_token, decode_jwt
+from store.model.user import User
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
 @user_bp.route("/<id>/userInfo", methods=["GET"])
 def get_user_info(id: str):
-    data: dict[str, Any] = fetch_user_from_firebase(id)
-    return make_response({"status": "OK", "data": data})
+    user: User | None = user_db.get_user(id)
+    assert user is not None
+    return make_response({"status": "OK", "data": user.to_json()})
 
 
 @user_bp.route("/userInfo", methods=["GET"])
@@ -42,18 +43,23 @@ def add_user():
         "note": payload["note"],
         "blocked": False
     }
+    user_info_model |= {"account": user_id}
 
-    add_user_to_firebase(user_id, user_info_model)
+    user_db.add_user(User(**user_info_model))
     return make_response({"status": "OK", "message": f"User {user_id} added."})
 
 
-@user_bp.route("/<user_id>", methods=["PUT"])
-def modify_user(user_id: str):
+@user_bp.route("/<account>", methods=["PUT"])
+def modify_user(account: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
 
+    user: User | None = user_db.get_user(account)
+    assert user is not None
+
     user_info_model: dict[str, Any] = {
-        "id": user_id,
+        "id": user.id,
+        "account": user.account,
         "name": payload["name"],
         "role": payload["role"],
         "email": payload["email"],
@@ -61,45 +67,49 @@ def modify_user(user_id: str):
         "blocked": False
     }
 
-    set_user_to_firebase(user_id, user_info_model)
-    return make_response({"status": "OK", "message": f"User {user_id} set."})
+    user_db.set_user(account, User(**user_info_model))
+    return make_response({"status": "OK", "message": f"User {account} set."})
 
 
-@user_bp.route("/<user_id>/blocked", methods=["POST"])
-def blocked_user(user_id: str):
-    payload: dict[str, Any] = fetch_user_from_firebase(user_id)
+@user_bp.route("/<account>/blocked", methods=["POST"])
+def blocked_user(account: str):
+    user: User | None = user_db.get_user(account)
+    assert user is not None
 
     user_info_model: dict[str, Any] = {
-        "id": user_id,
-        "name": payload["name"],
-        "role": payload["role"],
-        "email": payload["email"],
-        "note": payload["note"],
+        "id": user.id,
+        "account": user.account,
+        "name": user.name,
+        "role": user.role,
+        "email": user.email,
+        "note": user.note,
         "blocked": True
     }
 
-    set_user_to_firebase(user_id, user_info_model)
-    return make_response({"status": "OK", "message": f"User {user_id} blocked."})
+    user_db.set_user(account, User(**user_info_model))
+    return make_response({"status": "OK", "message": f"User {account} blocked."})
 
 
-@user_bp.route("/<user_id>/unblocked", methods=["POST"])
-def unblocked_user(user_id: str):
-    payload: dict[str, Any] = fetch_user_from_firebase(user_id)
-    
+@user_bp.route("/<account>/unblocked", methods=["POST"])
+def unblocked_user(account: str):
+    user: User | None = user_db.get_user(account)
+    assert user is not None
+
     user_info_model: dict[str, Any] = {
-        "id": user_id,
-        "name": payload["name"],
-        "role": payload["role"],
-        "email": payload["email"],
-        "note": payload["note"],
-        "blocked": False
+        "id": user.id,
+        "account": user.account,
+        "name": user.name,
+        "role": user.role,
+        "email": user.email,
+        "note": user.note,
+        "blocked": True
     }
 
-    set_user_to_firebase(user_id, user_info_model)
-    return make_response({"status": "OK", "message": f"User {user_id} unblocked."})
+    user_db.set_user(account, User(**user_info_model))
+    return make_response({"status": "OK", "message": f"User {account} unblocked."})
 
 
 @user_bp.route("/", methods=["GET"])
 def get_users():
-    data: dict[str, Any] = fetch_users_from_firebase()
-    return make_response({"status": "OK", "data": data})
+    users: List[User] = user_db.get_users()
+    return make_response({"status": "OK", "data": [user.to_json() for user in users]})

@@ -2,7 +2,6 @@ from typing import Any
 
 from flask import Blueprint, make_response, request
 
-from firebase.firestore_util import fetch_schedule_from_firebase, fetch_schedules_from_firebase, add_schedule_to_firebase, modified_schedule_to_firebase, remove_schedule_from_firebase
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 

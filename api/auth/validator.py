@@ -4,8 +4,9 @@ from http import HTTPStatus
 
 from flask import Response, request
 
-from firebase.firestore_util import fetch_user_from_firebase
+import store.query.user as user_db
 from util import make_single_message_response
+from store.model.user import User
 
 T = TypeVar("T")
 
@@ -19,10 +20,10 @@ def validate_user_id_should_be_able_to_access_or_return_http_status_code_401(
         assert payload is not None
 
         account: str = payload["username"]
-        data: dict[str, Any] = fetch_user_from_firebase(account)
+        user: User | None = user_db.get_user(account)
 
-        if data == {}:
-            return make_single_message_response(HTTPStatus.UNAUTHORIZED, "登入失敗，請確認帳號與密碼")
+        if user == None:
+            return make_single_message_response(HTTPStatus.UNAUTHORIZED, "登入失敗，目前沒有權限登入這個系統")
 
         return func(*args, **kwargs)
 
