@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from typing import Any, Mapping
 
@@ -18,5 +19,8 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(user_bp)
     app.register_blueprint(schedule_bp)
     app.register_blueprint(setting_bp)
+
+    os.mkdir("/tmp/pss")
+    os.mkdir("/tmp/pss/attachment")
 
     return app

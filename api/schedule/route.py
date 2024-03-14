@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from typing import Any
-from urllib.parse import urlparse
+from uuid import uuid4
 
 from flask import Blueprint, make_response, request
 
@@ -89,6 +89,17 @@ def modified_schedule(schedule_uuid: str):
     schedule_db.modify_schedule(new_schedule)
 
     return make_response({"status": "OK", "message": f"Payload modified."})
+
+
+@schedule_bp.route("/upload_attachment", methods=["POST"])
+def upload_attachment():
+    data: bytes = request.get_data()
+
+    file_uuid: str = str(uuid4())
+    with open(f"/tmp/pss/attachment/{file_uuid}.pdf", "wb") as file:
+        file.write(data)
+
+    return make_response({"status": "OK", "data": f"{file_uuid}"})
 
 
 @schedule_bp.route("/put_off", methods=["POST"])
