@@ -2,20 +2,22 @@ from typing import Any
 
 from flask import Blueprint, make_response, request
 
+import store.query.schedule as schedule_db
+from store.model.schedule import Schedule
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
 
 @schedule_bp.route("/", methods=["GET"])
 def get_all_schedules():
-    schedules: list[dict[str, Any]] = fetch_schedules_from_firebase()
-    return make_response({"status": "OK", "data": schedules})
+    schedules: list[Schedule] = schedule_db.get_schedules()
+    return make_response({"status": "OK", "data": [schedule for schedule in schedules]})
 
 
-@schedule_bp.route("/<id>", methods=["GET"])
-def get_schedule(id: str):
-    schedule: dict[str, Any] = fetch_schedule_from_firebase(id)
-    return make_response({"status": "OK", "data": schedule})
+@schedule_bp.route("/<schedule_uuid>", methods=["GET"])
+def get_schedule(schedule_uuid: str):
+    schedule: Schedule = schedule_db.get_schedule(schedule_uuid)
+    return make_response({"status": "OK", "data": schedule.to_json()})
 
 
 @schedule_bp.route("/", methods=["POST"])
