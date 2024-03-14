@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any, List
 
 from psycopg.rows import class_row, dict_row
@@ -15,6 +14,7 @@ def get_schedules() -> List[Schedule]:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id
+            where s.archived = false
             """
         cursor.execute(sql)
         results: List[dict[str, Any]] = cursor.fetchall()
@@ -43,7 +43,7 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id 
-            where s.id = %s
+            where s.id = %s and s.archived = false
             """
         cursor.execute(sql, (schedule_uuid,))
         result: dict[str, Any] = cursor.fetchone()
@@ -63,11 +63,12 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
             "attachments": [attachment for attachment in attachments]
         })
 
-
 def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
     with connection.cursor(row_factory=class_row(ScheduleAttachment)) as cursor:
         sql: str = """
-            select * from schedule_attachment sa where sa."scheduleId" = %s
+            select sa.* from schedule_attachment sa 
+            join schedule s on s.id = sa."scheduleId"
+            where sa."scheduleId" = %s and s.archived = false
             """
         cursor.execute(sql, (schedule_uuid,))
         results: List[ScheduleAttachment] = cursor.fetchall()
