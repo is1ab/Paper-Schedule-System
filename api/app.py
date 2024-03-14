@@ -20,7 +20,6 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(schedule_bp)
     app.register_blueprint(setting_bp)
 
-    os.mkdir("/tmp/pss")
-    os.mkdir("/tmp/pss/attachment")
+    os.makedirs("/tmp/pss/attachment", exist_ok=True)
 
     return app

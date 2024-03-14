@@ -7,13 +7,17 @@ export class BaseService {
         this._token = token;
     }
 
-    getAxiosRequestConfig = () => {
+    getAxiosRequestConfig = (isPDF: boolean = false) => {
         const config: AxiosRequestConfig = {
             baseURL: `/api/`,
         };
 
         if (this._token !== null && this._token !== "") {
             config.headers = { Authorization: "Bearer " + this._token };
+        }
+
+        if (isPDF){
+            config.headers = { ...config.headers, "Content-Type": "application/pdf"}
         }
 
         return config;

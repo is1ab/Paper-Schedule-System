@@ -29,7 +29,7 @@ def get_schedule(schedule_uuid: str):
     return make_response({"status": "OK", "data": schedule.to_json()})
 
 
-@schedule_bp.route("/check/duplicate_url", methods=["GET"])
+@schedule_bp.route("/check/duplicate_url", methods=["POST"])
 def check_duplicate_url():
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None

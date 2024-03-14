@@ -1,13 +1,33 @@
 import { faCalendarCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Button, Card, Container, Form } from "react-bootstrap";
+import { Button, Container, Form } from "react-bootstrap";
 import { Steps, Uploader } from "rsuite";
+import { useAppDispatch } from "../store/hook";
+import { checkDuplicateUrl } from "../store/dataApi/ScheduleApiSlice";
+import Swal from "sweetalert2";
 
 function AddSchedule(){
+    const dispatch = useAppDispatch()
     const [ current, setCurrent ] = useState<number>(0);
+    const [ name, setName ] = useState<string>("");
+    const [ url, setUrl ] = useState<string>("");
     const handleInfo = () => {
-        setCurrent(current + 1)
+        dispatch(checkDuplicateUrl(url)).then((response) => {
+            if(response.meta.requestStatus == 'fulfilled'){
+                setCurrent(current + 1)
+            }else{
+                Swal.fire({
+                    icon: "error",
+                    title: "該論文已被報告過",
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            }
+        })
+    }
+    const backPerviousStep = () => {
+        setCurrent(current - 1)
     }
     const handleDetailInfo = () => {
         setCurrent(current + 1)
@@ -40,12 +60,16 @@ function AddSchedule(){
                             <Form.Label>論文名稱</Form.Label>
                             <Form.Control
                                 type="text"
+                                onChange={(e) => setName(e.target.value)}
+                                value={name}
                             />
                         </div>
                         <div className="p-2 w-50">
                             <Form.Label>論文 doi</Form.Label>
                             <Form.Control
                                 type="text"
+                                onChange={(e) => setUrl(e.target.value)}
+                                value={url}
                             />
                         </div>
                     </div>
@@ -69,7 +93,7 @@ function AddSchedule(){
                         </div>
                     </div>
                     <div className="w-100 d-flex justify-content-end p-2 gap-3">
-                        <Button className="ml-auto border" variant={"light"}>上一步</Button>
+                        <Button className="ml-auto border" variant={"light"} onClick={() => backPerviousStep()}>上一步</Button>
                         <Button className="ml-auto" variant={"primary"} onClick={() => handleDetailInfo()}>提交報告簡介</Button>
                     </div>
                 </div>
@@ -83,7 +107,12 @@ function AddSchedule(){
                     <div className="d-flex">
                         <div className="p-2 w-100">
                             <Form.Label>論文附件</Form.Label>
-                            <Uploader className="text-center text-secondary" action="//jsonplaceholder.typicode.com/posts/" draggable style={{cursor: "pointer"}}>
+                            <Uploader 
+                                className="text-center text-secondary" 
+                                draggable 
+                                action="/api/schedule/upload_attachment"
+                                style={{cursor: "pointer"}}
+                            >
                                 <div style={{lineHeight: "200px"}}>Click or Drag files to this area to upload</div>
                             </Uploader>
                         </div>
