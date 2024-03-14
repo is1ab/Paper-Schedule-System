@@ -62,6 +62,35 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
             "user": user,
             "attachments": [attachment for attachment in attachments]
         })
+    
+def get_schedule_by_url(url: str) -> Schedule | None:
+    with connection.cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
+            join schedule_status ss on s.status = ss.id 
+            where s.link = %s and s.archived = false
+            """
+        cursor.execute(sql, (url,))
+        result: dict[str, Any] | None = cursor.fetchone()
+
+        if result is None:
+            return None
+
+        user: User | None = user_db.get_user(result["userId"])
+        attachments: List[ScheduleAttachment] = get_schedule_attachments(result["id"])
+        return Schedule(**{
+            "id": result["id"],
+            "name": result["name"],
+            "link": result["link"],
+            "description": result["description"],
+            "datetime": result["date"],
+            "status": ScheduleStatus(**{
+                "id": result["statusId"],
+                "name": result["statusName"]
+            }),
+            "user": user,
+            "attachments": [attachment for attachment in attachments]
+        })
 
 def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
     with connection.cursor(row_factory=class_row(ScheduleAttachment)) as cursor:

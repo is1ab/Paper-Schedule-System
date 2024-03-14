@@ -1,9 +1,12 @@
+from http import HTTPStatus
 from typing import Any
+from urllib.parse import urlparse
 
 from flask import Blueprint, make_response, request
 
 import store.query.schedule as schedule_db
 from store.model.schedule import Schedule
+from util import make_single_message_response
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
@@ -18,6 +21,21 @@ def get_all_schedules():
 def get_schedule(schedule_uuid: str):
     schedule: Schedule = schedule_db.get_schedule(schedule_uuid)
     return make_response({"status": "OK", "data": schedule.to_json()})
+
+
+@schedule_bp.route("/check/duplicate_url", methods=["GET"])
+def check_duplicate_url():
+    payload: dict[str, Any] | None = request.get_json(silent=True)
+    assert payload is not None
+
+    url: str = payload["url"]
+    schedule1: Schedule | None = schedule_db.get_schedule_by_url(url)
+    schedule2: Schedule | None = schedule_db.get_schedule_by_url(url + "/")
+
+    if schedule1 is not None or schedule2 is not None:
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "URL already exists.")
+    
+    return make_response({"status": "OK"})
 
 
 @schedule_bp.route("/", methods=["POST"])
