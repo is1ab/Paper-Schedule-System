@@ -5,7 +5,11 @@ from urllib.parse import urlparse
 from flask import Blueprint, make_response, request
 
 import store.query.schedule as schedule_db
+import store.query.user as user_db
+from auth.jwt_util import decode_jwt, fetch_token
 from store.model.schedule import Schedule
+from store.model.schedule_status import ScheduleStatus
+from store.model.user import User
 from util import make_single_message_response
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
@@ -19,7 +23,9 @@ def get_all_schedules():
 
 @schedule_bp.route("/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
-    schedule: Schedule = schedule_db.get_schedule(schedule_uuid)
+    schedule: Schedule | None = schedule_db.get_schedule(schedule_uuid)
+    assert schedule is not None
+
     return make_response({"status": "OK", "data": schedule.to_json()})
 
 
@@ -43,25 +49,46 @@ def add_schedule():
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
 
-    id: str = add_schedule_to_firebase(payload)
+    jwt: str = fetch_token(request.headers.get("Authorization"))
+    jwt_payload: dict[str, Any] = decode_jwt(jwt)
 
-    return make_response({"status": "OK", "message": f"Payload added. key={id}"})
+    user_object: User = user_db.get_user(jwt_payload["studentId"])
+    schedule_status: ScheduleStatus = schedule_db.get_schedule_status("1")
+    schedule = Schedule(
+        name=payload["name"],
+        link=payload["link"],
+        description=payload["description"],
+        status=schedule_status,
+        user=user_object,
+        attachments=[]
+    )
+
+    schedule_db.add_schedule(schedule)
+
+    return make_response({"status": "OK", "message": f"Payload added. key={schedule.id}"})
 
 
-@schedule_bp.route("/<id>", methods=["PUT"])
-def modified_schedule(id: str):
+@schedule_bp.route("/<schedule_uuid>", methods=["PUT"])
+def modified_schedule(schedule_uuid: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
 
-    modified_schedule_to_firebase(id, payload)
+    schedule = schedule_db.get_schedule(schedule_uuid)
+    new_schedule = Schedule(
+        id=schedule.id,
+        name=payload["name"],
+        link=payload["link"],
+        description=payload["description"],
+        status=schedule.status,
+        user=schedule.user,
+        attachments=schedule.attachments,
+        schedule_datetime=schedule.schedule_datetime,
+        archived=payload["archived"]
+    )
+
+    schedule_db.modify_schedule(new_schedule)
 
     return make_response({"status": "OK", "message": f"Payload modified."})
-
-
-@schedule_bp.route("/<id>", methods=["DELETE"])
-def delete_schedule(id: str):
-    remove_schedule_from_firebase(id)
-    return make_response({"status": "OK"})
 
 
 @schedule_bp.route("/put_off", methods=["POST"])

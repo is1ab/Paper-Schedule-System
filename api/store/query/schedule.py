@@ -54,7 +54,7 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
             "name": result["name"],
             "link": result["link"],
             "description": result["description"],
-            "datetime": result["date"],
+            "schedule_datetime": result["date"],
             "status": ScheduleStatus(**{
                 "id": result["statusId"],
                 "name": result["statusName"]
@@ -102,3 +102,62 @@ def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
         cursor.execute(sql, (schedule_uuid,))
         results: List[ScheduleAttachment] = cursor.fetchall()
         return results
+
+def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
+    with connection.cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            select * from schedule_status ss 
+            where ss.id = %s
+            """
+        cursor.execute(sql, (schedule_status_id,))
+        result: dict[str, Any] | None = cursor.fetchone()
+
+        if result == None:
+            return None
+
+        return ScheduleStatus(id=result["id"], name=result["status"])
+
+def add_schedule(schedule: Schedule) -> None:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                insert into public.schedule
+                ("name", link, description, "date", status, "userId", archived)
+                values(%s, %s, %s, %s, %s, %s, %s);
+            """
+            cursor.execute(sql, (
+                schedule.name, 
+                schedule.link, 
+                schedule.description, 
+                schedule.schedule_datetime, 
+                schedule.status.id, 
+                schedule.user.account, 
+                schedule.archived
+            ))
+            connection.commit()
+    except Exception as e:
+        connection.rollback()
+        raise e
+    
+def modify_schedule(schedule: Schedule) -> None:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                update schedule 
+                set name=%s, link=%s, description=%s, date=%s, status=%s, "userId"=%s, archived=%s
+                where id=%s
+            """
+            cursor.execute(sql, (
+                schedule.name, 
+                schedule.link, 
+                schedule.description, 
+                schedule.schedule_datetime, 
+                schedule.status.id, 
+                schedule.user.account, 
+                schedule.archived,
+                schedule.id
+            ))
+            connection.commit()
+    except Exception as e:
+        connection.rollback()
+        raise e
