@@ -1,3 +1,5 @@
+import { UserType } from "../user/userType"
+
 export interface AddSchedulePayloadType {
     name: string,
     link: string,
@@ -8,4 +10,19 @@ export interface AddSchedulePayloadType {
 export interface AddScheduleAttachmentPayloadType {
     fileKey: string,
     realName: string
+}
+
+export interface ScheduleType {
+    datetime: string,
+    description: string,
+    id: string,
+    link: string,
+    name: string,
+    status: ScheduleStatusType,
+    user: UserType
+}
+
+export interface ScheduleStatusType {
+    id: number,
+    name: string
 }

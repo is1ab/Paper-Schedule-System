@@ -28,7 +28,7 @@ def get_schedules() -> List[Schedule]:
                 "name": result["name"],
                 "link": result["link"],
                 "description": result["description"],
-                "datetime": result["date"],
+                "schedule_datetime": result["date"],
                 "status": ScheduleStatus(**{
                     "id": result["statusId"],
                     "name": result["statusName"]
@@ -93,15 +93,21 @@ def get_schedule_by_url(url: str) -> Schedule | None:
         })
 
 def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
-    with connection.cursor(row_factory=class_row(ScheduleAttachment)) as cursor:
+    with connection.cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select sa.* from schedule_attachment sa 
             join schedule s on s.id = sa."scheduleId"
             where sa."scheduleId" = %s and s.archived = false
             """
         cursor.execute(sql, (schedule_uuid,))
-        results: List[ScheduleAttachment] = cursor.fetchall()
-        return results
+        results: List[dict[str, Any]] = cursor.fetchall()
+        return [ScheduleAttachment(
+            id=result["id"],
+            schedule_id=result["scheduleId"],
+            file_real_name=result["fileRealName"],
+            file_virtual_name=result["fileName"],
+            file_type=result["fileType"]
+        ) for result in results]
 
 def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
     with connection.cursor(row_factory=dict_row) as cursor:

@@ -21,4 +21,8 @@ export class ScheduleService extends BaseService {
     add_schedule = (payload: AddSchedulePayloadType) => {
         return axios.post("/schedule/", payload, this.getAxiosRequestConfig())
     }
+
+    get_all_schedule = () => {
+        return axios.get("/schedule/", this.getAxiosRequestConfig())
+    }
 }

@@ -1,6 +1,6 @@
 from dataclasses import field, dataclass
 from datetime import datetime
-from typing import List
+from typing import Any, List
 
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
@@ -18,14 +18,21 @@ class Schedule:
     schedule_datetime: datetime | None = None
     archived: bool = False
 
+    def get_format_datetime(self):
+        return None if self.schedule_datetime == None else self.schedule_datetime.isoformat()
+
     def to_json(self):
+        json: dict[str, Any] = self.to_json_without_attachment()
+        json |= {"attachment": [attachment.to_json() for attachment in self.attachments]}
+        return json
+    
+    def to_json_without_attachment(self):
         return {
             "id": self.id,
             "name": self.name,
             "link": self.link,
             "description": self.description,
-            "datetime": self.schedule_datetime,
+            "datetime": self.get_format_datetime(),
             "status": self.status.to_json(),
             "user": self.user.to_json(),
-            "attachment": [attachment.to_json() for attachment in self.attachments]
         }

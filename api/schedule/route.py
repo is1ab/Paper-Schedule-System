@@ -24,7 +24,7 @@ schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 @schedule_bp.route("/", methods=["GET"])
 def get_all_schedules():
     schedules: list[Schedule] = schedule_db.get_schedules()
-    return make_response({"status": "OK", "data": [schedule for schedule in schedules]})
+    return make_response({"status": "OK", "data": [schedule.to_json_without_attachment() for schedule in schedules]})
 
 
 @schedule_bp.route("/<schedule_uuid>", methods=["GET"])
