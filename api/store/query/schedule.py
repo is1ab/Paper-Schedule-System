@@ -117,13 +117,14 @@ def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
 
         return ScheduleStatus(id=result["id"], name=result["status"])
 
-def add_schedule(schedule: Schedule) -> None:
+def add_schedule(schedule: Schedule) -> str:
     try:
         with connection.cursor() as cursor:
             sql: str = """
                 insert into public.schedule
                 ("name", link, description, "date", status, "userId", archived)
-                values(%s, %s, %s, %s, %s, %s, %s);
+                values(%s, %s, %s, %s, %s, %s, %s)
+                returning id;
             """
             cursor.execute(sql, (
                 schedule.name, 
@@ -134,7 +135,9 @@ def add_schedule(schedule: Schedule) -> None:
                 schedule.user.account, 
                 schedule.archived
             ))
+            id: str = cursor.fetchone()[0]
             connection.commit()
+            return id
     except Exception as e:
         connection.rollback()
         raise e

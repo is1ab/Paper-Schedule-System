@@ -2,14 +2,16 @@ from dataclasses import dataclass
 
 @dataclass
 class ScheduleAttachment:
-    id: str
     scheduleId: str
-    fileName: str
-    fileType: str
+    file_virtual_name: str
+    file_real_name: str
+    file_type: str
+    id: str = ""
 
     def to_json(self):
         return {
             "id": self.id,
-            "name": self.fileName,
-            "type": self.fileType
+            "virtualName": self.file_virtual_name,
+            "realName": self.file_real_name,
+            "type": self.file_type
         }

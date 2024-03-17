@@ -1,12 +1,31 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { ScheduleService } from "./WebService/ScheduleService"
 import { RootState } from "../store"
+import { AddSchedulePayloadType } from "../../type/schedule/ScheduleType"
 
 export const scheduleApiSlice = createSlice({
     name: 'scheduleApiSlice',
     initialState: {},
     reducers: {},
 })
+
+export const addSchedule = createAsyncThunk(
+    'scheduleApi/addSchedule',
+    async (payload: AddSchedulePayloadType, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new ScheduleService(token);
+            const res = await service.add_schedule(payload)
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`scheduleApi/addSchedule: ${err}`)
+            })
+        }
+    }
+)
 
 export const checkDuplicateUrl = createAsyncThunk(
     'scheduleApi/checkDuplicateUrl',

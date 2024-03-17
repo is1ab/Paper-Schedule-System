@@ -4,18 +4,23 @@ import { useState } from "react";
 import { Button, Container, Form } from "react-bootstrap";
 import { Steps, Uploader } from "rsuite";
 import { useAppDispatch } from "../store/hook";
-import { checkDuplicateUrl } from "../store/dataApi/ScheduleApiSlice";
+import { addSchedule, checkDuplicateUrl } from "../store/dataApi/ScheduleApiSlice";
 import Swal from "sweetalert2";
 import { FileType } from "rsuite/esm/Uploader";
 import _ from "lodash"
+import { AddSchedulePayloadType, AddScheduleAttachmentPayloadType } from "../type/schedule/ScheduleType";
+import LoadingBox from "./components/LoadingBox";
+import { useNavigate } from "react-router-dom";
 
 function AddSchedule(){
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
     const [ current, setCurrent ] = useState<number>(0);
     const [ name, setName ] = useState<string>("");
     const [ url, setUrl ] = useState<string>("");
     const [ description, setDescription ] = useState<string>("");
     const [ fileList, setFileList ] = useState<{virtualFileName: string, realFile: FileType}[]>([]);
+    const [ isSending, setIsSending ] = useState<boolean>(false)
     const handleInfo = () => {
         dispatch(checkDuplicateUrl(url)).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
@@ -38,7 +43,6 @@ function AddSchedule(){
     }
     const handleAttachmentRemove = (file: FileType) => {
         const newList = _.remove(fileList, (bundle, _value, _array) => bundle.realFile.name != file.name)
-        debugger;
         setFileList(newList)
     }
     const getRsuiteFormatFileList = (): FileType[] => {
@@ -52,6 +56,25 @@ function AddSchedule(){
     }
     const handleAttachment = () => {
         setCurrent(current + 1)
+    }
+    const handleSubmit = () => {
+        setIsSending(true)
+        setCurrent(current + 1)
+        dispatch(addSchedule({
+            name: name,
+            link: url,
+            description: description,
+            attachments: fileList.map((bundle) => {
+                return {
+                    fileKey: bundle.virtualFileName,
+                    realName: bundle.realFile
+                } as AddScheduleAttachmentPayloadType
+            })
+        } as AddSchedulePayloadType)).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                setIsSending(false)
+            }
+        })
     }
     const PreviousStepButton = () => {
         return (
@@ -195,28 +218,32 @@ function AddSchedule(){
                     </div>
                     <div className="w-100 d-flex justify-content-end p-2 gap-3">
                         <PreviousStepButton />
-                        <Button className="ml-auto" variant={"primary"} onClick={() => handleAttachment()}>送出</Button>
+                        <Button className="ml-auto" variant={"primary"} onClick={() => handleSubmit()}>送出</Button>
                     </div>
                 </div>
             }
             {current == 4 && 
                 <div className="w-100 border rounded p-5 d-flex flex-column gap-5">
-                    <div className="d-flex flex-column gap-4">
-                        <div className="mx-auto my-auto d-flex flex-row gap-4">
-                            <div className="d-flex flex-column justify-content-center">
-                                <FontAwesomeIcon icon={faCalendarCheck} size="2xl"></FontAwesomeIcon>
+                    { isSending ? 
+                        <LoadingBox /> : 
+                        <>
+                            <div className="d-flex flex-column gap-4">
+                                <div className="mx-auto my-auto d-flex flex-row gap-4">
+                                    <div className="d-flex flex-column justify-content-center">
+                                        <FontAwesomeIcon icon={faCalendarCheck} size="2xl"></FontAwesomeIcon>
+                                    </div>
+                                    <div className="d-flex flex-column">
+                                        <h4 className="text-center my-auto"> 報告請求新增成功 </h4>
+                                        <p className="text-center my-0">請等待系統管理員進行審核</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="d-flex flex-column">
-                                <h4 className="text-center my-auto"> 報告請求新增成功 </h4>
-                                <p className="text-center my-0">請等待系統管理員進行審核</p>
+                            <div className="mx-auto d-flex flex-row gap-4">
+                                <Button className="ml-auto" variant={"secondary"} onClick={() => {navigate("/")}}>回到首頁</Button>
+                                <Button className="ml-auto" variant={"primary"} onClick={() => {navigate("/Event")}}>查看已審核完成之活動</Button>
                             </div>
-                        </div>
-                    </div>
-                    <div className="mx-auto d-flex flex-row gap-4">
-                        <Button className="ml-auto" variant={"secondary"}>回到首頁</Button>
-                        <Button className="ml-auto" variant={"primary"}>查看已審核完成之活動</Button>
-                        <Button className="ml-auto" variant={"success"}>查看個人資料</Button>
-                    </div>
+                        </>
+                    }
                 </div>
             }
         </Container>

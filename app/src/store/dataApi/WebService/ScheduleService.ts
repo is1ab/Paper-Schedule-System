@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import { BaseService } from "./BaseService";
+import { AddSchedulePayloadType } from "../../../type/schedule/ScheduleType";
 
 export class ScheduleService extends BaseService {
     constructor (token: string | null = null){
@@ -15,5 +16,9 @@ export class ScheduleService extends BaseService {
 
     upload_attachment = (formData: FormData) => {
         return axios.post("/schedule/upload_attachment", formData, this.getAxiosRequestConfig(true))
+    }
+
+    add_schedule = (payload: AddSchedulePayloadType) => {
+        return axios.post("/schedule/", payload, this.getAxiosRequestConfig())
     }
 }

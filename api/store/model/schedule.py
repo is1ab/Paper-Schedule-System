@@ -13,7 +13,7 @@ class Schedule:
     description: str
     status: ScheduleStatus
     user: User
-    attachments: List[ScheduleAttachment]
+    attachments: List[ScheduleAttachment] = field(default_factory=list)
     id: str = ""
     schedule_datetime: datetime | None = None
     archived: bool = False
