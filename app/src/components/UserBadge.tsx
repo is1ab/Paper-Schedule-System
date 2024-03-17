@@ -3,13 +3,12 @@ import { Avatar } from "rsuite";
 import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { removeToken } from "../store/dataApi/AuthApiSlice";
 import Logo from "../assets/logo.png"
 
 function UserBadge(){
     const dispatch = useAppDispatch()
-    const navigate = useNavigate()
     const { state } = useLocation()
     const [ isLogin, setIsLogin ] = useState<boolean | undefined>(undefined);
     const [ username, setUsername ] = useState<string>("");

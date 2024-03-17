@@ -1,4 +1,4 @@
-import { Badge, Container, OverlayTrigger, Popover } from "react-bootstrap";
+import { Container, Popover } from "react-bootstrap";
 import { Avatar, Calendar, Tooltip, Whisper } from "rsuite";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
@@ -58,7 +58,7 @@ function Event(){
 
             return (
                 <div key={"date-cell-" + date.getDay()} className="py-2">
-                    {displayEvents.map((item, index) => {
+                    {displayEvents.map((item, _index) => {
                         return (
                             <Whisper 
                                 followCursor 
