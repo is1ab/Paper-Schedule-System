@@ -33,12 +33,12 @@ function Event(){
             const moreCount = dateEvents.length - displayEvents.length;
             const MoreItem = () => {
                 return (
-                    <li>
+                    <div>
                         <Whisper
                             placement="top"
-                            trigger="click"
+                            followCursor
                             speaker={
-                                <Popover>
+                                <Tooltip>
                                     {dateEvents.map((item, index) => {
                                             return (
                                                 <p key={index}>
@@ -47,17 +47,17 @@ function Event(){
                                             )
                                         })
                                     }
-                                </Popover>
+                                </Tooltip>
                             }
                         >
                             <a>查看其他 {moreCount} 項</a>
                         </Whisper>
-                    </li>
+                    </div>
                 )
             }
 
             return (
-                <div key={"date-cell-" + date.getDay()} className="py-2">
+                <div key={"date-cell-" + date.getDay()} className="">
                     {displayEvents.map((item, _index) => {
                         return (
                             <Whisper 
