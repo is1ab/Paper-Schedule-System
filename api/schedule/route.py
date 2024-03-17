@@ -13,6 +13,8 @@ from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.user import User
 from store.storage import check_tmp_files_exists
+from store.storage.real import RealStorage
+from store.storage.temp import TempStorage
 from store.storage.tunnel_type import TunnelCode
 from util import make_single_message_response
 
@@ -59,31 +61,38 @@ def add_schedule():
     user_object: User = user_db.get_user(jwt_payload["studentId"])
     schedule_status: ScheduleStatus = schedule_db.get_schedule_status("1")
 
+    # Handle attachment copy
     for attachment in payload["attachments"]:
         fileKey: str = attachment["fileKey"]
-        uuid = UUID(f"{fileKey}")
-        if not check_tmp_files_exists(str(uuid), "pdf", TunnelCode.ATTACHMENT):
-            return make_single_message_response(HTTPStatus.FORBIDDEN, f"File {str(uuid)} not exists.")
-    
-        with db.connection.transaction():
-            schedule = Schedule(
-                name=payload["name"],
-                link=payload["link"],
-                description=payload["description"],
-                status=schedule_status,
-                user=user_object
-            )
-            schedule_id: str = schedule_db.add_schedule_with_no_commit(schedule)
+        temp_storage = TempStorage(TunnelCode.ATTACHMENT)
+        if not temp_storage.check_exists(file_name=fileKey, file_type="pdf"):
+            return make_single_message_response(HTTPStatus.FORBIDDEN, f"File {fileKey} not exists.")
+        else:
+            file_content = temp_storage.read_file_bytes(file_name=fileKey, file_type="pdf")
+            real_storage = RealStorage(TunnelCode.ATTACHMENT)
+            real_storage.touch_file(file_name=fileKey, file_type="pdf")
+            real_storage.write_file_bytes(file_name=fileKey, file_type="pdf", data=file_content)
 
-            attachments = [ScheduleAttachment(
-                schedule_id=schedule_id,
-                file_real_name=attachment["realName"],
-                file_virtual_name=attachment["fileKey"],
-                file_type="pdf"
-            ) for attachment in payload["attachments"]]
+    # Handle SQL Data Insertion
+    with db.connection.transaction():
+        schedule = Schedule(
+            name=payload["name"],
+            link=payload["link"],
+            description=payload["description"],
+            status=schedule_status,
+            user=user_object
+        )
+        schedule_id: str = schedule_db.add_schedule_with_no_commit(schedule)
 
-            for attachment in attachments:
-                schedule_db.add_schedule_attachments_with_no_commit(attachment)
+        attachments = [ScheduleAttachment(
+            schedule_id=schedule_id,
+            file_real_name=attachment["realName"],
+            file_virtual_name=attachment["fileKey"],
+            file_type="pdf"
+        ) for attachment in payload["attachments"]]
+
+        for attachment in attachments:
+            schedule_db.add_schedule_attachments_with_no_commit(attachment)
             
     return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}"})
 

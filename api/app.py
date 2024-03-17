@@ -22,7 +22,7 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(schedule_bp)
     app.register_blueprint(setting_bp)
 
-    tmp_path = Path(app.config["TMP_PATH"])
+    tmp_path = Path(app.config["TMP_STORAGE_PATH"])
     tmp_attachment_path = Path(tmp_path) / TunnelCode.ATTACHMENT.value
     os.makedirs(tmp_path, exist_ok=True)
     os.makedirs(tmp_attachment_path, exist_ok=True)
