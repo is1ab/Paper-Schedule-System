@@ -67,7 +67,7 @@ function AddSchedule(){
             attachments: fileList.map((bundle) => {
                 return {
                     fileKey: bundle.virtualFileName,
-                    realName: bundle.realFile
+                    realName: bundle.realFile.name
                 } as AddScheduleAttachmentPayloadType
             })
         } as AddSchedulePayloadType)).then((response) => {

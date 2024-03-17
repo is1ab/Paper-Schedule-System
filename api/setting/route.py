@@ -2,8 +2,8 @@ from typing import List
 
 from flask import Blueprint, make_response
 
-import store.query.role as role_db
-from store.model.role import Role
+import store.db.query.role as role_db
+from store.db.model.role import Role
 
 setting_bp = Blueprint("setting", __name__, url_prefix="/api/setting")
 

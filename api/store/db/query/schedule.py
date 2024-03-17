@@ -3,7 +3,7 @@ from typing import Any, List
 from psycopg.rows import class_row, dict_row
 
 import store.db.query.user as user_db
-from store.db import connection
+from store.db.db import connection
 from store.db.model.schedule import Schedule
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
@@ -117,7 +117,7 @@ def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
 
         return ScheduleStatus(id=result["id"], name=result["status"])
 
-def add_schedule(schedule: Schedule) -> str:
+def add_schedule_with_no_commit(schedule: Schedule, connection=connection) -> str:
     try:
         with connection.cursor() as cursor:
             sql: str = """
@@ -136,12 +136,32 @@ def add_schedule(schedule: Schedule) -> str:
                 schedule.archived
             ))
             id: str = cursor.fetchone()[0]
-            connection.commit()
             return id
     except Exception as e:
         connection.rollback()
         raise e
-    
+
+def add_schedule_attachments_with_no_commit(attachment: ScheduleAttachment, connection=connection):
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+            INSERT INTO public.schedule_attachment
+            ("scheduleId", "fileName", "fileType", "fileRealName")
+            VALUES(%s, %s, %s, %s)
+            returning id;
+            """
+            cursor.execute(sql, (
+                attachment.schedule_id,
+                attachment.file_virtual_name,
+                attachment.file_type,
+                attachment.file_real_name
+            ))
+            id: str = cursor.fetchone()[0]
+            return id
+    except Exception as e:
+        connection.rollback()
+        raise e    
+
 def modify_schedule(schedule: Schedule) -> None:
     try:
         with connection.cursor() as cursor:

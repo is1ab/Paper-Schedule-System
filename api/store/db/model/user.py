@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from store.model.role import Role
+from store.db.model.role import Role
 
 @dataclass
 class User:

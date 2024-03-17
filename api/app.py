@@ -1,10 +1,12 @@
 import os
 from flask import Flask
+from pathlib import Path
 from typing import Any, Mapping
 
 from auth.route import auth_bp
 from schedule.route import schedule_bp
 from setting.route import setting_bp
+from store.storage.tunnel_type import TunnelCode
 from user.route import user_bp
 
 def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
@@ -20,6 +22,9 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(schedule_bp)
     app.register_blueprint(setting_bp)
 
-    os.makedirs("/tmp/pss/attachment", exist_ok=True)
+    tmp_path = Path(app.config["TMP_PATH"])
+    tmp_attachment_path = Path(tmp_path) / TunnelCode.ATTACHMENT.value
+    os.makedirs(tmp_path, exist_ok=True)
+    os.makedirs(tmp_attachment_path, exist_ok=True)
 
     return app

@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from flask import Blueprint, make_response, request
 
+import store.db.db as db
 import store.db.query.schedule as schedule_db
 import store.db.query.user as user_db
 from auth.jwt_util import decode_jwt, fetch_token
@@ -11,6 +12,8 @@ from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.user import User
+from store.storage import check_tmp_files_exists
+from store.storage.tunnel_type import TunnelCode
 from util import make_single_message_response
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
@@ -59,19 +62,30 @@ def add_schedule():
     for attachment in payload["attachments"]:
         fileKey: str = attachment["fileKey"]
         uuid = UUID(f"{fileKey}")
-        # TODO: Check fileKey is exists.
+        if not check_tmp_files_exists(str(uuid), "pdf", TunnelCode.ATTACHMENT):
+            return make_single_message_response(HTTPStatus.FORBIDDEN, f"File {str(uuid)} not exists.")
     
-    schedule = Schedule(
-        name=payload["name"],
-        link=payload["link"],
-        description=payload["description"],
-        status=schedule_status,
-        user=user_object
-    )
+        with db.connection.transaction():
+            schedule = Schedule(
+                name=payload["name"],
+                link=payload["link"],
+                description=payload["description"],
+                status=schedule_status,
+                user=user_object
+            )
+            schedule_id: str = schedule_db.add_schedule_with_no_commit(schedule)
 
-    schedule_id: str = schedule_db.add_schedule(schedule)
+            attachments = [ScheduleAttachment(
+                schedule_id=schedule_id,
+                file_real_name=attachment["realName"],
+                file_virtual_name=attachment["fileKey"],
+                file_type="pdf"
+            ) for attachment in payload["attachments"]]
 
-    return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}"})
+            for attachment in attachments:
+                schedule_db.add_schedule_attachments_with_no_commit(attachment)
+            
+    return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}"})
 
 
 @schedule_bp.route("/<schedule_uuid>", methods=["PUT"])

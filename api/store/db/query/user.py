@@ -2,9 +2,9 @@ from typing import Any, List
 
 from psycopg.rows import dict_row
 
-from store.db import connection
-from store.model.role import Role
-from store.model.user import User
+from store.db.db import connection
+from store.db.model.role import Role
+from store.db.model.user import User
 
 def get_user(account: str) -> User | None:
     with connection.cursor(row_factory=dict_row) as cursor:

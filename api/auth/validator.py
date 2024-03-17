@@ -4,9 +4,9 @@ from http import HTTPStatus
 
 from flask import Response, request
 
-import store.query.user as user_db
+import store.db.query.user as user_db
 from util import make_single_message_response
-from store.model.user import User
+from store.db.model.user import User
 
 T = TypeVar("T")
 

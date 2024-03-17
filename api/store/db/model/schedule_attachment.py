@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ScheduleAttachment:
-    scheduleId: str
+    schedule_id: str
     file_virtual_name: str
     file_real_name: str
     file_type: str

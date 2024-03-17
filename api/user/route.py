@@ -2,9 +2,9 @@ from typing import Any, List
 
 from flask import Blueprint, make_response, request
 
-import store.query.user as user_db
+import store.db.query.user as user_db
 from auth.jwt_util import fetch_token, decode_jwt
-from store.model.user import User
+from store.db.model.user import User
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
