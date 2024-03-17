@@ -2,12 +2,12 @@ from typing import Any, List
 
 from psycopg.rows import class_row, dict_row
 
-import store.query.user as user_db
+import store.db.query.user as user_db
 from store.db import connection
-from store.model.schedule import Schedule
-from store.model.schedule_status import ScheduleStatus
-from store.model.schedule_attachment import ScheduleAttachment
-from store.model.user import User
+from store.db.model.schedule import Schedule
+from store.db.model.schedule_status import ScheduleStatus
+from store.db.model.schedule_attachment import ScheduleAttachment
+from store.db.model.user import User
 
 def get_schedules() -> List[Schedule]:
     with connection.cursor(row_factory=dict_row) as cursor:

@@ -2,9 +2,9 @@ from dataclasses import field, dataclass
 from datetime import datetime
 from typing import List
 
-from store.model.schedule_status import ScheduleStatus
-from store.model.schedule_attachment import ScheduleAttachment
-from store.model.user import User
+from store.db.model.schedule_status import ScheduleStatus
+from store.db.model.schedule_attachment import ScheduleAttachment
+from store.db.model.user import User
 
 @dataclass(kw_only=True)
 class Schedule:

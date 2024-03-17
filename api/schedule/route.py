@@ -4,13 +4,13 @@ from uuid import UUID, uuid4
 
 from flask import Blueprint, make_response, request
 
-import store.query.schedule as schedule_db
-import store.query.user as user_db
+import store.db.query.schedule as schedule_db
+import store.db.query.user as user_db
 from auth.jwt_util import decode_jwt, fetch_token
-from store.model.schedule import Schedule
-from store.model.schedule_attachment import ScheduleAttachment
-from store.model.schedule_status import ScheduleStatus
-from store.model.user import User
+from store.db.model.schedule import Schedule
+from store.db.model.schedule_attachment import ScheduleAttachment
+from store.db.model.schedule_status import ScheduleStatus
+from store.db.model.user import User
 from util import make_single_message_response
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
