@@ -6,12 +6,16 @@ import { Steps, Uploader } from "rsuite";
 import { useAppDispatch } from "../store/hook";
 import { checkDuplicateUrl } from "../store/dataApi/ScheduleApiSlice";
 import Swal from "sweetalert2";
+import { FileType } from "rsuite/esm/Uploader";
+import _ from "lodash"
 
 function AddSchedule(){
     const dispatch = useAppDispatch()
     const [ current, setCurrent ] = useState<number>(0);
     const [ name, setName ] = useState<string>("");
     const [ url, setUrl ] = useState<string>("");
+    const [ description, setDescription ] = useState<string>("");
+    const [ fileList, setFileList ] = useState<{virtualFileName: string, realFile: FileType}[]>([]);
     const handleInfo = () => {
         dispatch(checkDuplicateUrl(url)).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
@@ -26,6 +30,20 @@ function AddSchedule(){
             }
         })
     }
+    const handleAttachmentUploadSuccess = (response: {data: string, status: string}, file: FileType) => {
+        setFileList(fileList.concat({
+            virtualFileName: response.data,
+            realFile: file
+        }))
+    }
+    const handleAttachmentRemove = (file: FileType) => {
+        const newList = _.remove(fileList, (bundle, _value, _array) => bundle.realFile.name != file.name)
+        debugger;
+        setFileList(newList)
+    }
+    const getRsuiteFormatFileList = (): FileType[] => {
+        return fileList.map((bundle) => bundle.realFile);
+    }
     const backPerviousStep = () => {
         setCurrent(current - 1)
     }
@@ -35,10 +53,11 @@ function AddSchedule(){
     const handleAttachment = () => {
         setCurrent(current + 1)
     }
-    const fileList = [
-        { name: 'file1.jpg', fileKey: 1 },
-        { name: 'file2.jpg', fileKey: 2 }
-    ];
+    const PreviousStepButton = () => {
+        return (
+            <Button className="ml-auto border" variant={"light"} onClick={() => backPerviousStep()}>上一步</Button>
+        )
+    }
     return (
         <Container className="p-5 d-flex flex-column gap-4 mx-auto">
             <h2 className="text-center">新增論文報告請求</h2>
@@ -89,11 +108,13 @@ function AddSchedule(){
                             <Form.Label>報告簡介</Form.Label>
                             <Form.Control
                                 type="text"
+                                onChange={(e) => setDescription(e.target.value)}
+                                value={description}
                             />
                         </div>
                     </div>
                     <div className="w-100 d-flex justify-content-end p-2 gap-3">
-                        <Button className="ml-auto border" variant={"light"} onClick={() => backPerviousStep()}>上一步</Button>
+                        <PreviousStepButton />
                         <Button className="ml-auto" variant={"primary"} onClick={() => handleDetailInfo()}>提交報告簡介</Button>
                     </div>
                 </div>
@@ -112,13 +133,16 @@ function AddSchedule(){
                                 draggable 
                                 action="/api/schedule/upload_attachment"
                                 style={{cursor: "pointer"}}
+                                fileList={getRsuiteFormatFileList()}
+                                onSuccess={handleAttachmentUploadSuccess}
+                                onRemove={handleAttachmentRemove}
                             >
                                 <div style={{lineHeight: "200px"}}>Click or Drag files to this area to upload</div>
                             </Uploader>
                         </div>
                     </div>
                     <div className="w-100 d-flex justify-content-end p-2 gap-3">
-                        <Button className="ml-auto border" variant={"light"}>上一步</Button>
+                        <PreviousStepButton />
                         <Button className="ml-auto" variant={"primary"} onClick={() => handleAttachment()}>提交論文附件</Button>
                     </div>
                 </div>
@@ -136,6 +160,7 @@ function AddSchedule(){
                                 <Form.Control
                                     readOnly
                                     type="text"
+                                    value={name}
                                 />
                             </div>
                             <div className="p-2 w-50">
@@ -143,6 +168,7 @@ function AddSchedule(){
                                 <Form.Control
                                     readOnly
                                     type="text"
+                                    value={url}
                                 />
                             </div>
                         </div>
@@ -152,6 +178,7 @@ function AddSchedule(){
                                 <Form.Control
                                     readOnly
                                     type="text"
+                                    value={description}
                                 />
                             </div>
                         </div>
@@ -160,14 +187,14 @@ function AddSchedule(){
                                 <Form.Label>附件</Form.Label>
                                 <Uploader
                                     plaintext
-                                    defaultFileList={fileList}
-                                    action="//jsonplaceholder.typicode.com/posts/"
+                                    defaultFileList={getRsuiteFormatFileList()}
+                                    action=""
                                 />
                             </div>
                         </div>
                     </div>
                     <div className="w-100 d-flex justify-content-end p-2 gap-3">
-                        <Button className="ml-auto border" variant={"light"}>上一步</Button>
+                        <PreviousStepButton />
                         <Button className="ml-auto" variant={"primary"} onClick={() => handleAttachment()}>送出</Button>
                     </div>
                 </div>
