@@ -16,8 +16,13 @@ function User(){
     const [ avatar, setAvatar ] = useState<string | undefined>(Logo) 
     const [ isShowAvatarEditor, setIsShowAvatarEditor ] = useState<boolean>(false);
     const showAvatarEditor = () => setIsShowAvatarEditor(true)
-    const hideAvatarEditor = () => setIsShowAvatarEditor(false)
-
+    const hideAvatarEditor = () => {
+        if(fileInputRef.current == null){
+            return;
+        }
+        fileInputRef.current.value = ""
+        setIsShowAvatarEditor(false)
+    }
 
     useEffect(() => {
         dispatch(getSelfUserInfo()).then((response) => {
@@ -79,6 +84,8 @@ function User(){
                     title: "上傳成功",
                     timer: 2000,
                     showConfirmButton: false
+                }).then(() => {
+                    window.location.reload();
                 })
             }
         })
