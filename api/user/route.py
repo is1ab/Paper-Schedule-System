@@ -1,8 +1,10 @@
 from hashlib import sha256
 from http import HTTPStatus
 from typing import Any, List
+from mimetypes import guess_extension
 
 from flask import Blueprint, Response, make_response, request
+from magic import Magic
 
 import store.db.query.user as user_db
 import store.db.query.schedule as schedule_db
@@ -130,32 +132,55 @@ def get_users():
     return make_response({"status": "OK", "data": [user.to_json() for user in users]})
 
 
+@user_bp.route("/self/avatar", methods=["GET"])
+def get_self_avatar():
+    jwt: str = fetch_token(request.headers.get("Authorization"))
+    jwt_payload: dict[str, Any] = decode_jwt(jwt)
+
+    student_id: str = jwt_payload["studentId"]
+    return fetch_avatar(student_id)
+
+
+@user_bp.route("/<account>/avatar", methods=["GET"])
+def get_account_avatar(account: str):
+    return fetch_avatar(account)
+
+
 @user_bp.route("/self/avatar", methods=["POST"])
 def upload_self_avatar():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)
     content: bytes = request.data
 
+    mime: Magic = Magic(mime=True)
+    mimeType = mime.from_buffer(content)
+    if(mimeType.split("/")[0] != "image"):
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Invalid Image file.")
+
     student_id: str = jwt_payload["studentId"]
     filename: str = sha256(student_id.encode()).hexdigest()
 
     real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
-    real_storage.touch_file(filename, "png")
+    real_storage.touch_file(filename, "avatar")
 
-    # TODO: Trying to support more media types here.
-    real_storage.write_file_bytes(filename, "png", content)
+    real_storage.write_file_bytes(filename, "avatar", content)
     return make_response({"status": "OK"}) 
 
 
-@user_bp.route("/avatar/<avatar_id>", methods=["GET"])
-def get_avatar_by_id(avatar_id: str):
-    real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
+def fetch_avatar(account: str):
+    filename: str = sha256(account.encode()).hexdigest()
 
-    if not real_storage.check_exists(avatar_id, "png"):
-        return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent avatar.")
+    real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
     
-    avatar_content: bytes = real_storage.read_file_bytes(avatar_id, "png")
+    if not real_storage.check_exists(filename, "avatar"):
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent avatar.")
+
+    avatar_content: bytes = real_storage.read_file_bytes(filename, "avatar")
+    mime: Magic = Magic(mime=True)
+    mimeType = mime.from_buffer(avatar_content)
+    extension = guess_extension(mimeType)
+
     response: Response = make_response(avatar_content)
-    response.headers.set("Content-Type", "image/png")
-    response.headers.set("Content-Description", "attachment", filename=f"{avatar_id}.png")
+    response.headers.set("Content-Type", mimeType)
+    response.headers.set("Content-Description", "attachment", filename=f"{account}{extension}")
     return response

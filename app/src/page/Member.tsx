@@ -47,7 +47,8 @@ function Member(){
                             {
                                 users.filter((user) => user.role.id == role.id).map((user) => {
                                     return (
-                                        <UserCard 
+                                        <UserCard
+                                            account={user.account}
                                             name={user.name} 
                                             email={user.email} 
                                             note={user.note}

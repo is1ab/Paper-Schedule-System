@@ -1,11 +1,13 @@
 import { Card } from "react-bootstrap"
-import { Avatar } from "rsuite"
+import UserAvatar from "./UserAvatar";
 
 function UserCard(props: {
+    account: string
     name: string,
     email: string,
     note: string
 }) {
+    const account = props.account;
     const name = props.name
     const email = props.email
     const note = props.note
@@ -14,7 +16,7 @@ function UserCard(props: {
         <div className="col col-md-6 col-12 p-2">
             <Card className="p-3 d-flex flex-row gap-3">
                 <div className="d-flex flex-column">
-                    <Avatar size="lg" className="my-auto" circle></Avatar>
+                    <UserAvatar account={account} size="lg"></UserAvatar>
                 </div>
                 <div className="d-flex flex-column text-start">
                     <span className="fs-5 font-bold">{name}</span>

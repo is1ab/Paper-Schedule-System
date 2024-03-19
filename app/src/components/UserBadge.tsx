@@ -1,25 +1,24 @@
 import { Dropdown, Nav } from "react-bootstrap";
-import { Avatar } from "rsuite";
 import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { removeToken } from "../store/dataApi/AuthApiSlice";
-import Logo from "../assets/logo.png"
 import { UserType } from "../type/user/userType";
+import UserAvatar from "../page/components/UserAvatar";
 
 function UserBadge(){
     const dispatch = useAppDispatch()
     const { state } = useLocation()
     const [ isLogin, setIsLogin ] = useState<boolean | undefined>(undefined);
-    const [ username, setUsername ] = useState<string>("");
+    const [ user, setUser ] =useState<UserType | undefined>()
 
     useEffect(() => {
         dispatch(getSelfUserInfo()).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const user = payload["data"] as UserType;
-                setUsername(user.name);
+                setUser(user);
                 setIsLogin(true)
             }else{
                 setIsLogin(false)
@@ -36,12 +35,12 @@ function UserBadge(){
         <>
         {
             isLogin == undefined ? null : 
-            isLogin == true ?
+            isLogin == true && user ?
             <Dropdown>
                 <Dropdown.Toggle variant="light" className="user-badge-dropdown d-flex border-0" style={{backgroundColor: "transparent"}}>
-                    <Avatar size="sm" src={Logo} circle></Avatar>
+                    <UserAvatar account={user.account} size="sm"></UserAvatar>
                     &nbsp;&nbsp;
-                    <span className="my-auto">{username}</span>
+                    <span className="my-auto">{user.name}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item href="/user/0">查看個人資料</Dropdown.Item>

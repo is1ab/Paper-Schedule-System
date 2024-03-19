@@ -23,8 +23,15 @@ export class BaseService {
         return config;
     }
 
-    getAxiosImageRequestConfig = () => {
+    getAxiosImagePostRequestConfig = (contentType: string) => {
         const config = this.getAxiosRequestConfig();
+        config.headers = { ...config.headers, "Content-Type": contentType}
+        return config;
+    }
+
+    getAxiosImageGetRequestConfig = () => {
+        const config = this.getAxiosRequestConfig();
+        config.responseType = "blob"
         config.headers = { ...config.headers, "Content-Type": "image/png"}
         return config;
     }

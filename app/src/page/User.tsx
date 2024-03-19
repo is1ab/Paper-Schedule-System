@@ -2,7 +2,7 @@ import { Button, Card, Container, Image } from "react-bootstrap";
 import Logo from "../assets/logo.png"
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../store/hook";
-import { getSelfUserInfo, uploadAvatar } from "../store/dataApi/UserApiSlice";
+import { getSelfAvatar, getSelfUserInfo, uploadAvatar } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
 import dayjs from "dayjs";
 import Is1abAvatarEditor from "./components/AvatarEditor";
@@ -43,6 +43,15 @@ function User(){
         return user.schedules.filter((schedule) => schedule.status.id === 2)
     }
 
+    useEffect(() => {
+        dispatch(getSelfAvatar()).then((response: any) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload as Blob;
+                setAvatar(URL.createObjectURL(payload))
+            }
+        })
+    }, [])
+
     const handleUpload = () => {
         if(fileInputRef.current == null){
             return;
@@ -62,13 +71,8 @@ function User(){
         showAvatarEditor()
     }
 
-    const handleSubmitAvatar = async () => {
-        if(avatar == null){
-            return;
-        }
-        const formData = new FormData();
-        formData.append("file", avatar)
-        dispatch(uploadAvatar(formData)).then((response) => {
+    const handleSubmitAvatar = async (avatar: Blob) => {
+        dispatch(uploadAvatar(avatar)).then((response) => {
             if(response.meta.requestStatus === "fulfilled"){
                 Swal.fire({
                     icon: "success",
@@ -87,7 +91,13 @@ function User(){
                 <>
                     <div className="d-flex flex-column gap-3 text-center">
                         <div className="w-100">
-                            <input ref={fileInputRef} type='file' onChange={() => handleInputFileOnChange()} hidden></input>
+                            <input 
+                                ref={fileInputRef} 
+                                type='file' 
+                                onChange={() => handleInputFileOnChange()}
+                                accept="image/png, image/jpeg"
+                                hidden
+                            ></input>
                             <Button 
                                 style={{ width: 250, height: 250, borderRadius: "100%" }} 
                                 variant="btn-outline-secondary" 

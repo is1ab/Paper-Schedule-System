@@ -7,7 +7,7 @@ function Is1abAvatarEditor(props: {
     handleHide: () => void
     setAvatar: (value: string | undefined) => void
     avatarFile: File | null | undefined
-    onSubmit: () => Promise<void>
+    onSubmit: (avatar: Blob) => Promise<void>
 }){
     const editor = useRef<AvatarEditor | null>(null);
     const avatarFile = props.avatarFile;
@@ -17,11 +17,23 @@ function Is1abAvatarEditor(props: {
     const onSubmit = props.onSubmit;
 
     const onSave = async () => {
-        const dataUrl = editor.current?.getImage().toDataURL("image/png");
+        const image = editor.current?.getImage();
+        if(image == null){
+            throw Error("Image should not be null.");
+        }
+        if(avatarFile == null){
+            throw Error("AvatarFile should not be null.");
+        }
+        const dataUrl = image.toDataURL(avatarFile.type);
         setAvatar(dataUrl);
-        onSubmit().then(() => {
-            handleHide();
-        })
+        image.toBlob(blob => {
+            if(blob == null){
+                throw Error("Blob should not be null.")
+            }
+            onSubmit(blob).then(() => {
+                handleHide();
+            })
+        }, avatarFile.type)
     }
 
     return <Modal show={show} onHide={handleHide}>

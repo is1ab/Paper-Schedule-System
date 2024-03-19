@@ -160,19 +160,59 @@ export const unblockedUser = createAsyncThunk(
 export const uploadAvatar = createAsyncThunk(
     "userApi/uploadAvatar",
     async (
-        formData: FormData,
+        content: Blob,
         thunkApi
     ) => {
         try {
             const state: RootState = thunkApi.getState() as RootState;
             const token = state.authApi.token;
             const service = new UserService(token);
-            const res = await service.uploadAvatar(formData);
+            const res = await service.uploadAvatar(content);
             const data = res.data;
             return data;
         } catch (err: any){
             return thunkApi.rejectWithValue(() => {
                 console.log(`authApi/modifyUser: ${err}`)
+            })
+        }
+    }
+)
+
+export const getSelfAvatar = createAsyncThunk(
+    "userApi/getSelfAvatar",
+    async (
+        _,
+        thunkApi
+    ) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new UserService(token);
+            const res = await service.getSelfAvatar();
+            return res.data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`authApi/getSelfAvatar: ${err}`)
+            })
+        }
+    }
+)
+
+export const getUserAvatar = createAsyncThunk(
+    "userApi/getSelfAvatar",
+    async (
+        account: string,
+        thunkApi
+    ) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new UserService(token);
+            const res = await service.getUserAvatar(account);
+            return res.data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`authApi/getUserAvatar: ${err}`)
             })
         }
     }

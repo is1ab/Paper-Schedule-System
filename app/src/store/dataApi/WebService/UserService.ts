@@ -47,7 +47,15 @@ export class UserService extends BaseService {
         return axios.get("/user/self", this.getAxiosRequestConfig())
     }
 
-    uploadAvatar = (formData: FormData) => {
-        return axios.post("/user/self/avatar", formData, this.getAxiosImageRequestConfig())
+    uploadAvatar = (content: Blob) => {
+        return axios.post("/user/self/avatar", content, this.getAxiosImagePostRequestConfig(content.type))
+    }
+
+    getSelfAvatar = () => {
+        return axios.get("/user/self/avatar", this.getAxiosImageGetRequestConfig())
+    }
+
+    getUserAvatar = (account: string) => {
+        return axios.get(`/user/${account}/avatar`, this.getAxiosImageGetRequestConfig())
     }
 }
