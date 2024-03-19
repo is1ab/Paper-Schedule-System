@@ -14,7 +14,13 @@ user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 def get_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
-    return make_response({"status": "OK", "data": user.to_json()})
+    
+    schedules: list[Schedule] = schedule_db.get_schedules_by_user(user)
+
+    result = user.to_json()
+    result |= {"schedules": [schedule.to_json() for schedule in schedules]}
+
+    return make_response({"status": "OK", "data": result})
 
 
 @user_bp.route("/self", methods=["GET"])
@@ -115,4 +121,5 @@ def unblocked_user(account: str):
 @user_bp.route("/", methods=["GET"])
 def get_users():
     users: List[User] = user_db.get_users()
+    # TODO: Batch query schedule for users.
     return make_response({"status": "OK", "data": [user.to_json() for user in users]})
