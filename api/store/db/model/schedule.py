@@ -36,3 +36,18 @@ class Schedule:
             "status": self.status.to_json(),
             "user": self.user.to_json(),
         }
+    
+def convert_schedule_by_dict_data(data: dict[str, Any], user=None, attachments=[]) -> Schedule:
+    return Schedule(
+        id=data["id"],
+        name=data["name"],
+        link=data["link"],
+        description=data["description"],
+        schedule_datetime=data["date"],
+        status=ScheduleStatus(
+            id=data["statusId"],
+            name=data["statusName"]
+        ),
+        user=user,
+        attachments=attachments
+    )

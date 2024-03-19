@@ -4,7 +4,7 @@ from psycopg.rows import class_row, dict_row
 
 import store.db.query.user as user_db
 from store.db.db import connection
-from store.db.model.schedule import Schedule
+from store.db.model.schedule import Schedule, convert_schedule_by_dict_data
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.user import User
@@ -23,19 +23,7 @@ def get_schedules() -> List[Schedule]:
         for result in results:
             user: User | None = user_db.get_user(result["userId"])
             attachments: List[ScheduleAttachment] = get_schedule_attachments(str(result["id"]))
-            schedule_list.append(Schedule(**{
-                "id": result["id"],
-                "name": result["name"],
-                "link": result["link"],
-                "description": result["description"],
-                "schedule_datetime": result["date"],
-                "status": ScheduleStatus(**{
-                    "id": result["statusId"],
-                    "name": result["statusName"]
-                }),
-                "user": user,
-                "attachments": [attachment for attachment in attachments]
-            }))
+            schedule_list.append(convert_schedule_by_dict_data(result, user, attachments))
         return schedule_list
 
 def get_schedule(schedule_uuid: str) -> Schedule | None:
@@ -190,3 +178,20 @@ def modify_schedule(schedule: Schedule) -> None:
     except Exception as e:
         connection.rollback()
         raise e
+    
+def get_schedules_by_user(user: User) -> list[Schedule]:
+    with connection.cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
+            join schedule_status ss on s.status = ss.id
+            where s.archived = false and s."userId" = %s
+        """
+        cursor.execute(sql, (user.account,))
+        results: list[dict[str, Any]] = cursor.fetchall()
+
+        schedule_list: List[Schedule] = []
+        for result in results:
+            user: User | None = user_db.get_user(result["userId"])
+            attachments: List[ScheduleAttachment] = get_schedule_attachments(str(result["id"]))
+            schedule_list.append(convert_schedule_by_dict_data(result, user, attachments))
+        return schedule_list

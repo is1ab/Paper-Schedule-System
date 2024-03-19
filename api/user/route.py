@@ -3,14 +3,16 @@ from typing import Any, List
 from flask import Blueprint, make_response, request
 
 import store.db.query.user as user_db
+import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
+from store.db.model.schedule import Schedule
 from store.db.model.user import User
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
 @user_bp.route("/<account>/", methods=["GET"])
 def get_user(account: str):
-    user: User | None = user_db.get_user(id)
+    user: User | None = user_db.get_user(account)
     assert user is not None
     return make_response({"status": "OK", "data": user.to_json()})
 
@@ -20,11 +22,14 @@ def get_self_user_info():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)
 
-    username: str = jwt_payload["username"]
     studentId: str = jwt_payload["studentId"]
     user: User | None = user_db.get_user(studentId)
+    schedules: list[Schedule] = schedule_db.get_schedules_by_user(user)
 
-    return make_response({"status": "OK", "data": user.to_json()})
+    result = user.to_json()
+    result |= {"schedules": [schedule.to_json() for schedule in schedules]}
+
+    return make_response({"status": "OK", "data": result})
 
 
 @user_bp.route("/", methods=["POST"])
