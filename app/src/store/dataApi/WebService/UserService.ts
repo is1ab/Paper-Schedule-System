@@ -44,6 +44,6 @@ export class UserService extends BaseService {
     }
 
     getUserSelfInfo = () => {
-        return axios.get("/user/userInfo", this.getAxiosRequestConfig())
+        return axios.get("/user/self", this.getAxiosRequestConfig())
     }
 }

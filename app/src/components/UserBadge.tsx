@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { removeToken } from "../store/dataApi/AuthApiSlice";
 import Logo from "../assets/logo.png"
+import { UserType } from "../type/user/userType";
 
 function UserBadge(){
     const dispatch = useAppDispatch()
@@ -17,7 +18,8 @@ function UserBadge(){
         dispatch(getSelfUserInfo()).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
-                setUsername(payload["data"]["username"]);
+                const user = payload["data"] as UserType;
+                setUsername(user.name);
                 setIsLogin(true)
             }else{
                 setIsLogin(false)

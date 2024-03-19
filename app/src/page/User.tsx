@@ -1,12 +1,29 @@
 import { Card, Container, Image } from "react-bootstrap";
 import Logo from "../assets/logo.png"
+import { useEffect, useState } from "react";
+import { useAppDispatch } from "../store/hook";
+import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
+import { UserType } from "../type/user/userType";
 
 function User(){
+    const dispatch = useAppDispatch()
+    const [ user, setUser ] = useState<UserType | undefined>()
+
+    useEffect(() => {
+        dispatch(getSelfUserInfo()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload;
+                const user = payload["data"] as UserType;
+                setUser(user)
+            }
+        })
+    }, [])
+
     return (
         <Container className="p-5 d-flex flex-row gap-5">
             <div className="d-flex flex-column gap-3 text-center">
                 <Image roundedCircle width={256} height={256} src={Logo} className="border"></Image>
-                <h2>User 0</h2>
+                <h2>{user?.name}</h2>
                 <div className="w-100">
                     <div className="border p-3 rounded d-flex flex-row gap-3">
                         <div className="w-100 d-flex flex-column gap-1">
