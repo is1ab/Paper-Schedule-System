@@ -1,3 +1,4 @@
+import { ScheduleType } from "../schedule/ScheduleType";
 import { RoleType } from "../setting/RoleType";
 
 export interface UserType {
@@ -7,5 +8,6 @@ export interface UserType {
     account: string,
     name: string,
     role: RoleType,
-    note: string
+    note: string,
+    schedules: ScheduleType[]
 }
