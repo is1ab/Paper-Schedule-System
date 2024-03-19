@@ -13,6 +13,9 @@ const initialDataState: AuthApiState = {
 export const authApiSlice = createSlice({
     name: 'authApi',
     initialState: initialDataState,
+    selectors: {
+        selectToken: (state) => state.token
+    },
     reducers: {
         setToken: (state: AuthApiState, action: PayloadAction<string>) => {
             const token = action.payload;
@@ -46,5 +49,5 @@ export const login = createAsyncThunk(
 )
 
 export const { setToken, removeToken } = authApiSlice.actions;
-export const getTokenState  = (state: AuthApiState) => state.token;
+export const { selectToken } = authApiSlice.selectors;
 export default authApiSlice.reducer;

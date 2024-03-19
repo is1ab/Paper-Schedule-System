@@ -157,5 +157,26 @@ export const unblockedUser = createAsyncThunk(
     }
 )
 
+export const uploadAvatar = createAsyncThunk(
+    "userApi/uploadAvatar",
+    async (
+        formData: FormData,
+        thunkApi
+    ) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new UserService(token);
+            const res = await service.uploadAvatar(formData);
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`authApi/modifyUser: ${err}`)
+            })
+        }
+    }
+)
+
 
 export default userApiSlice.reducer;

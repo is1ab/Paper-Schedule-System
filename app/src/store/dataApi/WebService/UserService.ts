@@ -46,4 +46,8 @@ export class UserService extends BaseService {
     getUserSelfInfo = () => {
         return axios.get("/user/self", this.getAxiosRequestConfig())
     }
+
+    uploadAvatar = (formData: FormData) => {
+        return axios.post("/user/self/avatar", formData, this.getAxiosImageRequestConfig())
+    }
 }
