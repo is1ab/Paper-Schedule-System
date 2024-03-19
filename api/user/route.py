@@ -1,12 +1,17 @@
+from hashlib import sha256
+from http import HTTPStatus
 from typing import Any, List
 
-from flask import Blueprint, make_response, request
+from flask import Blueprint, Response, make_response, request
 
 import store.db.query.user as user_db
 import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
 from store.db.model.schedule import Schedule
 from store.db.model.user import User
+from store.storage import TunnelCode
+from store.storage.real import RealStorage
+from util import make_single_message_response
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
@@ -123,3 +128,34 @@ def get_users():
     users: List[User] = user_db.get_users()
     # TODO: Batch query schedule for users.
     return make_response({"status": "OK", "data": [user.to_json() for user in users]})
+
+
+@user_bp.route("/self/avatar", methods=["POST"])
+def upload_self_avatar():
+    jwt: str = fetch_token(request.headers.get("Authorization"))
+    jwt_payload: dict[str, Any] = decode_jwt(jwt)
+    content: bytes = request.data
+
+    student_id: str = jwt_payload["studentId"]
+    filename: str = sha256(student_id.encode()).hexdigest()
+
+    real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
+    real_storage.touch_file(filename, "png")
+
+    # TODO: Trying to support more media types here.
+    real_storage.write_file_bytes(filename, "png", content)
+    return make_response({"status": "OK"}) 
+
+
+@user_bp.route("/avatar/<avatar_id>", methods=["GET"])
+def get_avatar_by_id(avatar_id: str):
+    real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
+
+    if not real_storage.check_exists(avatar_id, "png"):
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent avatar.")
+    
+    avatar_content: bytes = real_storage.read_file_bytes(avatar_id, "png")
+    response: Response = make_response(avatar_content)
+    response.headers.set("Content-Type", "image/png")
+    response.headers.set("Content-Description", "attachment", filename=f"{avatar_id}.png")
+    return response
