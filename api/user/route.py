@@ -8,25 +8,23 @@ from store.db.model.user import User
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
-@user_bp.route("/<id>/userInfo", methods=["GET"])
-def get_user_info(id: str):
+@user_bp.route("/<account>/", methods=["GET"])
+def get_user(account: str):
     user: User | None = user_db.get_user(id)
     assert user is not None
     return make_response({"status": "OK", "data": user.to_json()})
 
 
-@user_bp.route("/userInfo", methods=["GET"])
+@user_bp.route("/self", methods=["GET"])
 def get_self_user_info():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)
 
     username: str = jwt_payload["username"]
     studentId: str = jwt_payload["studentId"]
+    user: User | None = user_db.get_user(studentId)
 
-    return make_response({"status": "OK", "data": {
-        "username": username,
-        "studentId": studentId
-    }})
+    return make_response({"status": "OK", "data": user.to_json()})
 
 
 @user_bp.route("/", methods=["POST"])
