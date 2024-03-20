@@ -1,11 +1,11 @@
-import { Container, Popover } from "react-bootstrap";
-import { Avatar, Calendar, Tooltip, Whisper } from "rsuite";
+import { Container } from "react-bootstrap";
+import { Calendar, Tooltip, Whisper } from "rsuite";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import dayjs, { Dayjs } from "dayjs";
-import Logo from "../assets/logo.png"
+import UserAvatar from "./components/UserAvatar";
 
 function Event(){
     const dispatch = useAppDispatch()
@@ -71,7 +71,7 @@ function Event(){
                             >
                                 <div className="text-nowrap d-flex flex-row gap-1">
                                     <div>
-                                        <Avatar src={Logo} size="xs" circle></Avatar>
+                                        <UserAvatar account={item.user.account} size="xs"></UserAvatar>
                                     </div>
                                     <span><strong>{item.user.name}</strong> - {item.name}</span>
                                 </div>
