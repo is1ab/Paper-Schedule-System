@@ -21,6 +21,7 @@ import AddSchedule from './page/AddSchedule.tsx';
 import ManageUser from './page/ManageUser.tsx';
 import AddUser from './page/EditUser.tsx';
 import EditUser from './page/EditUser.tsx';
+import Schedule from './page/Schedule.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       <Route path="/AddSchedule" element={<AddSchedule/>}></Route>
       <Route path="/ManageUser" element={<ManageUser/>}></Route>
       <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
+      <Route path="/Schedule/:scheduleId" element={<Schedule/>}></Route>
     </Route>
   )
 );
