@@ -5,6 +5,24 @@ from psycopg.rows import dict_row
 from store.db.db import create_cursor
 from store.db.model.audit_log_parameter import AuditLogParameter
 
+
+def get_audit_log_parameters(audit_log_id: str):
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT id, "auditLogId", "parameterName", "parameterValue"
+            FROM public.audit_log_parameter
+            WHERE "auditLogId" = %s;
+        """
+        cursor.execute(sql, (audit_log_id,))
+        results: list[dict[str, Any]] = cursor.fetchall()
+        return [AuditLogParameter(
+            id=result["id"],
+            auditLogId=result["auditLogId"],
+            parameterName=result["parameterName"],
+            parameterValue=result["parameterValue"]
+        ) for result in results]
+
+
 def add_audit_log_parameter_without_commit(parameter: AuditLogParameter):
     try:
         with create_cursor() as cursor:

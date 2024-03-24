@@ -24,7 +24,7 @@ class User:
         }
     
 anonymousUser: User = User(
-    id=0,
+    id=None,
     account="Anonymous",
     email="anonymous@pps.net",
     name=None,
