@@ -2,11 +2,11 @@ from typing import Any, List
 
 from psycopg.rows import dict_row
 
-from store.db.db import connection
+from store.db.db import create_cursor
 from store.db.model.role import Role
 
 def get_role():
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select r.id as "roleId", r.name as "roleName"
             from "role" r

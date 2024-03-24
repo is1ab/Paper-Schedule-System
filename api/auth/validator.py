@@ -19,7 +19,7 @@ def validate_user_id_should_be_able_to_access_or_return_http_status_code_401(
         payload: dict[str, Any] | None = request.get_json(silent=True)
         assert payload is not None
 
-        account: str = payload["username"]
+        account: str = payload["account"]
         user: User | None = user_db.get_user(account)
 
         if user == None:

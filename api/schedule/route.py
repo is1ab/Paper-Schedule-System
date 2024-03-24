@@ -8,6 +8,7 @@ import store.db.db as db
 import store.db.query.schedule as schedule_db
 import store.db.query.user as user_db
 from auth.jwt_util import decode_jwt, fetch_token
+from route_util import audit_route
 from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
@@ -21,13 +22,12 @@ from util import make_single_message_response
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
 
-@schedule_bp.route("/", methods=["GET"])
+@audit_route(schedule_bp, "/", methods=["GET"])
 def get_all_schedules():
     schedules: list[Schedule] = schedule_db.get_schedules()
     return make_response({"status": "OK", "data": [schedule.to_json_without_attachment() for schedule in schedules]})
 
-
-@schedule_bp.route("/<schedule_uuid>", methods=["GET"])
+@audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
     schedule: Schedule | None = schedule_db.get_schedule(schedule_uuid)
     assert schedule is not None
@@ -35,7 +35,7 @@ def get_schedule(schedule_uuid: str):
     return make_response({"status": "OK", "data": schedule.to_json()})
 
 
-@schedule_bp.route("/check/duplicate_url", methods=["POST"])
+@audit_route(schedule_bp, "/check/duplicate_url", methods=["POST"])
 def check_duplicate_url():
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -50,7 +50,7 @@ def check_duplicate_url():
     return make_response({"status": "OK"})
 
 
-@schedule_bp.route("/", methods=["POST"])
+@audit_route(schedule_bp, "/", methods=["POST"])
 def add_schedule():
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -97,7 +97,7 @@ def add_schedule():
     return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}"})
 
 
-@schedule_bp.route("/<schedule_uuid>", methods=["PUT"])
+@audit_route(schedule_bp, "/<schedule_uuid>", methods=["PUT"])
 def modified_schedule(schedule_uuid: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -120,7 +120,7 @@ def modified_schedule(schedule_uuid: str):
     return make_response({"status": "OK", "message": f"Payload modified."})
 
 
-@schedule_bp.route("/upload_attachment", methods=["POST"])
+@audit_route(schedule_bp, "/upload_attachment", methods=["POST"])
 def upload_attachment():
     data: bytes = request.get_data()
 
@@ -131,6 +131,6 @@ def upload_attachment():
     return make_response({"status": "OK", "data": f"{file_uuid}"})
 
 
-@schedule_bp.route("/put_off", methods=["POST"])
+@audit_route(schedule_bp, "/put_off", methods=["POST"])
 def put_off_schedule():
     return make_response({"status": "Not Implemented."})

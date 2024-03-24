@@ -22,3 +22,16 @@ class User:
             "blocked": self.blocked,
             "role": self.role.to_json()
         }
+    
+anonymousUser: User = User(
+    id=0,
+    account="Anonymous",
+    email="anonymous@pps.net",
+    name=None,
+    note=None,
+    blocked=False,
+    role=Role(
+        id=0,
+        name="Anonymous"
+    )
+)

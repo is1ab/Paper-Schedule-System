@@ -3,14 +3,14 @@ from typing import Any, List
 from psycopg.rows import class_row, dict_row
 
 import store.db.query.user as user_db
-from store.db.db import connection
+from store.db.db import create_cursor
 from store.db.model.schedule import Schedule, convert_schedule_by_dict_data
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.user import User
 
 def get_schedules() -> List[Schedule]:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id
@@ -27,7 +27,7 @@ def get_schedules() -> List[Schedule]:
         return schedule_list
 
 def get_schedule(schedule_uuid: str) -> Schedule | None:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id 
@@ -52,7 +52,7 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
         })
     
 def get_schedule_by_url(url: str) -> Schedule | None:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id 
@@ -81,7 +81,7 @@ def get_schedule_by_url(url: str) -> Schedule | None:
         })
 
 def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select sa.* from schedule_attachment sa 
             join schedule s on s.id = sa."scheduleId"
@@ -98,7 +98,7 @@ def get_schedule_attachments(schedule_uuid: str) -> List[ScheduleAttachment]:
         ) for result in results]
 
 def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select * from schedule_status ss 
             where ss.id = %s
@@ -111,9 +111,9 @@ def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
 
         return ScheduleStatus(id=result["id"], name=result["status"])
 
-def add_schedule_with_no_commit(schedule: Schedule, connection=connection) -> str:
+def add_schedule_with_no_commit(schedule: Schedule) -> str:
     try:
-        with connection.cursor() as cursor:
+        with create_cursor() as cursor:
             sql: str = """
                 insert into public.schedule
                 ("name", link, description, "date", status, "userId", archived)
@@ -132,12 +132,12 @@ def add_schedule_with_no_commit(schedule: Schedule, connection=connection) -> st
             id: str = cursor.fetchone()[0]
             return id
     except Exception as e:
-        connection.rollback()
+        cursor.connection.rollback()
         raise e
 
-def add_schedule_attachments_with_no_commit(attachment: ScheduleAttachment, connection=connection):
+def add_schedule_attachments_with_no_commit(attachment: ScheduleAttachment):
     try:
-        with connection.cursor() as cursor:
+        with create_cursor() as cursor:
             sql: str = """
             INSERT INTO public.schedule_attachment
             ("scheduleId", "fileName", "fileType", "fileRealName")
@@ -153,12 +153,12 @@ def add_schedule_attachments_with_no_commit(attachment: ScheduleAttachment, conn
             id: str = cursor.fetchone()[0]
             return id
     except Exception as e:
-        connection.rollback()
+        cursor.connection.rollback()
         raise e    
 
 def modify_schedule(schedule: Schedule) -> None:
     try:
-        with connection.cursor() as cursor:
+        with create_cursor() as cursor:
             sql: str = """
                 update schedule 
                 set name=%s, link=%s, description=%s, date=%s, status=%s, "userId"=%s, archived=%s
@@ -174,13 +174,13 @@ def modify_schedule(schedule: Schedule) -> None:
                 schedule.archived,
                 schedule.id
             ))
-            connection.commit()
+            cursor.connection.commit()
     except Exception as e:
-        connection.rollback()
+        cursor.connection.rollback()
         raise e
     
 def get_schedules_by_user(user: User) -> list[Schedule]:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select s.*, ss.id as "statusId", ss.status as "statusName" from schedule s 
             join schedule_status ss on s.status = ss.id

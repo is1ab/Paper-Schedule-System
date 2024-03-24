@@ -9,6 +9,7 @@ from magic import Magic
 import store.db.query.user as user_db
 import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
+from route_util import audit_route
 from store.db.model.schedule import Schedule
 from store.db.model.user import User
 from store.storage import TunnelCode
@@ -17,7 +18,7 @@ from util import make_single_message_response
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
-@user_bp.route("/<account>/", methods=["GET"])
+@audit_route(user_bp, "/<account>/", methods=["GET"])
 def get_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
@@ -30,7 +31,7 @@ def get_user(account: str):
     return make_response({"status": "OK", "data": result})
 
 
-@user_bp.route("/self", methods=["GET"])
+@audit_route(user_bp, "/self", methods=["GET"])
 def get_self_user_info():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)
@@ -45,7 +46,7 @@ def get_self_user_info():
     return make_response({"status": "OK", "data": result})
 
 
-@user_bp.route("/", methods=["POST"])
+@audit_route(user_bp, "/", methods=["POST"])
 def add_user():
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -65,7 +66,7 @@ def add_user():
     return make_response({"status": "OK", "message": f"User {user_id} added."})
 
 
-@user_bp.route("/<account>", methods=["PUT"])
+@audit_route(user_bp, "/<account>", methods=["PUT"])
 def modify_user(account: str):
     payload: dict[str, Any] | None = request.get_json(silent=True)
     assert payload is not None
@@ -87,7 +88,7 @@ def modify_user(account: str):
     return make_response({"status": "OK", "message": f"User {account} set."})
 
 
-@user_bp.route("/<account>/blocked", methods=["POST"])
+@audit_route(user_bp, "/<account>/blocked", methods=["POST"])
 def blocked_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
@@ -106,7 +107,7 @@ def blocked_user(account: str):
     return make_response({"status": "OK", "message": f"User {account} blocked."})
 
 
-@user_bp.route("/<account>/unblocked", methods=["POST"])
+@audit_route(user_bp, "/<account>/unblocked", methods=["POST"])
 def unblocked_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
@@ -125,14 +126,14 @@ def unblocked_user(account: str):
     return make_response({"status": "OK", "message": f"User {account} unblocked."})
 
 
-@user_bp.route("/", methods=["GET"])
+@audit_route(user_bp, "/", methods=["GET"])
 def get_users():
     users: List[User] = user_db.get_users()
     # TODO: Batch query schedule for users.
     return make_response({"status": "OK", "data": [user.to_json() for user in users]})
 
 
-@user_bp.route("/self/avatar", methods=["GET"])
+@audit_route(user_bp, "/self/avatar", methods=["GET"])
 def get_self_avatar():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)
@@ -141,12 +142,12 @@ def get_self_avatar():
     return fetch_avatar(student_id)
 
 
-@user_bp.route("/<account>/avatar", methods=["GET"])
+@audit_route(user_bp, "/<account>/avatar", methods=["GET"])
 def get_account_avatar(account: str):
     return fetch_avatar(account)
 
 
-@user_bp.route("/self/avatar", methods=["POST"])
+@audit_route(user_bp, "/self/avatar", methods=["POST"])
 def upload_self_avatar():
     jwt: str = fetch_token(request.headers.get("Authorization"))
     jwt_payload: dict[str, Any] = decode_jwt(jwt)

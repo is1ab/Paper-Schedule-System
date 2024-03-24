@@ -2,12 +2,12 @@ from typing import Any, List
 
 from psycopg.rows import dict_row
 
-from store.db.db import connection
+from store.db.db import create_cursor
 from store.db.model.role import Role
 from store.db.model.user import User
 
 def get_user(account: str) -> User | None:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
             from "user" u 
@@ -16,6 +16,10 @@ def get_user(account: str) -> User | None:
         """
         cursor.execute(sql, (account,))
         result: dict[str, Any] = cursor.fetchone()
+
+        if result == None:
+            return None
+
         cursor.close()
         return User(
             result["id"],
@@ -32,7 +36,7 @@ def get_user(account: str) -> User | None:
 
 
 def get_users() -> List[User]:
-    with connection.cursor(row_factory=dict_row) as cursor:
+    with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
             from "user" u 
@@ -57,7 +61,7 @@ def get_users() -> List[User]:
 
 def add_user(user: User) -> None:
     try:
-        with connection.cursor() as cursor:
+        with create_cursor() as cursor:
             sql: str = """
                 INSERT INTO public."user"
                 ("name", email, note, "blocked", "role", account)
@@ -71,16 +75,16 @@ def add_user(user: User) -> None:
                 user.role,  
                 user.account
             ))
-            connection.commit()
+            cursor.connection.commit()
             cursor.close()
     except Exception as e:
-        connection.rollback()
+        cursor.connection.rollback()
         raise e
     
 
 def set_user(account: str, user: User) -> None:
     try:
-        with connection.cursor() as cursor:
+        with create_cursor() as cursor:
             sql: str = """
                 UPDATE public."user"
                 SET "name"=%s, email=%s, note=%s, "blocked"=%s, "role"=%s
@@ -94,8 +98,8 @@ def set_user(account: str, user: User) -> None:
                 user.role,  
                 account
             ))
-            connection.commit()
+            cursor.connection.commit()
             cursor.close()
     except Exception as e:
-        connection.rollback()
+        cursor.connection.rollback()
         raise e
