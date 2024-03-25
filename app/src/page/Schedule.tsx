@@ -38,7 +38,7 @@ function Schedule(){
                                 <div className="">
                                     <h5 className="text-center mb-3">詳細資訊</h5>
                                     <Card className="p-4">
-                                        <div className="px-4 py-3 d-flex flex-row gap-5">
+                                        <div className="py-3 d-flex flex-row gap-5">
                                             <div className="w-25 d-flex flex-row justify-content-end">
                                                 <FontAwesomeIcon size="xl" width={21} icon={faUser} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
@@ -46,7 +46,7 @@ function Schedule(){
                                                 <p className="my-0 w-75 text-left">{schedule.user.name} &lt;{schedule.user.email}&gt; </p>
                                             </div>
                                         </div>
-                                        <div className="px-4 py-3 d-flex flex-row gap-5">
+                                        <div className="py-3 d-flex flex-row gap-5">
                                             <div className="w-25 d-flex flex-row justify-content-end">
                                                 <FontAwesomeIcon size="xl" width={21} icon={faCalendar} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
@@ -54,7 +54,7 @@ function Schedule(){
                                                 <p className="my-0 w-75 text-left">{schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")}</p>
                                             </div>
                                         </div>
-                                        <div className="px-4 py-3 d-flex flex-row gap-5">
+                                        <div className="py-3 d-flex flex-row gap-5">
                                             <div className="w-25 d-flex flex-row justify-content-end">
                                                 <FontAwesomeIcon size="xl" width={21} icon={faLink} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
@@ -65,7 +65,7 @@ function Schedule(){
                                         {
                                             schedule.attachments.map((attachment) => {
                                                 return (
-                                                    <div className="px-4 py-3 d-flex flex-row gap-5">
+                                                    <div className="py-3 d-flex flex-row gap-5">
                                                         <div className="w-25 d-flex flex-row justify-content-end">
                                                             <FontAwesomeIcon size="xl" icon={faFloppyDisk} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                                         </div>
