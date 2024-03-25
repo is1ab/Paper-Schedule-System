@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../store/hook";
 import { getSelfAvatar, getSelfUserInfo, uploadAvatar } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
-import dayjs from "dayjs";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
