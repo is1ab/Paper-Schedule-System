@@ -7,9 +7,12 @@ import { UserType } from "../type/user/userType";
 import dayjs from "dayjs";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { ScheduleType } from "../type/schedule/ScheduleType";
 
 function User(){
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [ user, setUser ] = useState<UserType | undefined>()
     const [ avatarFile, setAvatarFile ] = useState<File | null>();
@@ -91,6 +94,20 @@ function User(){
         })
     }
 
+    const ScheduleCard = (props: {
+        schedule: ScheduleType
+    }) => {
+        const schedule = props.schedule;
+        return (
+            <Card className="p-3 d-flex flex-row gap-3" onClick={() => navigate(`/schedule/${schedule.id}`)} style={{cursor: "pointer"}}>
+                <div className="d-flex flex-column text-start">
+                    <span className="fs-5 font-bold">{schedule.name}</span>
+                    <span><a href={schedule.link} target="_blank">{schedule.link}</a></span>
+                </div>
+            </Card>
+        )
+    }
+
     return (
         <>
             <Container className="p-5 d-flex flex-row gap-5">
@@ -139,12 +156,7 @@ function User(){
                                 <div className="d-flex flex-column py-3 gap-3">
                                     { getUserPendingSchedule().map((schedule) => {
                                             return (
-                                                <Card className="p-3 d-flex flex-row gap-3">
-                                                    <div className="d-flex flex-column text-start">
-                                                        <span className="fs-5 font-bold">{schedule.name}</span>
-                                                        <span><a href={schedule.link} target="_blank">{schedule.link}</a></span>
-                                                    </div>
-                                                </Card>
+                                                <ScheduleCard schedule={schedule}></ScheduleCard>
                                             )
                                         }
                                     )}
@@ -156,13 +168,7 @@ function User(){
                                 <div className="d-flex flex-column py-3 gap-3">
                                     { getUserArrangedSchedule().map((schedule) => {
                                             return (
-                                                <Card className="p-3 d-flex flex-row gap-3">
-                                                    <div className="d-flex flex-column text-start">
-                                                        <span className="fs-5 font-bold">{schedule.name}</span>
-                                                        <span><a href={schedule.link} target="_blank">{schedule.link}</a></span>
-                                                        <span><small>{dayjs(schedule.datetime).format("YYYY/MM/DD")}</small></span>
-                                                    </div>
-                                                </Card>
+                                                <ScheduleCard schedule={schedule}></ScheduleCard>
                                             )
                                         }
                                     )}
