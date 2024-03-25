@@ -27,6 +27,24 @@ export const addSchedule = createAsyncThunk(
     }
 )
 
+export const getSchedule = createAsyncThunk(
+    'scheduleApi/getSchedule',
+    async(scheduleId: string, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new ScheduleService(token);
+            const res = await service.getSchedule(scheduleId)
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`scheduleApi/getSchedule: ${err}`)
+            })
+        }
+    }
+)
+
 export const getAllSchedule = createAsyncThunk(
     'scheduleApi/getAllSchedule',
     async (_, thunkApi) => {

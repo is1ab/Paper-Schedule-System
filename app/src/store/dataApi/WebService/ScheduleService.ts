@@ -25,4 +25,8 @@ export class ScheduleService extends BaseService {
     get_all_schedule = () => {
         return axios.get("/schedule/", this.getAxiosRequestConfig())
     }
+
+    getSchedule = (scheduleId: string) => {
+        return axios.get(`/schedule/${scheduleId}`, this.getAxiosRequestConfig())
+    }
 }

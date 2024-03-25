@@ -19,10 +19,18 @@ export interface ScheduleType {
     link: string,
     name: string,
     status: ScheduleStatusType,
-    user: UserType
+    user: UserType,
+    attachments: ScheduleAttachmentType[]
 }
 
 export interface ScheduleStatusType {
     id: number,
     name: string
+}
+
+export interface ScheduleAttachmentType {
+    id: number,
+    virtualName: string,
+    realName: string,
+    type: string
 }

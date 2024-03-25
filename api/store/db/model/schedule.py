@@ -23,7 +23,7 @@ class Schedule:
 
     def to_json(self):
         json: dict[str, Any] = self.to_json_without_attachment()
-        json |= {"attachment": [attachment.to_json() for attachment in self.attachments]}
+        json |= {"attachments": [attachment.to_json() for attachment in self.attachments]}
         return json
     
     def to_json_without_attachment(self):
