@@ -18,7 +18,7 @@ function Event(){
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
                 const data = payload["data"] as ScheduleType[];
-                setEvents(data)
+                setEvents(data.filter((d) => d.status.id == 1))
             }
         })
     }, [])

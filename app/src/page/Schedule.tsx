@@ -1,4 +1,4 @@
-import { Card, Container } from "react-bootstrap";
+import { Button, Card, Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition, faCalendar, faFloppyDisk, faLink, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -8,8 +8,11 @@ import { getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import dayjs from "dayjs";
 
-function Schedule(){
+function Schedule(props: {
+    reviewMode: boolean
+}){
     const dispatch = useAppDispatch()
+    const reviewMode = props.reviewMode;
     const { scheduleId } = useParams()
     const [ schedule, setSchedule ] = useState<ScheduleType | null>(null);
 
@@ -79,15 +82,27 @@ function Schedule(){
                                     </Card>
                                 </div>
                             </div>
-                            <div className="w-50">
-                                <h5 className="text-center mb-3">日誌</h5>
-                                <Card className="p-5">
-                                    <ProgressItem text={"活動已建立"}></ProgressItem>
-                                    <ProgressItem text={"活動已審核通過"}></ProgressItem>
-                                    <ProgressItem text={"完成發信提醒"}></ProgressItem>
-                                    <ProgressItem text={"活動已開始"}></ProgressItem>
-                                    <ProgressItem text={"活動已結束"}></ProgressItem>
-                                </Card>
+                            <div className="w-50 d-flex flex-column gap-3">
+                                { reviewMode ?
+                                    <div>
+                                        <h5 className="text-center mb-3">審核</h5>
+                                        <Card className="p-5 d-flex flex-column gap-3">
+                                            <Button variant="success">同意該活動請求</Button>
+                                            <Button variant="danger">拒絕該活動請求</Button>
+
+                                        </Card>
+                                    </div> :
+                                    <div>
+                                        <h5 className="text-center mb-3">日誌</h5>
+                                        <Card className="p-5">
+                                            <ProgressItem text={"活動已建立"}></ProgressItem>
+                                            <ProgressItem text={"活動已審核通過"}></ProgressItem>
+                                            <ProgressItem text={"完成發信提醒"}></ProgressItem>
+                                            <ProgressItem text={"活動已開始"}></ProgressItem>
+                                            <ProgressItem text={"活動已結束"}></ProgressItem>
+                                        </Card>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </>
