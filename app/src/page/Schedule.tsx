@@ -1,7 +1,7 @@
 import { Card, Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar, faFloppyDisk, faLink, faUser } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition, faCalendar, faFloppyDisk, faLink, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../store/hook";
 import { getSchedule } from "../store/dataApi/ScheduleApiSlice";
@@ -24,6 +24,36 @@ function Schedule(){
         })
     }, [scheduleId])
 
+    const DetailItem = (props: {
+        icon: IconDefinition,
+        text: string
+    }) => {
+        const icon = props.icon;
+        const text = props.text;
+        return (
+            <div className="py-3 d-flex flex-row gap-5">
+                <div className="w-25 d-flex flex-row justify-content-end">
+                    <FontAwesomeIcon size="xl" width={21} icon={icon} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
+                </div>
+                <div className="w-100 d-flex flex-row justify-content-start">
+                    <p className="my-0 w-100 text-left">{text}</p>
+                </div>
+            </div> 
+        )
+    }
+
+    const ProgressItem = (props: {
+        text: string
+    }) => {
+        const text = props.text;
+        return (
+            <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
+                <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
+                <p className="my-0">{text}</p>
+            </div>
+        )
+    }
+
     return (
         <Container className="p-5">
             <h2 className="text-center mb-5">活動資訊</h2>
@@ -38,42 +68,12 @@ function Schedule(){
                                 <div className="">
                                     <h5 className="text-center mb-3">詳細資訊</h5>
                                     <Card className="p-4">
-                                        <div className="py-3 d-flex flex-row gap-5">
-                                            <div className="w-25 d-flex flex-row justify-content-end">
-                                                <FontAwesomeIcon size="xl" width={21} icon={faUser} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
-                                            </div>
-                                            <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-100 text-left">{schedule.user.name} &lt;{schedule.user.email}&gt; </p>
-                                            </div>
-                                        </div>
-                                        <div className="py-3 d-flex flex-row gap-5">
-                                            <div className="w-25 d-flex flex-row justify-content-end">
-                                                <FontAwesomeIcon size="xl" width={21} icon={faCalendar} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
-                                            </div>
-                                            <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-100 text-left">{schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")}</p>
-                                            </div>
-                                        </div>
-                                        <div className="py-3 d-flex flex-row gap-5">
-                                            <div className="w-25 d-flex flex-row justify-content-end">
-                                                <FontAwesomeIcon size="xl" width={21} icon={faLink} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
-                                            </div>
-                                            <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-100 text-left">{schedule.link}</p>
-                                            </div>
-                                        </div>
+                                        <DetailItem icon={faUser} text={`${schedule.user.name} <${schedule.user.email}>`} />
+                                        <DetailItem icon={faCalendar} text={schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")} />
+                                        <DetailItem icon={faLink} text={schedule.link} />
                                         {
                                             schedule.attachments.map((attachment) => {
-                                                return (
-                                                    <div className="py-3 d-flex flex-row gap-5">
-                                                        <div className="w-25 d-flex flex-row justify-content-end">
-                                                            <FontAwesomeIcon size="xl" icon={faFloppyDisk} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
-                                                        </div>
-                                                        <div className="w-100 d-flex flex-row justify-content-start">
-                                                            <p className="my-0 w-100 text-left">{attachment.realName}</p>
-                                                        </div>
-                                                    </div>
-                                                )
+                                                return <DetailItem icon={faFloppyDisk} text={attachment.realName} />
                                             })
                                         }
                                     </Card>
@@ -82,26 +82,11 @@ function Schedule(){
                             <div className="w-50">
                                 <h5 className="text-center mb-3">日誌</h5>
                                 <Card className="p-5">
-                                    <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                                        <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                                        <p className="my-0"> 活動已建立</p>
-                                    </div>
-                                    <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                                        <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                                        <p className="my-0"> 活動已審核通過 </p>
-                                    </div>
-                                    <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                                        <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                                        <p className="my-0"> 完成發信提醒 </p>
-                                    </div>
-                                    <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                                        <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                                        <p className="my-0"> 活動已開始 </p>
-                                    </div>
-                                    <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                                        <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                                        <p className="my-0"> 活動已結束 </p>
-                                    </div>
+                                    <ProgressItem text={"活動已建立"}></ProgressItem>
+                                    <ProgressItem text={"活動已審核通過"}></ProgressItem>
+                                    <ProgressItem text={"完成發信提醒"}></ProgressItem>
+                                    <ProgressItem text={"活動已開始"}></ProgressItem>
+                                    <ProgressItem text={"活動已結束"}></ProgressItem>
                                 </Card>
                             </div>
                         </div>
