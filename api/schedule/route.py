@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from flask import Blueprint, make_response, request
 
@@ -13,7 +13,6 @@ from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.user import User
-from store.storage import check_tmp_files_exists
 from store.storage.real import RealStorage
 from store.storage.temp import TempStorage
 from store.storage.tunnel_type import TunnelCode
@@ -74,7 +73,7 @@ def add_schedule():
             real_storage.write_file_bytes(file_name=fileKey, file_type="pdf", data=file_content)
 
     # Handle SQL Data Insertion
-    with db.connection.transaction():
+    with db.create_transection():
         schedule = Schedule(
             name=payload["name"],
             link=payload["link"],
