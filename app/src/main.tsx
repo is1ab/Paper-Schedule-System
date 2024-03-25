@@ -19,7 +19,6 @@ import { Provider } from 'react-redux';
 import { store } from './store/store.ts';
 import AddSchedule from './page/AddSchedule.tsx';
 import ManageUser from './page/ManageUser.tsx';
-import AddUser from './page/EditUser.tsx';
 import EditUser from './page/EditUser.tsx';
 import Schedule from './page/Schedule.tsx';
 
