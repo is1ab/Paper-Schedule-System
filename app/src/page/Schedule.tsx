@@ -43,7 +43,7 @@ function Schedule(){
                                                 <FontAwesomeIcon size="xl" width={21} icon={faUser} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
                                             <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-75 text-left">{schedule.user.name} &lt;{schedule.user.email}&gt; </p>
+                                                <p className="my-0 w-100 text-left">{schedule.user.name} &lt;{schedule.user.email}&gt; </p>
                                             </div>
                                         </div>
                                         <div className="py-3 d-flex flex-row gap-5">
@@ -51,7 +51,7 @@ function Schedule(){
                                                 <FontAwesomeIcon size="xl" width={21} icon={faCalendar} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
                                             <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-75 text-left">{schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")}</p>
+                                                <p className="my-0 w-100 text-left">{schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")}</p>
                                             </div>
                                         </div>
                                         <div className="py-3 d-flex flex-row gap-5">
@@ -59,7 +59,7 @@ function Schedule(){
                                                 <FontAwesomeIcon size="xl" width={21} icon={faLink} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                             </div>
                                             <div className="w-100 d-flex flex-row justify-content-start">
-                                                <p className="my-0 w-75 text-left">{schedule.link}</p>
+                                                <p className="my-0 w-100 text-left">{schedule.link}</p>
                                             </div>
                                         </div>
                                         {
@@ -70,7 +70,7 @@ function Schedule(){
                                                             <FontAwesomeIcon size="xl" icon={faFloppyDisk} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
                                                         </div>
                                                         <div className="w-100 d-flex flex-row justify-content-start">
-                                                            <p className="my-0 w-75 text-left">{attachment.realName}</p>
+                                                            <p className="my-0 w-100 text-left">{attachment.realName}</p>
                                                         </div>
                                                     </div>
                                                 )
