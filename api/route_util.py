@@ -31,7 +31,7 @@ def record_request_audit_log(
             jwt_payload: dict[str, Any] = decode_jwt(jwt)
             user = user_db.get_user(jwt_payload["studentId"])
         
-        with db.create_transection():
+        with db.create_transection() as (connection, transection):
             audit_log: AuditLog = AuditLog(
                 action=action,
                 user=user,
@@ -39,7 +39,7 @@ def record_request_audit_log(
                 ip=request.remote_addr
             )
 
-            audit_log_id: str = audit_log_db.add_aduit_log_without_commit(audit_log)
+            audit_log_id: str = audit_log_db.add_aduit_log_without_commit(connection, audit_log)
 
             route_aduit_parameter: AuditLogParameter = AuditLogParameter(
                 auditLogId=audit_log_id,
@@ -53,8 +53,8 @@ def record_request_audit_log(
                 parameterValue=f"{user.name} <{user.email}>"
             )
 
-            audit_log_parameter_db.add_audit_log_parameter_without_commit(route_aduit_parameter)
-            audit_log_parameter_db.add_audit_log_parameter_without_commit(user_aduit_parameter)
+            audit_log_parameter_db.add_audit_log_parameter_without_commit(connection, route_aduit_parameter)
+            audit_log_parameter_db.add_audit_log_parameter_without_commit(connection, user_aduit_parameter)
 
         return func(*args, **kwargs)
     return wrapper

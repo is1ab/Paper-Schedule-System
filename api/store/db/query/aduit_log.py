@@ -1,5 +1,6 @@
 from typing import Any, List
 
+from psycopg import Connection
 from psycopg.rows import dict_row
 
 import store.db.query.audit_log_parameter as audit_log_parameter_db
@@ -75,9 +76,9 @@ def get_audit_log(audit_log_id: str) -> AuditLog:
             parameters=parameters
         )
 
-def add_aduit_log_without_commit(audit_log: AuditLog) -> None:
+def add_aduit_log_without_commit(connection: Connection, audit_log: AuditLog) -> None:
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
                 INSERT INTO public.audit_log
                 ("actionId", "userId", ip, "createTime")

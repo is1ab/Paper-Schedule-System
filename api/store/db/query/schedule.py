@@ -1,6 +1,7 @@
 from typing import Any, List
 
-from psycopg.rows import class_row, dict_row
+from psycopg import Connection
+from psycopg.rows import dict_row
 
 import store.db.query.user as user_db
 from store.db.db import create_cursor
@@ -111,9 +112,9 @@ def get_schedule_status(schedule_status_id: int) -> ScheduleStatus | None:
 
         return ScheduleStatus(id=result["id"], name=result["status"])
 
-def add_schedule_with_no_commit(schedule: Schedule) -> str:
+def add_schedule_with_no_commit(connection: Connection, schedule: Schedule) -> str:
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
                 insert into public.schedule
                 ("name", link, description, "date", status, "userId", archived)
@@ -135,9 +136,9 @@ def add_schedule_with_no_commit(schedule: Schedule) -> str:
         cursor.connection.rollback()
         raise e
 
-def add_schedule_attachments_with_no_commit(attachment: ScheduleAttachment):
+def add_schedule_attachments_with_no_commit(connection: Connection, attachment: ScheduleAttachment):
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
             INSERT INTO public.schedule_attachment
             ("scheduleId", "fileName", "fileType", "fileRealName")

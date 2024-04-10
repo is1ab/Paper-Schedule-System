@@ -6,10 +6,10 @@ from flask import current_app
 @contextmanager
 def create_transection():
     pool: ConnectionPool = current_app.config["ConnectionPool"]
-    with pool.connection() as conn:
+    with pool.connection() as connection:
         try:
-            transection = conn.transaction()
-            yield transection
+            transection = connection.transaction()
+            yield connection, transection
         finally:
             pass
 
