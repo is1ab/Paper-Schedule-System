@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from pathlib import Path
+from psycopg_pool import ConnectionPool
 from typing import Any, Mapping
 
 from audit.route import audit_bp
@@ -10,6 +11,7 @@ from setting.route import setting_bp
 from store.storage.tunnel_type import TunnelCode
 from user.route import user_bp
 
+
 def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app = Flask(__name__)
 
@@ -17,6 +19,8 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
         app.config.from_pyfile("config.py")
     else:
         app.config.from_mapping(test_config)
+    
+    app.config["ConnectionPool"] = ConnectionPool("postgresql://is1ab_admin:is1ab%401321@localhost:5432/PPS")
 
     app.register_blueprint(audit_bp)
     app.register_blueprint(auth_bp)

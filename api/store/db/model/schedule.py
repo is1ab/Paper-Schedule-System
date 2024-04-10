@@ -18,8 +18,11 @@ class Schedule:
     schedule_datetime: datetime | None = None
     archived: bool = False
 
-    def get_format_datetime(self):
-        return None if self.schedule_datetime == None else self.schedule_datetime.isoformat()
+    def get_format_datetime(self) -> str | None:
+        if self.schedule_datetime == None:
+            return None
+        
+        return self.schedule_datetime.isoformat()
 
     def to_json(self):
         json: dict[str, Any] = self.to_json_without_attachment()

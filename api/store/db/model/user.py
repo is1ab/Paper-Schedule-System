@@ -4,11 +4,11 @@ from store.db.model.role import Role
 
 @dataclass
 class User:
-    id: int
-    account: str
-    email: str
-    name: str
-    note: str
+    id: int | None
+    account: str | None
+    email: str | None
+    name: str | None
+    note: str | None
     blocked: bool
     role: Role
 

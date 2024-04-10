@@ -1,18 +1,12 @@
-import psycopg
+from psycopg import Connection
+from psycopg_pool import ConnectionPool
 from contextlib import contextmanager
-
-
-@contextmanager
-def create_connect():
-    try:
-        connection = psycopg.connect("postgresql://is1ab_admin:is1ab%401321@localhost:5432/PPS", autocommit=True)
-        yield connection
-    finally:
-        connection.close()
+from flask import current_app
 
 @contextmanager
 def create_transection():
-    with create_connect() as conn:
+    pool: ConnectionPool = current_app.config["ConnectionPool"]
+    with pool.connection() as conn:
         try:
             transection = conn.transaction()
             yield transection
@@ -21,7 +15,8 @@ def create_transection():
 
 @contextmanager
 def create_cursor(*args, **kwarg):
-    with create_connect() as conn:
+    pool: ConnectionPool = current_app.config["ConnectionPool"]
+    with pool.connection() as conn:
         try:
             cursor = conn.cursor(*args, **kwarg)
             yield cursor
