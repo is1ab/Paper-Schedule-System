@@ -47,6 +47,7 @@ function UserBadge(){
                     <Dropdown.Item href="/addSchedule">新增行程請求</Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item href="/manageUser">管理實驗室成員</Dropdown.Item>
+                    <Dropdown.Item href="/manageUserWeight">管理報告順序權重</Dropdown.Item>
                     <Dropdown.Item href="/manageScheduleRequest">管理活動請求</Dropdown.Item>
                     <Dropdown.Item href="/addSchedule">管理活動</Dropdown.Item>
                     <Dropdown.Divider />

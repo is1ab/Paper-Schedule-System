@@ -9,5 +9,6 @@ export interface UserType {
     name: string,
     role: RoleType,
     note: string,
+    weight: number,
     schedules: ScheduleType[]
 }

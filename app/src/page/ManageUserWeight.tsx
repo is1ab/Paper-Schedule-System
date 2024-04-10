@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { UserType } from "../type/user/userType";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { Table } from "rsuite";
 import { SortType } from "rsuite/esm/Table";
 import { UserTableType } from "../type/user/userTableType";
+import QueuePreview from "../components/QueuePreview";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -13,6 +14,7 @@ export default function ManageUserWeight(){
     
     const dispatch = useAppDispatch()
     const [users, setUsers] = useState<UserType[]>([]);
+    const [weightSortedUser, setWeightSortedUser] = useState<UserType[]>([]);
     const [editableUserTableData, setEditableUserTableData] = useState<UserTableType[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [sortColumn, setSortColumn] = useState<string>("");
@@ -28,13 +30,14 @@ export default function ManageUserWeight(){
     };
 
     const handleWeightChange = (id: number, weight: number) => {
-        const nextData = Object.assign([] as UserTableType[], editableUserTableData);
+        const nextData = Object.assign([] as UserType[], users);
         const activeItem = nextData.find(item => item.id === id);
         if(activeItem === undefined){
             return
         }
         activeItem.weight = weight
-        setEditableUserTableData(nextData)
+        setUsers(nextData)
+        setWeightSortedUser([...nextData].sort((user, another) => user.weight - another.weight))
     }
 
     useEffect(() => {
@@ -88,7 +91,12 @@ export default function ManageUserWeight(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const users = payload["data"] as UserType[]
-                setUsers(users)
+                const weightUser = users.map((user) => {
+                    user.weight = 0;
+                    return user;
+                })
+                setUsers(weightUser)
+                setWeightSortedUser(weightUser)
             }
         })
     }, [])
@@ -96,18 +104,19 @@ export default function ManageUserWeight(){
     return (
         <Container className="p-5">
             <h2 className="text-center pb-4">管理報告順序權重</h2>
-            <div className="d-flex flex-row gap-3">
+            <div className="d-flex flex-column gap-3">
+                <QueuePreview users={weightSortedUser}></QueuePreview>
                 <div className="w-100">
                     <Table 
-                        height={600} 
-                        className="w-fit-content overflow-x-auto" 
+                        height={400} 
+                        className="w-fit-content border rounded"  
                         data={editableUserTableData} 
                         onSortColumn={handleSortColumn}
                         sortColumn={sortColumn}
                         sortType={sortType}
                         loading={loading}
                     >
-                        <Column width={100} align="center" sortable>
+                        <Column width={150} align="center" sortable>
                             <HeaderCell>ID</HeaderCell>
                             <Cell dataKey="id" />
                         </Column>
@@ -123,11 +132,11 @@ export default function ManageUserWeight(){
                             <HeaderCell>身份組</HeaderCell>
                             <Cell dataKey="role" />
                         </Column>
-                        <Column width={250} align="center" sortable>
+                        <Column width={200} align="center" sortable>
                             <HeaderCell>備註</HeaderCell>
                             <Cell dataKey="note" />
                         </Column>
-                        <Column width={100} align="center">
+                        <Column width={150} align="center">
                             <HeaderCell>權重</HeaderCell>
                             <Cell dataKey="weigth">
                                 { (rowData) => <input className="rs-input text-center h-100" min={0} defaultValue={rowData.weight} onChange={
@@ -136,6 +145,9 @@ export default function ManageUserWeight(){
                             </Cell>
                         </Column>
                     </Table>
+                </div>
+                <div className="w-100">
+                    <Button className="w-100" variant="success"> 儲存變更 </Button>
                 </div>
             </div>
         </Container>
