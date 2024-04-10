@@ -134,7 +134,7 @@ function ManageUser(){
 
     return (
         <Container className="p-5">
-            <h2 className="text-center pb-4">管理使用者</h2>
+            <h2 className="text-center pb-4">管理實驗室成員</h2>
             <div className="d-flex flex-column gap-4">
                 <div className="d-flex flex-row justify-content-end">
                     <Button className="w-25" onClick={() => navigate("/User/0/Edit")}>新增使用者</Button>
