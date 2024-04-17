@@ -5,7 +5,6 @@ import { CheckOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import { setDate } from "rsuite/esm/utils/dateUtils";
 
 export default function ManageHoliday(){
     const [datas, setData] = useState<{
@@ -32,13 +31,13 @@ export default function ManageHoliday(){
             className: "text-center",
             key: "date",
             width: "20%",
-            render: (text: any, record: any, index: number) => {
+            render: (text: any, record: any, _index: number) => {
                 if(record["status"] == "EDIT"){
                     // return <Input className="text-center" defaultValue={text} onChange={e => handleColumnChange(index, "date", e.target.value)}></Input>
                     return (
                         <Tooltip title={"請指定日期"} open={isEditingDateError} defaultOpen={isEditingDateError}>
                             <DatePicker
-                                disabledDate={(date, info) => datas.some(data => data.date === date.format("YYYY-MM-DD"))}
+                                disabledDate={(date, _info) => datas.some(data => data.date === date.format("YYYY-MM-DD"))}
                                 minDate={dayjs(Date.now())}
                                 className="text-center"
                                 format="YYYY-MM-DD"
@@ -57,7 +56,7 @@ export default function ManageHoliday(){
             className: "text-center",
             key: "description",
             width: "20%",
-            render: (_text: any, record: any, index: number) => {
+            render: (_text: any, record: any, _index: number) => {
                 if(record["status"] == "EDIT"){
                     return (
                         <Tooltip title={"請描述事由"} open={isEditingDescriptionError} defaultOpen={isEditingDescriptionError}>
@@ -122,7 +121,7 @@ export default function ManageHoliday(){
         setEditingDescription("")
         setData(tempData)
     }
-    const deleteAction = (date: string, index: number) => {
+    const deleteAction = (date: string, _index: number) => {
         const tempData = []
         for(let i = 0; i < datas.length; i++){
             if(datas[i].date === date){
@@ -156,7 +155,7 @@ export default function ManageHoliday(){
             <h2 className="text-center">管理假期</h2>
             <div className="d-flex flex-row gap-4">
                 <div className="w-100">
-                    <Calendar cellRender={(date: Dayjs, info: any) => {
+                    <Calendar cellRender={(date: Dayjs, _info: any) => {
                         const data = datas.filter((data) => data.date === date.format("YYYY-MM-DD"))
                         const exists = data.length !== 0
                         return (
