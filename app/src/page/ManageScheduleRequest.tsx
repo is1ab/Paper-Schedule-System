@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { ScheduleStatusType, ScheduleType } from "../type/schedule/ScheduleType";
+import { ScheduleType } from "../type/schedule/ScheduleType";
 import { useAppDispatch } from "../store/hook";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
-import { useNavigate } from "react-router-dom";
 import { Badge, Button, Table } from "antd";
-import { render } from "react-dom";
-import UserBadge from "../components/UserBadge";
 import UserAvatar from "./components/UserAvatar";
 
 function ManageScheduleRequest(){
-    const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const [schedules, setSchedules] = useState<ScheduleType[] | null>(null);
     const [scheduleTableData, setScheduleTableData] = useState<{
@@ -36,7 +32,7 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "user",
             width: "20%",
-            render: (text: string, record: any, index: number) => {
+            render: (text: string, record: any, _index: number) => {
                 return (
                     <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
                         <UserAvatar account={record.account} size="xs"></UserAvatar>
@@ -58,7 +54,7 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "status",
             width: "20%",
-            render: (text: string, record: any, index: number) => {
+            render: (text: string, record: any, _index: number) => {
                 const color = ["white", "#777777", "green", "red"]
                 return <Badge count={text} color={color[record["statusId"]]}></Badge>
             }
@@ -69,7 +65,7 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "action",
             width: "20%",
-            render: (text: string, record: any, index: number) => {
+            render: () => {
                 return (
                 <div className="d-flex flex-row gap-3"> 
                     <Button type="primary" style={{background: "orange"}}>查看事件</Button>
