@@ -1,4 +1,4 @@
-import { Button, Card, Container } from "react-bootstrap";
+import { Alert, Button, Card, Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition, faCalendar, faFloppyDisk, faLink, faUser } from "@fortawesome/free-solid-svg-icons";
@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "../store/hook";
 import { getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
+import InfoRoundIcon from '@rsuite/icons/InfoRound';
 import dayjs from "dayjs";
 
 function Schedule(props: {
@@ -63,6 +64,13 @@ function Schedule(props: {
             <div className="d-flex flex-column gap-3">
                 { schedule && 
                     <>
+                        <Alert variant="warning" className="d-flex flex-row justify-content-between">
+                            <div className="d-flex flex-row gap-3">
+                                <InfoRoundIcon className="my-auto"></InfoRoundIcon>
+                                <span className="my-auto">該活動尚未審核，請先進行審核</span>
+                            </div>
+                            <Button variant="warning">進行審核</Button>
+                        </Alert>
                         <Card className="p-5 fs-3 text-left">
                             <strong><p className="my-0">{schedule.name}</p></strong>
                         </Card>
