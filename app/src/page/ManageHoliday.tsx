@@ -105,16 +105,25 @@ export default function ManageHoliday(){
             status: string
         }[], datas);
         tempData[index].status = "DELETE"
+        tempData.sort((a: any, b: any) => {
+            if(a.date == null || b.date == null){
+                return
+            }
+            return a.date.localeCompare(b.date);
+        })
         setData(tempData.concat({status: "ADD"}))
     }
     const deleteAction = (index: number) => {
-        const tempData = Object.assign([] as {
-            date?: string,
-            description?: string
-            status: string
-        }[], datas).splice(index - 1, 1);
+        const tempData = []
+        for(let i = 0; i < datas.length; i++){
+            if(index == i){
+                continue;
+            }
+            tempData.push(datas[i])
+        }
         setData(tempData)
     }
+    
     return (
         <Container className="p-5 d-flex flex-column gap-4">
             <h2 className="text-center">管理假期</h2>
