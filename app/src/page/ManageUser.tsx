@@ -1,23 +1,117 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Table } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { blockedUser, getUsers, unblockedUser } from "../store/dataApi/UserApiSlice";
 import { useAppDispatch } from "../store/hook";
 import { UserType } from "../type/user/userType";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { RoleType } from "../type/setting/RoleType";
-import { getRoles } from "../store/dataApi/SettingApiSlice";
+import { Button, Table } from "antd";
+import UserAvatar from "./components/UserAvatar";
+import { CheckCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 
 function ManageUser(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
-    const [users, setUsers] = useState<UserType[]>([]);
-    const [roles, setRoles] = useState<RoleType[]>([]);
+    const [userTableDatas, setUserTableDatas] = useState<{
+        account: string,
+        name: string,
+        note: string,
+        blocked: boolean
+        role: RoleType
+    }[]>([])
 
-    const blockUser = (user_id: string, name: string) => {
+    const columns = [
+        {
+            title: "帳號",
+            dataIndex: "account",
+            className: "text-center",
+            key: "account",
+            width: "16%"
+        },
+        {
+            title: "名稱",
+            dataIndex: "name",
+            className: "text-center",
+            key: "name",
+            width: "16%",
+            render: (text: string, record: any, _index: number) => {
+                return (
+                    <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
+                        <UserAvatar account={record.account} size="xs"></UserAvatar>
+                        <span className="my-auto"> {text} </span>
+                    </Button>
+                )
+            }
+        },
+        {
+            title: "身份組",
+            dataIndex: "role",
+            className: "text-center",
+            key: "role",
+            width: "16%",
+            render: (_text: string, record: any, _index: number) => {
+                return <span>{record.role.name}</span>
+            }
+        },
+        {
+            title: "備註",
+            dataIndex: "note",
+            className: "text-center",
+            key: "note",
+            width: "16%"
+        },
+        {
+            title: "帳號狀態",
+            dataIndex: "status",
+            className: "text-center",
+            key: "status",
+            width: "16%",
+            render: (_text: string, record: any, _index: number) => {
+                return (
+                    <div>
+                        { record.blocked ?
+                            <div className="d-flex flex-row gap-1 justify-content-center" style={{color: 'red'}}>
+                                <MinusCircleOutlined />
+                                <span >已凍結</span>
+                            </div> :
+                            <div className="d-flex flex-row gap-1 justify-content-center" style={{color: 'green'}}>
+                                <CheckCircleOutlined />
+                                <span>可用</span>
+                            </div> 
+                        }
+                    </div>
+                )
+            }
+        },
+        {
+            title: "操作",
+            dataIndex: "action",
+            className: "text-center",
+            key: "action",
+            width: "16%",
+            render: (_text: string, record: any, _index: number) => {
+                return (
+                    <div className="d-flex flex-row gap-3">
+                        <Button type="primary" onClick={() => navigate(`/User/${record.account}/Edit`)}> 編輯帳號 </Button>
+                        { record.blocked ? 
+                            <Button danger type="primary" onClick={() => blockUser(record.account)}> 凍結帳號 </Button> :
+                            <Button danger type="primary" onClick={() => unblockUser(record.account)}> 解凍帳號 </Button>
+                        }
+                    </div>
+                )
+            }
+        }
+    ]
+
+    const blockUser = (account: string) => {
+        const user = userTableDatas.find(user => user.account == account)
+        if(user === undefined){
+            return
+        }
         Swal.fire({
             icon: "question",
-            title: `確認要凍結使用者 ${name}（${user_id}）嗎？`,
+            title: `確認要凍結使用者 ${user.name}（${user.account}）嗎？`,
             showConfirmButton: true,
             showDenyButton: true,
             confirmButtonColor: "#0d6efd",
@@ -31,7 +125,7 @@ function ManageUser(){
                     showConfirmButton: false,
                     didOpen: () => {
                         Swal.showLoading()
-                        dispatch(blockedUser(user_id)).then((response) => {
+                        dispatch(blockedUser(user.account)).then((response) => {
                             if(response.meta.requestStatus === 'fulfilled'){
                                 Swal.fire({
                                     icon: "success",
@@ -50,10 +144,14 @@ function ManageUser(){
         })
     }
 
-    const unblockUser = (user_id: string, name: string) => {
+    const unblockUser = (account: string) => {
+        const user = userTableDatas.find(user => user.account == account)
+        if(user === undefined){
+            return
+        }
         Swal.fire({
             icon: "question",
-            title: `確認要解凍使用者 ${name}（${user_id}）嗎？`,
+            title: `確認要解凍使用者 ${user.name}（${user.account}）嗎？`,
             showConfirmButton: true,
             showDenyButton: true,
             confirmButtonColor: "#0d6efd",
@@ -67,7 +165,7 @@ function ManageUser(){
                     showConfirmButton: false,
                     didOpen: () => {
                         Swal.showLoading()
-                        dispatch(unblockedUser(user_id)).then((response) => {
+                        dispatch(unblockedUser(user.account)).then((response) => {
                             if(response.meta.requestStatus === 'fulfilled'){
                                 Swal.fire({
                                     icon: "success",
@@ -90,86 +188,32 @@ function ManageUser(){
         dispatch(getUsers()).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
-                const users = payload["data"] as UserType[]
-                setUsers(users)
+                const users = (payload["data"] as UserType[]).sort((a, b) => a.role.id - b.role.id)
+                setUserTableDatas(users.map(user => {
+                    return {
+                        account: user.account,
+                        name: user.name,
+                        note: user.note,
+                        blocked: user.blocked,
+                        role: user.role
+                    }
+                }))
             }
         })
     }
-
-    useEffect(() => {
-        dispatch(getRoles()).then((response) => {
-            if(response.meta.requestStatus == "fulfilled"){
-                const payload = response.payload;
-                const roles = payload["data"] as RoleType[]
-                setRoles(roles)
-            }
-        })
-    }, [])
 
     useEffect(() => {
         refreshUsers()
     }, [])
-
-    const UserRow = (props: {
-        data: UserType
-    }) => {
-        const data = props.data;
-        return (
-            <tr style={{verticalAlign: "middle"}}>
-                <td>{data.account}</td>
-                <td>{data.name}</td>
-                <td>{data.role.name}</td>
-                <td>{data.note}</td>
-                <td>{data.blocked ? "已凍結" : "可用"}</td>
-                <td className="d-flex flex-row gap-2 justify-content-center">
-                    <Button variant={"success"} onClick={() => navigate(`/User/${data.account}/Edit`)}>編輯帳號</Button>
-                    { data.blocked ?
-                        <Button variant={"warning"} onClick={() => unblockUser(data.account, data.name)}>解凍帳號</Button> :
-                        <Button variant={"danger"} onClick={() => blockUser(data.account, data.name)}>凍結帳號</Button>
-                    }
-                </td>
-            </tr>
-        )
-    }
 
     return (
         <Container className="p-5">
             <h2 className="text-center pb-4">管理實驗室成員</h2>
             <div className="d-flex flex-column gap-4">
                 <div className="d-flex flex-row justify-content-end">
-                    <Button className="w-25" onClick={() => navigate("/User/0/Edit")}>新增使用者</Button>
+                    <Button type="primary" className="w-25" onClick={() => navigate("/User/0/Edit")}>新增使用者</Button>
                 </div> 
-                <Table bordered hover className="w-100 text-center">
-                    <thead>
-                        <tr>
-                            <th> 帳號 </th>
-                            <th> 名稱 </th>
-                            <th> 身份組 </th>
-                            <th> 備註 </th>
-                            <th> 帳號狀態 </th>
-                            <th> 使用者操作 </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <>
-                    {
-                        roles.map((role: RoleType) => {
-                            return (
-                                <>
-                                {
-                                    users.filter((user) => user.role.id == role.id).map((user) => {
-                                        return (
-                                            <UserRow data={user}/>
-                                        )
-                                    })
-                                }
-                                </>
-                            )
-                        })
-                    }
-                    </>
-                    </tbody>
-                </Table>
+                <Table columns={columns} dataSource={userTableDatas} className="w-100 text-center"></Table>
             </div>
         </Container>
     )
