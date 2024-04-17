@@ -5,7 +5,7 @@ import { Alert, Image } from "antd"
 function Home() {
   return (
     <Container>
-        <div className="w-100 d-flex flex-column" style={{height: "50vh"}}>
+        <div className="w-100 d-flex flex-column">
             <hr className="w-100"></hr>
             <div className="d-flex flex-column gap-3">
                 <Alert

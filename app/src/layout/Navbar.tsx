@@ -1,33 +1,56 @@
-import { Container, Nav, Navbar } from "react-bootstrap"
+import { Layout, Menu, MenuProps } from "antd";
 import logo from "../assets/logo.png"
-import UserBadge from "../components/UserBadge"
+import UserBadge from "../components/UserBadge";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 function Is1abNavbar() {
+  const { Header } = Layout;
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const leftItems: MenuProps['items'] = [
+    {
+      label: <div onClick={() => navigate("/Event")}>活動</div>,
+      key: 'event',
+    },
+    {
+      label: <div onClick={() => navigate("/Member")}>實驗室成員</div>,
+      key: 'member',
+    }
+  ]
+
   return (
-    <Navbar expand="lg" className="bg-body-tertiary justify-content-between">
-      <Container>
-        <Navbar.Brand href="/" className="text-center">
-          <img
-            alt=""
-            src={logo}
-            width="30"
-            height="30"
-            className="d-inline-block align-top"
-          />{' '}
-          資訊安全實驗室
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="/event">活動</Nav.Link>
-            <Nav.Link href="/member">實驗室成員</Nav.Link>
-          </Nav>
-          <Nav>
+    <Header style={{background: "#DDDDDD00"}} className="w-100">
+      <div className="d-flex flex-row justify-content-between" >
+        <div className="d-flex flex-row gap-3">
+          <div className="mx-auto d-flex flex-row gap-3" style={{cursor: "pointer"}} onClick={() => navigate("/")}>
+            <img
+              alt=""
+              src={logo}
+              width="40"
+              height="40"
+              className="my-auto"
+            />
+            <span className="text-nowrap">資訊安全實驗室</span>
+          </div>
+          <div>
+            <Menu
+                className="w-100"
+                mode="horizontal"
+                items={leftItems}
+                style={{background: "transparent", border: "0"}}
+                selectedKeys={[]}
+            />
+          </div>
+        </div>
+        <div className="d-flex flex-row w-fit-content">
+          <div className="my-auto">
             <UserBadge></UserBadge>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          </div>
+        </div>
+      </div>
+    </Header>
   )
 }
 

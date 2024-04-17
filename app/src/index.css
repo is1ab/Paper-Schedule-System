@@ -2,3 +2,15 @@
   margin-top: auto;
   margin-bottom: auto;
 }
+
+.ant-menu-light.ant-menu-horizontal > .ant-menu-submenu:hover::after {
+  border-bottom-color: #FD5E16;
+}
+
+.ant-menu-light.ant-menu-horizontal > .ant-menu-submenu-active::after {
+  border-bottom-color: #FD5E16;
+}
+
+.ant-menu-light.ant-menu-horizontal > .ant-menu-item:hover::after {
+  border-bottom-color: #FD5E16;
+}
