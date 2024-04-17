@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Container } from "react-bootstrap";
-import { Button, Input, Table } from "antd";
+import { Button, Calendar, Input, Table } from "antd";
 import { CheckOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
 import { DatePicker } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 
 export default function ManageHoliday(){
     const [datas, setData] = useState<{
@@ -13,25 +14,10 @@ export default function ManageHoliday(){
         status: string
     }[]>([
         {
-            date: "2024-04-17",
-            description: "放假",
-            status: "DELETE"
-        },
-        {
             status: "ADD"
         }
     ])
     const columns: ColumnsType = [
-        {
-            title: "ID",
-            className: "text-center",
-            width: "20%",
-            render: (_text: any, record: any, index: number) => {
-                if(record["status"] != "ADD"){
-                    return <span>{index+1}</span>
-                }
-            }
-        },
         {
             title: "日期",
             dataIndex: "date",
@@ -42,6 +28,7 @@ export default function ManageHoliday(){
                 if(record["status"] == "EDIT"){
                     // return <Input className="text-center" defaultValue={text} onChange={e => handleColumnChange(index, "date", e.target.value)}></Input>
                     return <DatePicker
+                        minDate={dayjs(Date.now())}
                         className="text-center"
                         format="YYYY-MM-DD"
                         onChange={date => handleColumnChange(index, "date", date.format("YYYY-MM-DD"))}
@@ -127,7 +114,11 @@ export default function ManageHoliday(){
     return (
         <Container className="p-5 d-flex flex-column gap-4">
             <h2 className="text-center">管理假期</h2>
-            <Table columns={columns} dataSource={datas}></Table>
+            <div className="d-flex flex-row gap-4">
+                <div className="w-100">
+                    <Table columns={columns} dataSource={datas}></Table>
+                </div>
+            </div>
         </Container>
     )
 }
