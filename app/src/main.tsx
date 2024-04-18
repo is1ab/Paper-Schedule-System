@@ -24,9 +24,10 @@ import EditUser from './page/EditUser.tsx';
 import Schedule from './page/Schedule.tsx';
 import ManageScheduleRequest from './page/ManageScheduleRequest.tsx';
 import ManageUserWeight from './page/ManageUserWeight.tsx';
-import ManageSchedule from './page/ManageSchedule.tsx';
 import ManageHoliday from './page/ManageHoliday.tsx';
 import ProcessScheduleRequest from './page/ProcessScheduleRequest.tsx';
+import ManageHostSchedule from './page/ManageHostSchedule.tsx';
+import ProcessHostSchedule from './page/ProcessHostShedule.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -43,8 +44,9 @@ const router = createBrowserRouter(
       <Route path="/Schedule/:scheduleId" element={<Schedule reviewMode={false}/>}></Route>
       <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
       <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
-      <Route path="/ManageSchedule" element={<ManageSchedule/>}></Route>
       <Route path="/ManageHoliday" element={<ManageHoliday/>}></Route>
+      <Route path="/ManageHostSchedule" element={<ManageHostSchedule/>}></Route>
+      <Route path="/ManageHostSchedule/0/Edit" element={<ProcessHostSchedule/>}></Route>
     </Route>
   )
 );

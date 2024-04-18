@@ -52,11 +52,15 @@ function UserBadge(){
                     key: 4
                 },
                 {
+                    label: <div onClick={() => navigator("/manageHostSchedule")}>管理主持人排定規則</div>,
+                    key: 5
+                },
+                {
                     type: "divider"
                 },
                 {
                     label:  <div onClick={() => logout()}>登出</div>,
-                    key: 5
+                    key: 6
                 },
             ]
         }
