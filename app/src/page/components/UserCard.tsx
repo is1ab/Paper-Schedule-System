@@ -22,8 +22,8 @@ function UserCard(props: {
                 </div>
                 <div className="d-flex flex-column text-start">
                     <span className="fs-5 font-bold">{name}</span>
-                    <span><small>{note}</small></span>
-                    <span><small>{email}</small></span>
+                    <span>{note}</span>
+                    <span>{email}</span>
                 </div>
             </Card>
         </div>
