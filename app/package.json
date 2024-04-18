@@ -18,6 +18,7 @@
     "@reduxjs/toolkit": "^2.2.1",
     "@types/react-avatar-editor": "^13.0.2",
     "antd": "^5.16.2",
+    "antd-style": "^3.6.2",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
     "buffer": "^6.0.3",
