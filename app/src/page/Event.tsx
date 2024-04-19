@@ -1,5 +1,4 @@
 import { Container } from "react-bootstrap";
-import { Calendar, Tooltip, Whisper } from "rsuite";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
@@ -7,6 +6,8 @@ import { ScheduleType } from "../type/schedule/ScheduleType";
 import dayjs, { Dayjs } from "dayjs";
 import UserAvatar from "./components/UserAvatar";
 import { useNavigate } from "react-router-dom";
+import { Badge, Calendar, Tag, Tooltip } from "antd";
+import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
 
 function Event(){
     const dispatch = useAppDispatch()
@@ -23,74 +24,73 @@ function Event(){
         })
     }, [])
 
-    const isSameDate = (date1: Dayjs, date2: Dayjs) => {
-        return date1.isSame(date2, "date");
+    const EventTooltip = (schedule: ScheduleType) => {
+        return (
+            <div className="p-2 d-flex flex-column gap-2">
+                <div className="d-flex flex-row gap-1">
+                    <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                    <span className="my-auto">{schedule.user.name}</span>
+                </div>
+                <div className="d-flex flex-column gap-1">
+                    <Tag color="default">實驗室例行會議</Tag>
+                    <Tag icon={<CheckCircleOutlined />} color="green">已完成審核</Tag>
+                </div>
+                <div className="d-flex flex-row gap-3">
+                    <span>{schedule.name}</span>
+                </div>
+            </div>
+        )
     }
 
-    const renderCell = (date: Date) => {
-        const dateEvents = events.filter((event) => event.datetime && isSameDate(dayjs(event.datetime), dayjs(date)));
-        const displayEvents = dateEvents.filter((_item, index) => index < 2);
-        
-        if(dateEvents.length){
-            const moreCount = dateEvents.length - displayEvents.length;
-            const MoreItem = () => {
-                return (
-                    <div>
-                        <Whisper
-                            placement="top"
-                            followCursor
-                            speaker={
-                                <Tooltip>
-                                    {dateEvents.map((item, index) => {
-                                            return (
-                                                <p key={index}>
-                                                    {item.user.name} - {item.name}
-                                                </p>
-                                            )
-                                        })
-                                    }
-                                </Tooltip>
-                            }
-                        >
-                            <a>查看其他 {moreCount} 項</a>
-                        </Whisper>
-                    </div>
-                )
-            }
-
-            return (
-                <div key={"date-cell-" + date.getDay()} className="">
-                    {displayEvents.map((item, _index) => {
-                        return (
-                            <Whisper 
-                                followCursor 
-                                placement="top"
-                                speaker={
-                                    <Tooltip>
-                                        <span>{item.user.name} - {item.name}</span>
-                                    </Tooltip>
-                                }
-                            >
-                                <div className="text-nowrap d-flex flex-row gap-1" onClick={() => navigate(`/schedule/${item.id}`)}>
-                                    <div>
-                                        <UserAvatar account={item.user.account} size="xs"></UserAvatar>
-                                    </div>
-                                    <span><strong>{item.user.name}</strong> - {item.name}</span>
-                                </div>
-                            </Whisper>
-                        )
-                    })}
-                    {moreCount ? <MoreItem></MoreItem> : null}
+    const PendingTooltip = (schedule: ScheduleType) => {
+        return (
+            <div className="p-2 d-flex flex-column gap-2">
+                <div className="d-flex flex-row gap-1">
+                    <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                    <span className="my-auto">{schedule.user.name}</span>
                 </div>
-            )
-        }
-        return null
+                <div className="d-flex flex-column gap-1">
+                    <Tag color="default">Windows API Call 專題會議</Tag>
+                    <Tag icon={<ClockCircleOutlined />} color="default">題目未定或等待審核中</Tag>
+                </div>
+            </div>
+        )
+    }
+
+    const cellRender = (date: Dayjs, _info: any) => {
+        const specificEvents = events.filter((event) => dayjs(event.datetime).format("YYYY-MM-DD") === date.format("YYYY-MM-DD"))
+        return (
+            <ul className="events">
+                {
+                    specificEvents.map((specificEvent) => {
+                        return (
+                            <Tooltip placement="right" title={EventTooltip(specificEvent)}>
+                                <li key={specificEvent.name} onClick={() => navigate(`/Schedule/${specificEvent.id}`)}>
+                                    <Badge status="success" text={specificEvent.user.name + " - " + specificEvent.name}></Badge>
+                                </li>
+                            </Tooltip>
+                        )
+                    })
+                }
+                {
+                    specificEvents.map((specificEvent) => {
+                        return (
+                            <Tooltip placement="right" title={PendingTooltip(specificEvent)}>
+                                <li key={specificEvent.name} onClick={() => navigate(`/Schedule/${specificEvent.id}`)}>
+                                    <Badge status="processing" text={"黃漢軒 - 待定"}></Badge>
+                                </li>
+                            </Tooltip>
+                        )
+                    })
+                }
+            </ul>
+        )
     }
 
     return (
         <Container className="p-5 text-center">
             <h2 className="pb-4"> 近期活動 </h2>
-            <Calendar bordered className="shadow rounded" renderCell={renderCell}></Calendar>
+            <Calendar cellRender={cellRender}></Calendar>
         </Container>
     )
 }
