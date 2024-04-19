@@ -1,5 +1,5 @@
 import { Button, Descriptions, Input, Select, SelectProps, StepProps, Steps, Table } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import UserAvatar from "./components/UserAvatar";
 import { CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
@@ -8,14 +8,71 @@ import {
   arrayMove,
   SortableContext,
   useSortable,
-  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { Option } from "antd/es/mentions";
+import { useAppDispatch } from "../store/hook";
+import { getUsers } from "../store/dataApi/UserApiSlice";
+import { UserType } from "../type/user/userType";
+import { DefaultOptionType } from "antd/es/select";
 
 export default function ProcessHostSchedule(){
+    const dispatch = useAppDispatch()
+    const weekdayItems: SelectProps["options"] = [
+        {
+            label: "週一",
+            value: "1"
+        },
+        {
+            label: "週二",
+            value: "2"
+        },
+        {
+            label: "週三",
+            value: "3"
+        },
+        {
+            label: "週四",
+            value: "4"
+        },
+        {
+            label: "週五",
+            value: "5"
+        },
+        {
+            label: "週六",
+            value: "6"
+        },
+        {
+            label: "週日",
+            value: "7"
+        }
+    ]
+    const periodItems: SelectProps["options"] = [
+        {
+            label: "一個禮拜一次",
+            value: "1"
+        },
+        {
+            label: "兩個禮拜一次",
+            value: "2"
+        },
+        {
+            label: "三個禮拜一次",
+            value: "3"
+        },
+        {
+            label: "四個禮拜一次",
+            value: "4"
+        }
+    ]
     const [steps, setSteps] = useState<number>(0)
+    const [users, setUsers] = useState<UserType[]>([])
+    const [selectedUser, setSelectedUser] = useState<string>()
+    const [scheduleRuleName, setScheduleRuleName] = useState<string>("")
+    const [scheduleRuleWeekday, setScheduleRuleWeekday] = useState<string>("1")
+    const [scheduleRulePeriod, setScheduleRulePeriod] = useState<string>("1")
     const stepItems: StepProps[] = [
         {
             title: '新增規則使用者',
@@ -33,12 +90,13 @@ export default function ProcessHostSchedule(){
             title: '完成',
         }
     ]
-    const options: SelectProps["options"] = [
+    
+    const [options, setOptions] = useState<SelectProps["options"]>([
         {
             label: "109590031 黃漢軒 [大學部、顧問]",
             value: "109590031"
         }
-    ]
+    ])
     const columns = [
         {
             key: 'sort',
@@ -116,30 +174,7 @@ export default function ProcessHostSchedule(){
         },
         note: string,
         blocked: boolean
-    }[]>([
-        {
-            key: "109590031",
-            account: "109590031",
-            name: "黃漢軒",
-            role: {
-                id: 1,
-                name: "Student"
-            },
-            note: "大學部、顧問",
-            blocked: false
-        },
-        {
-            key: "user1",
-            account: "user1",
-            name: "user1",
-            role: {
-                id: 1,
-                name: "Student"
-            },
-            note: "大學部、顧問",
-            blocked: false
-        }
-    ])
+    }[]>([])
 
     interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
         'data-row-key': string;
@@ -195,6 +230,46 @@ export default function ProcessHostSchedule(){
         }
     };
 
+    const addUser = (account: string | undefined) => {
+        if(account == undefined){
+            return
+        }
+        if(userTableDatas.find((userTableData => userTableData.account === account))){
+            return
+        }
+        const user = users.find((user) => user.account === account)
+        if(user == undefined){
+            throw Error("User should not undefined.")
+        }
+        const tempUserTableDatas = Object.assign([], userTableDatas)
+        tempUserTableDatas.push({
+            key: user.account,
+            account: user.account,
+            name: user.name,
+            role: user.role,
+            note: user.note,
+            blocked: user.blocked
+        })
+        setUserTableDatas(tempUserTableDatas)
+    }
+
+    useEffect(() => {
+        dispatch(getUsers()).then((response) => {
+            if(response.meta.requestStatus == 'fulfilled'){
+                const payload = response.payload;
+                const datas = payload.data as UserType[]
+                const options = datas.map((data) => {
+                    return {
+                        label: `${data.account} ${data.name} [${data.note}]`,
+                        value: data.account
+                    }
+                })
+                setUsers(datas)
+                setOptions(options)
+            }
+        })
+    }, [])
+
     return (
         <Container className="p-5">
             <h2 className="text-center mb-5">新增主持人排定規則</h2>
@@ -202,8 +277,8 @@ export default function ProcessHostSchedule(){
             { steps == 0 &&
                 <div className="border rounded p-5 d-flex flex-column gap-3">
                     <div className="d-flex flex-row gap-3">
-                        <Select options={options} className="w-75"></Select>
-                        <Button type="primary" className="w-25">加入主持人</Button>
+                        <Select options={options} className="w-75" onSelect={(value, option) => setSelectedUser(value)}></Select>
+                        <Button type="primary" className="w-25" onClick={() => addUser(selectedUser)}>加入主持人</Button>
                     </div>
                     <hr/>
                     <div>
@@ -238,28 +313,15 @@ export default function ProcessHostSchedule(){
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <div>
                         <h6> 排程名稱 </h6>
-                        <Input className="w-100"></Input>
+                        <Input className="w-100" defaultValue={scheduleRuleName}></Input>
                     </div>
                     <div>
                         <h6> 排程星期 </h6>
-                        <Select className="w-100">
-                            <Option value="1">週一</Option>
-                            <Option value="2">週二</Option>
-                            <Option value="3">週三</Option>
-                            <Option value="4">週四</Option>
-                            <Option value="5">週五</Option>
-                            <Option value="6">週六</Option>
-                            <Option value="7">週日</Option>
-                        </Select>
+                        <Select className="w-100" options={weekdayItems} defaultValue={scheduleRuleWeekday} value={scheduleRuleWeekday} onChange={(value: string, option: any) => setScheduleRuleWeekday(value)}></Select>
                     </div>
                     <div>
                         <h6> 排程週期 </h6>
-                        <Select className="w-100">
-                            <Option value="1">一個禮拜一次</Option>
-                            <Option value="2">兩個禮拜一次</Option>
-                            <Option value="3">三個禮拜一次</Option>
-                            <Option value="4">四個禮拜一次</Option>
-                        </Select>
+                        <Select className="w-100" options={periodItems} defaultValue={scheduleRulePeriod} value={scheduleRulePeriod} onChange={(value: string, option: any) => setScheduleRulePeriod(value)}></Select>
                     </div>
                     <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
                 </div>
@@ -267,24 +329,14 @@ export default function ProcessHostSchedule(){
             { steps == 3 &&
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <Descriptions bordered>
-                        <Descriptions.Item label={"排程規則"}>排程名稱</Descriptions.Item>
-                        <Descriptions.Item label={"排程星期"}>週四</Descriptions.Item>
-                        <Descriptions.Item label={"排程週期"}>兩個禮拜一次</Descriptions.Item>
+                        <Descriptions.Item label={"排程規則"}>{scheduleRuleName}</Descriptions.Item>
+                        <Descriptions.Item label={"排程星期"}>{weekdayItems.find((weekdayItem => weekdayItem.value === scheduleRuleWeekday))?.label}</Descriptions.Item>
+                        <Descriptions.Item label={"排程週期"}>{periodItems.find((periodItem => periodItem.value === scheduleRulePeriod))?.label}</Descriptions.Item>
                         <Descriptions.Item label={"排程順序"} span={3}>
                             <ol>
-                                <li>黃漢軒</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
-                                <li>user1</li>
+                                {userTableDatas.map((userTableData => {
+                                    return <li>{userTableData.name}</li>
+                                }))}
                             </ol>
                         </Descriptions.Item>
                     </Descriptions>
