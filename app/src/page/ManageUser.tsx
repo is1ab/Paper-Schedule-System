@@ -94,7 +94,7 @@ function ManageUser(){
                 return (
                     <div className="d-flex flex-row gap-3">
                         <Button type="primary" onClick={() => navigate(`/User/${record.account}/Edit`)}> 編輯帳號 </Button>
-                        { record.blocked ? 
+                        { !record.blocked ? 
                             <Button danger type="primary" onClick={() => blockUser(record.account)}> 凍結帳號 </Button> :
                             <Button danger type="primary" onClick={() => unblockUser(record.account)}> 解凍帳號 </Button>
                         }
