@@ -78,7 +78,7 @@ export default function ProcessScheduleRequest(){
             }
             { steps == 1 &&
                 <div className="p-5 border rounded d-flex flex-column gap-3">
-                    <h6> 請挑選日期 </h6>
+                    <h6> 請挑選日期來新增活動，或欲覆蓋某個已被規則所排定的活動 </h6>
                     <div className="w-100 d-flex flex-row gap-3">
                         <Calendar 
                             className="w-100 p-3 border rounded" 
