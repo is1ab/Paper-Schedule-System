@@ -11,11 +11,9 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { Option } from "antd/es/mentions";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
-import { DefaultOptionType } from "antd/es/select";
 
 export default function ProcessHostSchedule(){
     const dispatch = useAppDispatch()
@@ -67,12 +65,23 @@ export default function ProcessHostSchedule(){
             value: "4"
         }
     ]
+    const scheduleRuleItems: SelectProps["options"] = [
+        {
+            label: "對於每個禮拜，所有主持人共同主持會議",
+            value: "ALL"
+        },
+        {
+            label: "主持人輪替主持會議",
+            value: "SCHEDULE"
+        }
+    ]
     const [steps, setSteps] = useState<number>(0)
     const [users, setUsers] = useState<UserType[]>([])
     const [selectedUser, setSelectedUser] = useState<string>()
     const [scheduleRuleName, setScheduleRuleName] = useState<string>("")
     const [scheduleRuleWeekday, setScheduleRuleWeekday] = useState<string>("1")
     const [scheduleRulePeriod, setScheduleRulePeriod] = useState<string>("1")
+    const [scheduleRule, setScheduleRule] = useState<"ALL" | "SCHEDULE">("ALL")
     const stepItems: StepProps[] = [
         {
             title: '新增規則使用者',
@@ -277,7 +286,7 @@ export default function ProcessHostSchedule(){
             { steps == 0 &&
                 <div className="border rounded p-5 d-flex flex-column gap-3">
                     <div className="d-flex flex-row gap-3">
-                        <Select options={options} className="w-75" onSelect={(value, option) => setSelectedUser(value)}></Select>
+                        <Select options={options} className="w-75" onSelect={(value, _option) => setSelectedUser(value)}></Select>
                         <Button type="primary" className="w-25" onClick={() => addUser(selectedUser)}>加入主持人</Button>
                     </div>
                     <hr/>
@@ -313,15 +322,37 @@ export default function ProcessHostSchedule(){
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <div>
                         <h6> 排程名稱 </h6>
-                        <Input className="w-100" defaultValue={scheduleRuleName}></Input>
+                        <Input className="w-100" defaultValue={scheduleRuleName} onChange={(e) => setScheduleRuleName(e.target.value)}></Input>
                     </div>
                     <div>
                         <h6> 排程星期 </h6>
-                        <Select className="w-100" options={weekdayItems} defaultValue={scheduleRuleWeekday} value={scheduleRuleWeekday} onChange={(value: string, option: any) => setScheduleRuleWeekday(value)}></Select>
+                        <Select 
+                            className="w-100" 
+                            options={weekdayItems} 
+                            defaultValue={scheduleRuleWeekday} 
+                            value={scheduleRuleWeekday} 
+                            onChange={(value: string, _option: any) => setScheduleRuleWeekday(value)}
+                        ></Select>
                     </div>
                     <div>
                         <h6> 排程週期 </h6>
-                        <Select className="w-100" options={periodItems} defaultValue={scheduleRulePeriod} value={scheduleRulePeriod} onChange={(value: string, option: any) => setScheduleRulePeriod(value)}></Select>
+                        <Select 
+                            className="w-100" 
+                            options={periodItems} 
+                            defaultValue={scheduleRulePeriod} 
+                            value={scheduleRulePeriod} 
+                            onChange={(value: string, _option: any) => setScheduleRulePeriod(value)}
+                        ></Select>
+                    </div>
+                    <div>
+                        <h6> 排程規則 </h6>
+                        <Select 
+                            className="w-100" 
+                            options={scheduleRuleItems} 
+                            defaultValue={"ALL"} 
+                            value={scheduleRule} 
+                            onChange={(value: ("ALL" | "SCHEDULE"), _option: any) => setScheduleRule(value)}
+                        ></Select>
                     </div>
                     <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
                 </div>
