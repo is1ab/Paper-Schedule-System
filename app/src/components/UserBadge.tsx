@@ -27,7 +27,7 @@ function UserBadge(){
                 <Nav.Link href="/login">登入</Nav.Link>
             ),
             key: 'SubMenu',
-            children: [
+            children: isLogin ? [
                 {
                     label: <div onClick={() => navigator("/user/0")}>查看個人資料</div>,
                     key: 0
@@ -62,7 +62,7 @@ function UserBadge(){
                     label:  <div onClick={() => logout()}>登出</div>,
                     key: 6
                 },
-            ]
+            ] : []
         }
     ]
 
@@ -85,7 +85,9 @@ function UserBadge(){
     }
     
     return (
-        <Menu mode="horizontal" style={{backgroundColor: "transparent", border: 0}} items={items} selectedKeys={[]}></Menu>
+        isLogin ? 
+        <Menu mode="horizontal" style={{backgroundColor: "transparent", border: 0}} items={items} selectedKeys={[]}></Menu> :
+        <Menu mode="horizontal" style={{backgroundColor: "transparent", border: 0}} items={items} selectedKeys={[]}></Menu> 
     )
 }
 
