@@ -2,7 +2,7 @@ import { Button, Descriptions, Input, Select, SelectProps, StepProps, Steps, Tab
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import UserAvatar from "./components/UserAvatar";
-import { CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { CheckCircleFilled, CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
@@ -14,6 +14,8 @@ import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProcessHostSchedule(){
     const dispatch = useAppDispatch()
@@ -372,6 +374,20 @@ export default function ProcessHostSchedule(){
                         </Descriptions.Item>
                     </Descriptions>
                     <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
+                </div>
+            }
+            { steps == 4 &&
+                <div className="border rounded p-5 d-flex flex-column gap-5">
+                    <div className="d-flex flex-row gap-3 mx-auto p-5 ">
+                        <FontAwesomeIcon icon={faSquareCheck} style={{fontSize: "5rem", color: "green"}}/>
+                        <div className="d-flex flex-column my-auto gap-2">
+                            <h4 className="my-0"> 新增規則成功 </h4>
+                            <p className="my-0">主持人已規劃至活動頁面上，由 04/22 開始</p>
+                        </div>
+                    </div>
+                    <div>
+                        <Button type="primary" className="w-100">回到首頁</Button>
+                    </div>
                 </div>
             }
         </Container>
