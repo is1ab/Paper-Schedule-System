@@ -1,8 +1,8 @@
-import { Button, Descriptions, Input, Select, SelectProps, StepProps, Steps, Table } from "antd";
+import { Alert, Button, DatePicker, Descriptions, Input, Select, SelectProps, StepProps, Steps, Table, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import UserAvatar from "./components/UserAvatar";
-import { CheckCircleFilled, CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
@@ -15,10 +15,23 @@ import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+import dayjs, { Dayjs } from "dayjs";
+import { NoUndefinedRangeValueType } from "rc-picker/lib/PickerInput/RangePicker"
+import { DefaultOptionType, LabeledValue } from "antd/es/select";
+import { useNavigate } from "react-router-dom";
+import DragableTable from "../components/DragableTable";
+import DeletableTable from "../components/DeletableTable";
+
+const { RangePicker } = DatePicker;
+
+interface UserTypeWithKey extends UserType {
+    key: string
+}
 
 export default function ProcessHostSchedule(){
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
     const weekdayItems: SelectProps["options"] = [
         {
             label: "週一",
@@ -79,11 +92,17 @@ export default function ProcessHostSchedule(){
     ]
     const [steps, setSteps] = useState<number>(0)
     const [users, setUsers] = useState<UserType[]>([])
-    const [selectedUser, setSelectedUser] = useState<string>()
+    const [selectedUser, setSelectedUser] = useState<string | undefined>()
+    const [scheduleRange, setScheduleRange] = useState<[Dayjs, Dayjs]>([dayjs(Date.now()), dayjs(Date.now()).add(6, "month")]);
     const [scheduleRuleName, setScheduleRuleName] = useState<string>("")
     const [scheduleRuleWeekday, setScheduleRuleWeekday] = useState<string>("1")
     const [scheduleRulePeriod, setScheduleRulePeriod] = useState<string>("1")
     const [scheduleRule, setScheduleRule] = useState<"ALL" | "SCHEDULE">("ALL")
+    const [showError, setShowError] = useState<boolean>(false)
+    const [isEmptyRuleNameError, setIsEmptyRuleNameError] = useState<boolean>(false)
+    const [isEmptyMemberError, setIsEmptyMemberError] = useState<boolean>(false)
+    const showEmptyRuleNameError = () =>  showError && isEmptyRuleNameError
+    const showEmptyMemberError = () => showError && isEmptyMemberError
     const stepItems: StepProps[] = [
         {
             title: '新增規則使用者',
@@ -109,9 +128,6 @@ export default function ProcessHostSchedule(){
         }
     ])
     const columns = [
-        {
-            key: 'sort',
-        },
         {
             title: "帳號",
             dataIndex: "account",
@@ -175,71 +191,7 @@ export default function ProcessHostSchedule(){
             }
         },
     ]
-    const [userTableDatas, setUserTableDatas] = useState<{
-        key: string,
-        account: string,
-        name: string,
-        role: {
-            id: number,
-            name: string
-        },
-        note: string,
-        blocked: boolean
-    }[]>([])
-
-    interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
-        'data-row-key': string;
-    }
-      
-    const Row = ({ children, ...props }: RowProps) => {
-        const {
-          attributes,
-          listeners,
-          setNodeRef,
-          setActivatorNodeRef,
-          transform,
-          transition,
-          isDragging,
-        } = useSortable({
-          id: props['data-row-key'],
-        });
-      
-        const style: React.CSSProperties = {
-          ...props.style,
-          transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
-          transition,
-          ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
-        };
-      
-        return (
-          <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-            {React.Children.map(children, (child) => {
-              if ((child as React.ReactElement).key === 'sort') {
-                return React.cloneElement(child as React.ReactElement, {
-                  children: (
-                    <MenuOutlined
-                      ref={setActivatorNodeRef}
-                      style={{ touchAction: 'none', cursor: 'move' }}
-                      {...listeners}
-                    />
-                  ),
-                });
-              }
-              return child;
-            })}
-          </tr>
-        );
-    };
-
-    const onDragEnd = ({ active, over }: DragEndEvent) => {
-        if (active.id !== over?.id) {
-          setUserTableDatas((previous) => {
-            const activeIndex = previous.findIndex((i) => i.key === active.id);
-            const overIndex = previous.findIndex((i) => i.key === over?.id);
-            return arrayMove(previous, activeIndex, overIndex);
-          });
-        }
-    };
+    const [userTableDatas, setUserTableDatas] = useState<UserTypeWithKey[]>([])
 
     const addUser = (account: string | undefined) => {
         if(account == undefined){
@@ -255,11 +207,7 @@ export default function ProcessHostSchedule(){
         const tempUserTableDatas = Object.assign([], userTableDatas)
         tempUserTableDatas.push({
             key: user.account,
-            account: user.account,
-            name: user.name,
-            role: user.role,
-            note: user.note,
-            blocked: user.blocked
+            ...user
         })
         setUserTableDatas(tempUserTableDatas)
     }
@@ -275,11 +223,26 @@ export default function ProcessHostSchedule(){
                         value: data.account
                     }
                 })
-                setUsers(datas)
+                setUsers(datas.map((data) =>{
+                    return { 
+                        key: data.account,
+                        ...data
+                    }
+                }))
                 setOptions(options)
             }
         })
     }, [])
+
+    useEffect(() => {
+        setShowError(false)
+    }, [scheduleRuleName, userTableDatas])
+
+    useEffect(() => {
+        if(options != null){
+            setSelectedUser(options[0].value as string);
+        }
+    }, [options])
 
     return (
         <Container className="p-5">
@@ -288,34 +251,44 @@ export default function ProcessHostSchedule(){
             { steps == 0 &&
                 <div className="border rounded p-5 d-flex flex-column gap-3">
                     <div className="d-flex flex-row gap-3">
-                        <Select options={options} className="w-75" onSelect={(value, _option) => setSelectedUser(value)}></Select>
+                        { options != null && 
+                            <Select 
+                                options={options} 
+                                className="w-75" 
+                                onSelect={(value: string | number | LabeledValue, _option: DefaultOptionType) => {
+                                    setSelectedUser(value as string)
+                                }} 
+                                value={selectedUser}
+                            ></Select>
+                        }
                         <Button type="primary" className="w-25" onClick={() => addUser(selectedUser)}>加入主持人</Button>
                     </div>
                     <hr/>
-                    <div>
-                        <Table columns={columns} dataSource={userTableDatas}></Table>
+                    <div className="d-flex flex-column gap-3">
+                        { showEmptyMemberError() ?  
+                            <Alert
+                                type="error"
+                                message={"錯誤"}
+                                description={"請選定至少一個成員"}
+                            ></Alert> : null
+                        }
+                        <DeletableTable columns={columns} dataDispatch={[userTableDatas, setUserTableDatas]}></DeletableTable>
                     </div>
-                    <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
+                    <Button type="primary" onClick={() => {
+                        if(userTableDatas.length == 0){
+                            setIsEmptyMemberError(true)
+                            setShowError(true)
+                            return
+                        }
+                        setSteps(steps + 1)
+                        setShowError(false)
+                    }}> 下一步 </Button>
                 </div>
             }
             { steps == 1 &&
                 <div className="border rounded p-5 d-flex flex-column gap-3">
                     <div>
-                        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-                            <SortableContext items={userTableDatas.map(i => i.key)}>
-                                <Table 
-                                    components={{
-                                        body: {
-                                            row: Row
-                                        }
-                                    }} 
-                                    rowKey="key"
-                                    columns={columns} 
-                                    dataSource={userTableDatas}
-                                    pagination={false}
-                                />
-                            </SortableContext>
-                        </DndContext>
+                        <DragableTable columns={columns} dataDispatch={[userTableDatas, setUserTableDatas]}></DragableTable>
                     </div>
                     <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
                 </div>
@@ -323,11 +296,36 @@ export default function ProcessHostSchedule(){
             { steps == 2 &&
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <div>
-                        <h6> 排程名稱 </h6>
-                        <Input className="w-100" defaultValue={scheduleRuleName} onChange={(e) => setScheduleRuleName(e.target.value)}></Input>
+                        <h6>排程名稱</h6>
+                        <Tooltip placement="top" title={"請輸入排程名稱"} defaultOpen={showEmptyRuleNameError()} open={showEmptyRuleNameError()}>
+                            <Input 
+                                className="w-100" 
+                                defaultValue={scheduleRuleName} 
+                                onChange={(e) => setScheduleRuleName(e.target.value)}
+                                status={showEmptyRuleNameError() ? "error" : ""}
+                            ></Input>
+                        </Tooltip>
                     </div>
                     <div>
-                        <h6> 排程星期 </h6>
+                        <h6>排程範圍</h6>
+                        <RangePicker 
+                            className="w-100" 
+                            value={scheduleRange}
+                            minDate={dayjs(Date.now())}
+                            onChange={(dates: NoUndefinedRangeValueType<dayjs.Dayjs> | null, dateString: [string, string]) => {
+                                if(dates == null){
+                                    return
+                                }
+                                const startDate = dates[0];
+                                const endDate = dates[1];
+                                if(startDate !== null && endDate !== null){
+                                    setScheduleRange([startDate, endDate])
+                                }
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <h6>排程星期</h6>
                         <Select 
                             className="w-100" 
                             options={weekdayItems} 
@@ -337,7 +335,7 @@ export default function ProcessHostSchedule(){
                         ></Select>
                     </div>
                     <div>
-                        <h6> 排程週期 </h6>
+                        <h6>排程週期</h6>
                         <Select 
                             className="w-100" 
                             options={periodItems} 
@@ -347,7 +345,7 @@ export default function ProcessHostSchedule(){
                         ></Select>
                     </div>
                     <div>
-                        <h6> 排程規則 </h6>
+                        <h6>排程規則</h6>
                         <Select 
                             className="w-100" 
                             options={scheduleRuleItems} 
@@ -356,17 +354,25 @@ export default function ProcessHostSchedule(){
                             onChange={(value: ("ALL" | "SCHEDULE"), _option: any) => setScheduleRule(value)}
                         ></Select>
                     </div>
-                    <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
+                    <Button type="primary" onClick={() => {
+                        if(scheduleRuleName.length === 0){
+                            setShowError(true);
+                            setIsEmptyRuleNameError(true);
+                            return
+                        }
+                        setSteps(steps + 1)
+                    }}> 下一步 </Button>
                 </div>
             }
             { steps == 3 &&
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <Descriptions bordered>
-                        <Descriptions.Item label={"排程規則"}>{scheduleRuleName}</Descriptions.Item>
-                        <Descriptions.Item label={"排程星期"}>{weekdayItems.find((weekdayItem => weekdayItem.value === scheduleRuleWeekday))?.label}</Descriptions.Item>
-                        <Descriptions.Item label={"排程週期"}>{periodItems.find((periodItem => periodItem.value === scheduleRulePeriod))?.label}</Descriptions.Item>
+                        <Descriptions.Item label={"排程規則"} span={2}>{scheduleRuleName}</Descriptions.Item>
+                        <Descriptions.Item label={"排程星期"} span={1}>{weekdayItems.find((weekdayItem => weekdayItem.value === scheduleRuleWeekday))?.label}</Descriptions.Item>
+                        <Descriptions.Item label={"排程週期"} span={2}>{periodItems.find((periodItem => periodItem.value === scheduleRulePeriod))?.label}</Descriptions.Item>
+                        <Descriptions.Item label={"排程日期"} span={1}>{`${scheduleRange[0].format("YYYY-MM-DD")} ~ ${scheduleRange[1].format("YYYY-MM-DD")}`}</Descriptions.Item>
                         <Descriptions.Item label={"排程順序"} span={3}>
-                            <ol>
+                            <ol className="my-0">
                                 {userTableDatas.map((userTableData => {
                                     return <li>{userTableData.name}</li>
                                 }))}
@@ -382,11 +388,11 @@ export default function ProcessHostSchedule(){
                         <FontAwesomeIcon icon={faSquareCheck} style={{fontSize: "5rem", color: "green"}}/>
                         <div className="d-flex flex-column my-auto gap-2">
                             <h4 className="my-0"> 新增規則成功 </h4>
-                            <p className="my-0">主持人已規劃至活動頁面上，由 04/22 開始</p>
+                            <p className="my-0">{`主持人已規劃至活動頁面上，由 ${scheduleRange[0].format("YYYY-MM-DD")} 開始，在 ${scheduleRange[1].format("YYYY-MM-DD")} 結束`}</p>
                         </div>
                     </div>
                     <div>
-                        <Button type="primary" className="w-100">回到首頁</Button>
+                        <Button type="primary" className="w-100" onClick={() => navigate("/")}>回到首頁</Button>
                     </div>
                 </div>
             }
