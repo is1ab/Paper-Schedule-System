@@ -24,6 +24,20 @@ interface UserTypeWithKey extends UserType {
 export default function ProcessHostSchedule(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const [steps, setSteps] = useState<number>(0)
+    const [users, setUsers] = useState<UserType[]>([])
+    const [selectedUser, setSelectedUser] = useState<string | undefined>()
+    const [scheduleRange, setScheduleRange] = useState<[Dayjs, Dayjs]>([dayjs(Date.now()), dayjs(Date.now()).add(6, "month")]);
+    const [scheduleRuleName, setScheduleRuleName] = useState<string>("")
+    const [scheduleRuleWeekday, setScheduleRuleWeekday] = useState<string>("1")
+    const [scheduleRulePeriod, setScheduleRulePeriod] = useState<string>("1")
+    const [scheduleRule, setScheduleRule] = useState<"ALL" | "SCHEDULE">("ALL")
+    const [showError, setShowError] = useState<boolean>(false)
+    const [isEmptyRuleNameError, setIsEmptyRuleNameError] = useState<boolean>(false)
+    const [isEmptyMemberError, setIsEmptyMemberError] = useState<boolean>(false)
+    const [userTableDatas, setUserTableDatas] = useState<UserTypeWithKey[]>([])
+    const showEmptyRuleNameError = () =>  showError && isEmptyRuleNameError
+    const showEmptyMemberError = () => showError && isEmptyMemberError
     const weekdayItems: SelectProps["options"] = [
         {
             label: "週一",
@@ -82,19 +96,6 @@ export default function ProcessHostSchedule(){
             value: "SCHEDULE"
         }
     ]
-    const [steps, setSteps] = useState<number>(0)
-    const [users, setUsers] = useState<UserType[]>([])
-    const [selectedUser, setSelectedUser] = useState<string | undefined>()
-    const [scheduleRange, setScheduleRange] = useState<[Dayjs, Dayjs]>([dayjs(Date.now()), dayjs(Date.now()).add(6, "month")]);
-    const [scheduleRuleName, setScheduleRuleName] = useState<string>("")
-    const [scheduleRuleWeekday, setScheduleRuleWeekday] = useState<string>("1")
-    const [scheduleRulePeriod, setScheduleRulePeriod] = useState<string>("1")
-    const [scheduleRule, setScheduleRule] = useState<"ALL" | "SCHEDULE">("ALL")
-    const [showError, setShowError] = useState<boolean>(false)
-    const [isEmptyRuleNameError, setIsEmptyRuleNameError] = useState<boolean>(false)
-    const [isEmptyMemberError, setIsEmptyMemberError] = useState<boolean>(false)
-    const showEmptyRuleNameError = () =>  showError && isEmptyRuleNameError
-    const showEmptyMemberError = () => showError && isEmptyMemberError
     const stepItems: StepProps[] = [
         {
             title: '新增規則使用者',
@@ -183,7 +184,6 @@ export default function ProcessHostSchedule(){
             }
         },
     ]
-    const [userTableDatas, setUserTableDatas] = useState<UserTypeWithKey[]>([])
 
     const addUser = (account: string | undefined) => {
         if(account == undefined){
