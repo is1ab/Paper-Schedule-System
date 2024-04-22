@@ -1,16 +1,8 @@
-import { Alert, Button, DatePicker, Descriptions, Input, Select, SelectProps, StepProps, Steps, Table, Tooltip } from "antd";
-import React, { useEffect, useState } from "react";
+import { Alert, Button, DatePicker, Descriptions, Input, Select, SelectProps, StepProps, Steps, Tooltip } from "antd";
+import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import UserAvatar from "./components/UserAvatar";
-import { CheckCircleOutlined, MenuOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { CheckCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
@@ -312,7 +304,7 @@ export default function ProcessHostSchedule(){
                             className="w-100" 
                             value={scheduleRange}
                             minDate={dayjs(Date.now())}
-                            onChange={(dates: NoUndefinedRangeValueType<dayjs.Dayjs> | null, dateString: [string, string]) => {
+                            onChange={(dates: NoUndefinedRangeValueType<dayjs.Dayjs> | null, _dateString: [string, string]) => {
                                 if(dates == null){
                                     return
                                 }
