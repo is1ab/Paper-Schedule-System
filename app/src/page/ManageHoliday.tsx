@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { Badge, Button, Calendar, Input, Table, Tooltip } from "antd";
+import { Badge, Button, Calendar, Input, Table, Tooltip, message } from "antd";
 import { CheckOutlined, DeleteOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
 import { DatePicker } from "antd";
@@ -22,6 +22,7 @@ const emptyAddStatusData = {
 
 export default function ManageHoliday(){
     const dispatch = useAppDispatch()
+    const [messageApi, contextHolder] = message.useMessage();
     const [operationRow, setOperationRow] = useState<HolidayDataTypeWithStatusType>(emptyAddStatusData);
     const [datas, setData] = useState<(HolidayDataTypeWithStatusType)[]>([])
     const [editingDate, setEditingDate] = useState<Dayjs>();
@@ -112,6 +113,10 @@ export default function ManageHoliday(){
             if(response.meta.requestStatus === 'fulfilled'){
                 setOperationRow(emptyAddStatusData)
                 refreshData()
+                messageApi.open({
+                    type: "success",
+                    content: "新增成功"
+                })
             }
         })
     }
@@ -119,6 +124,10 @@ export default function ManageHoliday(){
         dispatch(deleteHoliday(date)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 refreshData()
+                messageApi.open({
+                    type: "success",
+                    content: "刪除成功"
+                })
             }
         })
     }
@@ -163,25 +172,28 @@ export default function ManageHoliday(){
     }, [editingDescription])
     
     return (
-        <Container fluid className="p-5 d-flex flex-column gap-4">
-            <h2 className="text-center">管理假期</h2>
-            <div className="d-flex flex-row gap-4">
-                <div className="w-100">
-                    <Calendar cellRender={(date: Dayjs, _info: any) => {
-                        const data = datas.find((data) => data.date === date.format("YYYY-MM-DD"))
-                        const exists = data !== undefined
-                        return (
-                            !exists ? null : 
-                            <li key={data.name}>
-                                <Badge status="error" text={`假期：${data.name}`}></Badge>
-                            </li>
-                        )
-                    }}></Calendar>
+        <>
+            {contextHolder}
+            <Container fluid className="p-5 d-flex flex-column gap-4">
+                <h2 className="text-center">管理假期</h2>
+                <div className="d-flex flex-row gap-4">
+                    <div className="w-100">
+                        <Calendar cellRender={(date: Dayjs, _info: any) => {
+                            const data = datas.find((data) => data.date === date.format("YYYY-MM-DD"))
+                            const exists = data !== undefined
+                            return (
+                                !exists ? null : 
+                                <li key={data.name}>
+                                    <Badge status="error" text={`假期：${data.name}`}></Badge>
+                                </li>
+                            )
+                        }}></Calendar>
+                    </div>
+                    <div className="w-100">
+                        <Table columns={columns} dataSource={datas}></Table>
+                    </div>
                 </div>
-                <div className="w-100">
-                    <Table columns={columns} dataSource={datas}></Table>
-                </div>
-            </div>
-        </Container>
+            </Container>
+        </>
     )
 }
