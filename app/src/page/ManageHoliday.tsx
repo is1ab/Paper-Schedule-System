@@ -112,6 +112,8 @@ export default function ManageHoliday(){
         } as HolidayAddPayload)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 setOperationRow(emptyAddStatusData)
+                setEditingDate(undefined)
+                setEditingDescription("")
                 refreshData()
                 messageApi.open({
                     type: "success",
