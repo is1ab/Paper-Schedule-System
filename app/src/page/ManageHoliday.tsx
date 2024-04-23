@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { Button, Calendar, Input, Table, Tooltip } from "antd";
+import { Badge, Button, Calendar, Input, Table, Tooltip } from "antd";
 import { CheckOutlined, DeleteOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
 import { DatePicker } from "antd";
@@ -168,15 +168,13 @@ export default function ManageHoliday(){
             <div className="d-flex flex-row gap-4">
                 <div className="w-100">
                     <Calendar cellRender={(date: Dayjs, _info: any) => {
-                        const data = datas.filter((data) => data.date === date.format("YYYY-MM-DD"))
-                        const exists = data.length !== 0
+                        const data = datas.find((data) => data.date === date.format("YYYY-MM-DD"))
+                        const exists = data !== undefined
                         return (
                             !exists ? null : 
-                            <Tooltip placement="top" title={"事由：" + data[0].name}>
-                                <div className="p-2 text-center rounded bg-danger bg-opacity-25">
-                                    <p className="m-0"> 活動暫停 </p>
-                                </div>
-                            </Tooltip>
+                            <li key={data.name}>
+                                <Badge status="error" text={`假期：${data.name}`}></Badge>
+                            </li>
                         )
                     }}></Calendar>
                 </div>
