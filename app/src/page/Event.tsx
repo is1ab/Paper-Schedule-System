@@ -8,11 +8,14 @@ import UserAvatar from "./components/UserAvatar";
 import { useNavigate } from "react-router-dom";
 import { Badge, Calendar, Tag, Tooltip } from "antd";
 import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { getHolidays } from "../store/dataApi/HolidayApiSlice";
+import { HolidayDataType } from "../type/holiday/HolidayPayload";
 
 function Event(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [ events, setEvents ] = useState<ScheduleType[]>([])
+    const [ holidays, setHolidays ] = useState<HolidayDataType[]>([])
 
     useEffect(() => {
         dispatch(getAllSchedule()).then((response: any) => {
@@ -20,6 +23,16 @@ function Event(){
                 const payload = response.payload;
                 const data = payload["data"] as ScheduleType[];
                 setEvents(data.filter((d) => d.status.id == 1))
+            }
+        })
+    }, [])
+
+    useEffect(() => {
+        dispatch(getHolidays()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload;
+                const datas = payload["data"] as HolidayDataType[]
+                setHolidays(datas)
             }
         })
     }, [])
@@ -42,6 +55,19 @@ function Event(){
         )
     }
 
+    const HolidayTooltip = (holiday: HolidayDataType) => {
+        return (
+            <div className="p-2 d-flex flex-column gap-2">
+                <div className="d-flex flex-column gap-1">
+                    <Tag color="error">假期</Tag>
+                </div>
+                <div className="d-flex flex-row gap-3">
+                    <span>{holiday.name}</span>
+                </div>
+            </div>
+        )
+    }
+
     const PendingTooltip = (schedule: ScheduleType) => {
         return (
             <div className="p-2 d-flex flex-column gap-2">
@@ -59,6 +85,16 @@ function Event(){
 
     const cellRender = (date: Dayjs, _info: any) => {
         const specificEvents = events.filter((event) => dayjs(event.datetime).format("YYYY-MM-DD") === date.format("YYYY-MM-DD"))
+        const specificHolidays = holidays.find((holiday) => holiday.date === date.format("YYYY-MM-DD"))
+        if(specificHolidays !== undefined){
+            return (
+                <Tooltip placement="right" open={false} title={HolidayTooltip(specificHolidays)}>
+                    <li key={specificHolidays.name}>
+                        <Badge status="error" text={`假期：${specificHolidays.name}`}></Badge>
+                    </li>
+                </Tooltip>
+            )
+        }
         return (
             <ul className="events">
                 {
