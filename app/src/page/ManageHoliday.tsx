@@ -1,23 +1,30 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { Button, Calendar, Input, Table, Tooltip } from "antd";
-import { CheckOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"
+import { CheckOutlined, DeleteOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons"
 import { ColumnsType } from "antd/es/table";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import { useAppDispatch } from "../store/hook";
+import { addHoliday, deleteHoliday, getHolidays } from "../store/dataApi/HolidayApiSlice";
+import { HolidayAddPayload, HolidayDataType } from "../type/holiday/HolidayPayload";
+
+interface HolidayDataTypeWithStatusType extends HolidayDataType {
+    status: "ADD" | "EDIT" | "DELETE"
+}
+
+const emptyAddStatusData = {
+    id: 0,
+    date: undefined,
+    name: "",
+    status: "ADD"
+} as HolidayDataTypeWithStatusType
 
 export default function ManageHoliday(){
-    const [datas, setData] = useState<{
-        [name: string]: any
-        date?: string,
-        description?: string
-        status: string
-    }[]>([
-        {
-            status: "ADD"
-        }
-    ])
-    const [editingDate, setEditingDate] = useState<string>("");
+    const dispatch = useAppDispatch()
+    const [operationRow, setOperationRow] = useState<HolidayDataTypeWithStatusType>(emptyAddStatusData);
+    const [datas, setData] = useState<(HolidayDataTypeWithStatusType)[]>([])
+    const [editingDate, setEditingDate] = useState<Dayjs>();
     const [editingDescription, setEditingDescription] = useState<string>(""); 
     const [showError, setShowError] = useState<boolean>(false);
     const [showEditingDateError, setShowEditingDateError] = useState<boolean>(false);
@@ -31,7 +38,7 @@ export default function ManageHoliday(){
             className: "text-center",
             key: "date",
             width: "20%",
-            render: (text: any, record: any, _index: number) => {
+            render: (text: string, record: any, _index: number) => {
                 if(record["status"] == "EDIT"){
                     // return <Input className="text-center" defaultValue={text} onChange={e => handleColumnChange(index, "date", e.target.value)}></Input>
                     return (
@@ -41,7 +48,7 @@ export default function ManageHoliday(){
                                 minDate={dayjs(Date.now())}
                                 className="text-center"
                                 format="YYYY-MM-DD"
-                                onChange={date => setEditingDate(date.format("YYYY-MM-DD"))}
+                                onChange={date => setEditingDate(date)}
                                 status={isEditingDateError ? "error" : ""}
                             />
                         </Tooltip>
@@ -52,19 +59,19 @@ export default function ManageHoliday(){
         },
         {
             title: "事由",
-            dataIndex: "description",
+            dataIndex: "name",
             className: "text-center",
-            key: "description",
+            key: "name",
             width: "20%",
             render: (_text: any, record: any, _index: number) => {
                 if(record["status"] == "EDIT"){
                     return (
                         <Tooltip title={"請描述事由"} open={isEditingDescriptionError} defaultOpen={isEditingDescriptionError}>
-                            <Input status={isEditingDescriptionError ? "error" : ""} className="text-center" defaultValue={record["description"]} onChange={e => setEditingDescription(e.target.value)}></Input>
+                            <Input status={isEditingDescriptionError ? "error" : ""} className="text-center" defaultValue={record["name"]} onChange={e => setEditingDescription(e.target.value)}></Input>
                         </Tooltip>
                     )
                 }
-                return <span>{record["description"]}</span>
+                return <span>{record["name"]}</span>
             }
         },
         {
@@ -72,69 +79,74 @@ export default function ManageHoliday(){
             className: "text-center",
             dataIndex: "status",
             width: "20%",
-            render: (text: any, record: any, index: number) => {
+            render: (text: any, record: any, _index: number) => {
                 if(text == "ADD"){
-                    return <Button type="primary" className="bg-primary" shape="circle" icon={<PlusOutlined/>} onClick={() => editAction()}></Button>
+                    return <Button type="primary" className="bg-primary" shape="circle" icon={<PlusOutlined/>} onClick={async () => await editAction()}></Button>
                 }else if(text == "EDIT"){
-                    return <Button type="primary" className="bg-success" shape="circle" icon={<CheckOutlined/>} onClick={() => doneAction()}></Button>
+                    return <Button type="primary" className="bg-success" shape="circle" icon={<CheckOutlined/>} onClick={async () => await doneAction()}></Button>
                 }else if(text == "DELETE"){
-                    return <Button type="primary" className="bg-danger" shape="circle" icon={<DeleteOutlined/>} onClick={() => deleteAction(record["date"], index)}></Button>
+                    return <Button type="primary" className="bg-danger" shape="circle" icon={<DeleteOutlined/>} onClick={() => deleteAction(record["date"])}></Button>
+                }else if(text === "REQUESTING"){
+                    return <Button type="primary" className="bg-secondary" shape="circle" icon={<LoadingOutlined />}></Button>
                 }
                 return null
             }
         }
     ]
-    const editAction = () => {
-        const tempData = Object.assign([] as {
-            date?: string,
-            description?: string
-            status: string
-        }[], datas);
-        tempData[0].status = "EDIT"
-        setData(tempData)
+    const editAction = async () => {
+        setOperationRow({
+            ...operationRow,
+            status: "EDIT"
+        })
     }
-    const doneAction = () => {
-        const tempData = Object.assign([] as {
-            date?: string,
-            description?: string
-            status: string
-        }[], datas);
-        if(editingDate.length == 0 || editingDescription.length == 0 || datas.some(data => data.date === editingDate)){
+
+    const doneAction = async () => {
+        if(editingDate == null || editingDescription.length == 0 || datas.some(data => data.date === editingDate.format("YYYY-MM-DD"))){
             setShowError(true)
             return
         }
-        tempData.push({
+        dispatch(addHoliday({
             date: editingDate,
-            description: editingDescription,
-            status: "DELETE"
-        })
-        tempData[0] = {
-            status: "ADD"
-        }
-        tempData.sort((a: any, b: any) => {
-            if(a.date == null || b.date == null){
-                return
+            name: editingDescription
+        } as HolidayAddPayload)).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                setOperationRow(emptyAddStatusData)
+                refreshData()
             }
-            return b.date.localeCompare(a.date);
         })
-        setEditingDate("")
-        setEditingDescription("")
-        setData(tempData)
     }
-    const deleteAction = (date: string, _index: number) => {
-        const tempData = []
-        for(let i = 0; i < datas.length; i++){
-            if(datas[i].date === date){
-                continue;
+    const deleteAction = (date: string) => {
+        dispatch(deleteHoliday(date)).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                refreshData()
             }
-            tempData.push(datas[i])
-        }
-        setData(tempData)
+        })
+    }
+
+    const refreshData = async () => {
+        await dispatch(getHolidays()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload;
+                const datas = payload["data"] as HolidayDataType[];
+                const templist = ([operationRow] as HolidayDataTypeWithStatusType[])
+                    .concat(Object.assign([] as HolidayDataTypeWithStatusType[], datas.map((data) => {
+                        return {
+                            ...data,
+                            status: "DELETE"
+                        } as HolidayDataTypeWithStatusType
+                    })))
+                setData(templist)
+            }
+        })
     }
 
     useEffect(() => {
+        refreshData()
+    }, [operationRow])
+
+    useEffect(() => {
         setShowError(false)
-        if(editingDate.length === 0){
+        if(editingDate === undefined){
             setShowEditingDateError(true)
         }else{
             setShowEditingDateError(false)
@@ -160,7 +172,7 @@ export default function ManageHoliday(){
                         const exists = data.length !== 0
                         return (
                             !exists ? null : 
-                            <Tooltip placement="top" title={"事由：" + data[0].description}>
+                            <Tooltip placement="top" title={"事由：" + data[0].name}>
                                 <div className="p-2 text-center rounded bg-danger bg-opacity-25">
                                     <p className="m-0"> 活動暫停 </p>
                                 </div>
