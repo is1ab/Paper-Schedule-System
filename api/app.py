@@ -7,6 +7,7 @@ from typing import Any, Mapping
 from audit.route import audit_bp
 from auth.route import auth_bp
 from holiday.route import holiday_bp
+from host.route import host_bp
 from schedule.route import schedule_bp
 from setting.route import setting_bp
 from store.storage.tunnel_type import TunnelCode
@@ -29,6 +30,7 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
     app.register_blueprint(user_bp)
     app.register_blueprint(schedule_bp)
     app.register_blueprint(setting_bp)
+    app.register_blueprint(host_bp)
 
     tmp_path = Path(app.config["TMP_STORAGE_PATH"])
     tmp_attachment_path = Path(tmp_path) / TunnelCode.ATTACHMENT.value

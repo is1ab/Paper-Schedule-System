@@ -1,14 +1,14 @@
 from typing import Any
 
-from flask import Blueprint
+from flask import Blueprint, request, make_response
 
 import store.db.query.host_rule as host_rule_db 
 from store.db.db import create_transection
 from store.db.model.host_rule import HostRule
-from route_util import audit_route, request
+from route_util import audit_route
 
 
-host_bp = Blueprint("host", __name__, url_prefix="/host")
+host_bp = Blueprint("host", __name__, url_prefix="/api/host")
 
 @audit_route(host_bp, "/", methods=["POST"])
 def add_hostrule():
@@ -41,3 +41,5 @@ def add_hostrule():
             orders, 
             connection
         )
+
+    return make_response({"status": "OK"})

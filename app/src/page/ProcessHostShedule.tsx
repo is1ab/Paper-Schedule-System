@@ -12,6 +12,8 @@ import { DefaultOptionType, LabeledValue } from "antd/es/select";
 import { useNavigate } from "react-router-dom";
 import DragableTable from "../components/DragableTable";
 import DeletableTable from "../components/DeletableTable";
+import { addHostRule } from "../store/dataApi/HostRuleApiSlice";
+import { HostRulePayloadType } from "../type/host/HostRuleType";
 
 const { RangePicker } = DatePicker;
 
@@ -202,6 +204,22 @@ export default function ProcessHostSchedule(){
         setUserTableDatas(tempUserTableDatas)
     }
 
+    const submit = () => {
+        dispatch(addHostRule({
+            name: scheduleRuleName,
+            weekday: Number.parseInt(scheduleRuleWeekday),
+            period: Number.parseInt(scheduleRulePeriod),
+            startDate: scheduleRange[0].format("YYYY-MM-DD"),
+            endDate: scheduleRange[1].format("YYYY-MM-DD"),
+            rule: scheduleRule,
+            orders: userTableDatas.map((user) => user.account)
+        } as HostRulePayloadType)).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                setSteps(steps + 1)
+            }
+        })
+    }
+
     useEffect(() => {
         dispatch(getUsers()).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
@@ -369,7 +387,7 @@ export default function ProcessHostSchedule(){
                             </ol>
                         </Descriptions.Item>
                     </Descriptions>
-                    <Button type="primary" onClick={() => setSteps(steps + 1)}> 下一步 </Button>
+                    <Button type="primary" onClick={() => submit()}> 下一步 </Button>
                 </div>
             }
             { steps == 4 &&
