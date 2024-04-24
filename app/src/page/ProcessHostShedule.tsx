@@ -1,4 +1,4 @@
-import { Alert, Button, DatePicker, Descriptions, Input, Select, SelectProps, StepProps, Steps, Tooltip } from "antd";
+import { Alert, Button, DatePicker, Descriptions, Input, Result, Select, SelectProps, StepProps, Steps, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import UserAvatar from "./components/UserAvatar";
@@ -6,8 +6,6 @@ import { CheckCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import dayjs, { Dayjs } from "dayjs";
 import { NoUndefinedRangeValueType } from "rc-picker/lib/PickerInput/RangePicker"
 import { DefaultOptionType, LabeledValue } from "antd/es/select";
@@ -376,16 +374,14 @@ export default function ProcessHostSchedule(){
             }
             { steps == 4 &&
                 <div className="border rounded p-5 d-flex flex-column gap-5">
-                    <div className="d-flex flex-row gap-3 mx-auto p-5 ">
-                        <FontAwesomeIcon icon={faSquareCheck} style={{fontSize: "5rem", color: "green"}}/>
-                        <div className="d-flex flex-column my-auto gap-2">
-                            <h4 className="my-0"> 新增規則成功 </h4>
-                            <p className="my-0">{`主持人已規劃至活動頁面上，由 ${scheduleRange[0].format("YYYY-MM-DD")} 開始，在 ${scheduleRange[1].format("YYYY-MM-DD")} 結束`}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <Button type="primary" className="w-100" onClick={() => navigate("/")}>回到首頁</Button>
-                    </div>
+                    <Result
+                        status={"success"}
+                        title="新增規則成功"
+                        subTitle={`主持人已規劃至活動頁面上，由 ${scheduleRange[0].format("YYYY-MM-DD")} 開始，在 ${scheduleRange[1].format("YYYY-MM-DD")} 結束`}
+                        extra={[
+                            <Button type="primary" className="w-100" onClick={() => navigate("/")}>回到首頁</Button>
+                        ]}
+                    />
                 </div>
             }
         </Container>
