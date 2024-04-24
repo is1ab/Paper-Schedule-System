@@ -1,35 +1,61 @@
 import { Button, Table } from "antd";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hook";
+import { useEffect, useState } from "react";
+import { getHostRules } from "../store/dataApi/HostRuleApiSlice";
 
 export default function ManageHostSchedule(){
+    const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const [tableData, setTableData] = useState([{
+        id: 0,
+        name: ""
+    }])
     const columns = [
         {
-            key: 0,
             title: "ID",
+            key: "id",
             dataKey: "id"
         },
         {
-            key: 1,
             title: "規則名稱",
-            dataKey: "ruleName"
+            key: "name",
+            dataKey: "name"
         },
         {
-            key: 2,
             title: "規則使用者",
-            dataKey: "ruleUsers"
+            key: "users",
+            dataKey: "users"
         },
         {
-            key: 3,
             title: "排程週次",
-            dataKey: "ruleRepeat"
+            key: "period",
+            dataKey: "period"
         },
         {
             key: 4,
             title: "操作",
         }
     ]
+    // useEffect(() => {
+    //     dispatch(getHostRules()).then((response) => {
+    //         if(response.meta.requestStatus === 'fulfilled'){
+    //             const payload = response.payload;
+    //             const datas = payload["data"]
+    //             const tableDatas = datas.map((data: any) => {
+    //                 return {
+    //                     key: data.name,
+    //                     id: "0",
+    //                     name: data.name,
+    //                     users: "",
+    //                     period: data.period
+    //                 }
+    //             })
+    //             setTableData(tableDatas)
+    //         }
+    //     })
+    // }, [])
     return (
         <div>
             <Container className="p-5 text-center">
@@ -38,7 +64,7 @@ export default function ManageHostSchedule(){
                     <div className="d-flex flex-row justify-content-end w-100">
                         <Button type="primary" className="w-25" onClick={() => navigate("/manageHostSchedule/0/Edit")}>新增規則</Button>
                     </div>
-                    <Table columns={columns}></Table>
+                    <Table columns={columns} dataSource={tableData}></Table>
                 </div>
             </Container>
         </div>

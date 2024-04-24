@@ -11,4 +11,7 @@ export class HostRuleService extends BaseService {
         return axios.post("/host/", payload, this.getAxiosRequestConfig())
     }
 
+    getHostRules = () => {
+        return axios.get("/host/", this.getAxiosRequestConfig())
+    }
 }

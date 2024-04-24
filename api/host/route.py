@@ -43,3 +43,13 @@ def add_hostrule():
         )
 
     return make_response({"status": "OK"})
+
+
+@audit_route(host_bp, "/", methods=["GET"])
+def getHostRules():
+    host_rules: list[HostRule] = host_rule_db.get_host_rules()
+    
+    return make_response({
+        "status": "OK",
+        "data": [host_rule.to_json() for host_rule in host_rules]
+    })

@@ -1,4 +1,6 @@
-import traceback
+from typing import Any
+
+from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
 from store.db.model.host_rule import HostRule
@@ -42,3 +44,22 @@ def add_host_rule_user_without_commit(hostRuleId: int, users: list[str], connect
     except Exception as e:
         connection.rollback()
         raise e 
+    
+
+def get_host_rules() -> list[HostRule]:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT id, "name", "startDate", "endDate", "period", weekday, "rule", deleted
+            FROM public.host_rule;
+        """
+        cursor.execute(sql)
+        results: list[dict[str, Any]] = cursor.fetchall()
+        return [HostRule(
+            name=result["name"],
+            startDate=result["startDate"],
+            endDate=result["endDate"],
+            period=result["period"],
+            weekday=result["weekday"],
+            rule=result["rule"],
+            deleted=result["deleted"]
+        ) for result in results]

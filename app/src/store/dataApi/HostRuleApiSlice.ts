@@ -26,3 +26,21 @@ export const addHostRule = createAsyncThunk(
         }
     }
 )
+
+export const getHostRules = createAsyncThunk(
+    'hostRuleApi/getHostRules',
+    async (_, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new HostRuleService(token);
+            const res = await service.getHostRules()
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`hostRuleApi/getHostRules: ${err}`)
+            })
+        }
+    }
+)
