@@ -10,9 +10,11 @@ class HostRule:
     weekday: int
     rule: str
     deleted: bool
+    id: int = None
 
     def to_json(self):
         return {
+            "id": self.id,
             "name": self.name,
             "startDate": self.startDate.strftime("%Y-%m-%d"),
             "endDate": self.endDate.strftime("%Y-%m-%d"),

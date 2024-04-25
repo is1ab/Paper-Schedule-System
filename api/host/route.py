@@ -48,8 +48,16 @@ def add_hostrule():
 @audit_route(host_bp, "/", methods=["GET"])
 def getHostRules():
     host_rules: list[HostRule] = host_rule_db.get_host_rules()
-    
+    result = []
+
+    for host_rule in host_rules:
+        host_rule_json = host_rule.to_json()
+        host_rule_json |= {
+            "users": host_rule_db.get_host_rule_users(host_rule.id)
+        }
+        result.append(host_rule_json)
+
     return make_response({
         "status": "OK",
-        "data": [host_rule.to_json() for host_rule in host_rules]
+        "data": result
     })
