@@ -21,7 +21,7 @@ function UserAvatar(props: {
                 setAvatarSource(URL.createObjectURL(payload))
             }
         })
-    }, [])
+    }, [account])
 
     return (
         <Avatar size={size} className="my-auto" circle src={avatarSource}></Avatar>

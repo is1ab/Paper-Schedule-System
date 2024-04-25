@@ -12,3 +12,14 @@ export interface HostRuleOrdersPayloadType {
     account: string,
     index: number
 }
+
+export interface HostRuleDataType {
+    id: number,
+    name: string,
+    startDate: string,
+    endDate: string,
+    period: number,
+    weekday: number,
+    rule: string,
+    deleted: boolean
+}

@@ -13,7 +13,7 @@ class Schedule:
     link: str
     description: str
     status: ScheduleStatus
-    user: User
+    user: User | None
     attachments: List[ScheduleAttachment] = field(default_factory=list)
     id: str = ""
     host_rule: HostRule = None
@@ -40,7 +40,7 @@ class Schedule:
             "description": self.description,
             "datetime": self.get_format_datetime(),
             "status": self.status.to_json(),
-            "user": self.user.to_json(),
+            "user":  self.user.to_json() if self.user != None else None,
             "hostRule": self.host_rule.to_json() if self.host_rule != None else None,
             "hostRuleIter": self.host_rule_iterator,
         }

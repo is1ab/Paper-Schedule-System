@@ -39,19 +39,20 @@ def generate_host_rule_pending_schedules(
     host_index: int = 0
 
     if host_rule.weekday != weekday:
-        schedule_date += timedelta(days=weekday - host_rule.weekday)
+        schedule_date += (-1 if weekday > host_rule.weekday else 1) * timedelta(days=weekday - host_rule.weekday)
     
     while schedule_date <= end_date:
         date: str = schedule_date.strftime("%Y-%m-%d")
         if date in holiday_dates:
+            schedule_date += timedelta(weeks=1)
             continue
         user: User = host_rule_orders[host_index % len(host_rule_orders)]
         host_rule_schedules.append(Schedule(
-            name="",
+            name="" if host_rule.rule == "SCHEDULE" else host_rule.name,
             link="",
             description="",
-            status=ScheduleStatus(1, "等待審核中"),
-            user=user,
+            status=ScheduleStatus(4, "等待規劃中") if host_rule.rule == "SCHEDULE" else ScheduleStatus(2, "已完成"),
+            user=user if host_rule.rule == "SCHEDULE" else None,
             attachments=[],
             host_rule=host_rule,
             host_rule_iterator=(host_index // len(host_rule_orders)),

@@ -1,3 +1,4 @@
+import { HostRuleDataType } from "../host/HostRuleType"
 import { UserType } from "../user/userType"
 
 export interface AddSchedulePayloadType {
@@ -20,6 +21,8 @@ export interface ScheduleType {
     name: string,
     status: ScheduleStatusType,
     user: UserType,
+    hostRule: HostRuleDataType | undefined,
+    hostRuleIter: number
     attachments: ScheduleAttachmentType[]
 }
 

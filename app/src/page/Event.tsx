@@ -8,31 +8,18 @@ import UserAvatar from "./components/UserAvatar";
 import { useNavigate } from "react-router-dom";
 import { Badge, Calendar, Tag, Tooltip } from "antd";
 import { CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
-import { getHolidays } from "../store/dataApi/HolidayApiSlice";
-import { HolidayDataType } from "../type/holiday/HolidayPayload";
 
 function Event(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [ events, setEvents ] = useState<ScheduleType[]>([])
-    const [ holidays, setHolidays ] = useState<HolidayDataType[]>([])
 
     useEffect(() => {
         dispatch(getAllSchedule()).then((response: any) => {
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
-                const data = payload["data"] as ScheduleType[];
-                setEvents(data.filter((d) => d.status.id == 1))
-            }
-        })
-    }, [])
-
-    useEffect(() => {
-        dispatch(getHolidays()).then((response) => {
-            if(response.meta.requestStatus === 'fulfilled'){
-                const payload = response.payload;
-                const datas = payload["data"] as HolidayDataType[]
-                setHolidays(datas)
+                const datas= payload["data"] as ScheduleType[];
+                setEvents(datas.filter((data => data.status.id === 2 || data.status.id === 4 || data.status.id === 5)))
             }
         })
     }, [])
@@ -40,10 +27,12 @@ function Event(){
     const EventTooltip = (schedule: ScheduleType) => {
         return (
             <div className="p-2 d-flex flex-column gap-2">
-                <div className="d-flex flex-row gap-1">
-                    <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
-                    <span className="my-auto">{schedule.user.name}</span>
-                </div>
+                { schedule.user &&
+                    <div className="d-flex flex-row gap-1">
+                        <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                        <span className="my-auto">{schedule.user.name}</span>
+                    </div>
+                }
                 <div className="d-flex flex-column gap-1">
                     <Tag color="default">實驗室例行會議</Tag>
                     <Tag icon={<CheckCircleOutlined />} color="green">已完成審核</Tag>
@@ -55,7 +44,7 @@ function Event(){
         )
     }
 
-    const HolidayTooltip = (holiday: HolidayDataType) => {
+    const HolidayTooltip = (holiday: ScheduleType) => {
         return (
             <div className="p-2 d-flex flex-column gap-2">
                 <div className="d-flex flex-column gap-1">
@@ -76,44 +65,46 @@ function Event(){
                     <span className="my-auto">{schedule.user.name}</span>
                 </div>
                 <div className="d-flex flex-column gap-1">
-                    <Tag color="default">Windows API Call 專題會議</Tag>
-                    <Tag icon={<ClockCircleOutlined />} color="default">題目未定或等待審核中</Tag>
+                    <Tag color="default">{schedule.hostRule?.name}</Tag>
+                    <Tag icon={<ClockCircleOutlined />} color="default">等待規劃中</Tag>
                 </div>
             </div>
         )
     }
 
     const cellRender = (date: Dayjs, _info: any) => {
-        const specificEvents = events.filter((event) => dayjs(event.datetime).format("YYYY-MM-DD") === date.format("YYYY-MM-DD"))
-        const specificHolidays = holidays.find((holiday) => holiday.date === date.format("YYYY-MM-DD"))
-        if(specificHolidays !== undefined){
-            return (
-                <Tooltip placement="right" open={false} title={HolidayTooltip(specificHolidays)}>
-                    <li key={specificHolidays.name}>
-                        <Badge status="error" text={`假期：${specificHolidays.name}`}></Badge>
-                    </li>
-                </Tooltip>
-            )
-        }
+        const specificEvents = events.filter((event) => 
+            dayjs(event.datetime).format("YYYY-MM-DD") === date.format("YYYY-MM-DD")
+        )
         return (
             <ul className="events">
                 {
                     specificEvents.map((specificEvent) => {
+                        if(specificEvent.status.id == 5){
+                            return (
+                                <Tooltip placement="right" title={HolidayTooltip(specificEvent)}>
+                                    <li key={specificEvent.name}>
+                                        <Badge status="error" text={`活動暫停：${specificEvent.name}`}></Badge>
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
+                        if(specificEvent.status.id == 4){
+                            return (
+                                <Tooltip placement="right" title={PendingTooltip(specificEvent)}>
+                                    <li key={specificEvent.name}>
+                                        <Badge status="processing" text={`${specificEvent.user.name} - ${specificEvent.hostRule?.name}`}></Badge>
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
                         return (
                             <Tooltip placement="right" title={EventTooltip(specificEvent)}>
                                 <li key={specificEvent.name} onClick={() => navigate(`/Schedule/${specificEvent.id}`)}>
-                                    <Badge status="success" text={specificEvent.user.name + " - " + specificEvent.name}></Badge>
-                                </li>
-                            </Tooltip>
-                        )
-                    })
-                }
-                {
-                    specificEvents.map((specificEvent) => {
-                        return (
-                            <Tooltip placement="right" title={PendingTooltip(specificEvent)}>
-                                <li key={specificEvent.name} onClick={() => navigate(`/Schedule/${specificEvent.id}`)}>
-                                    <Badge status="processing" text={"黃漢軒 - 待定"}></Badge>
+                                    { specificEvent.user ? 
+                                        <Badge status="success" text={specificEvent.user.name + " - " + specificEvent.name}></Badge> :
+                                        <Badge status="success" text={specificEvent.name}></Badge>
+                                    }
                                 </li>
                             </Tooltip>
                         )
