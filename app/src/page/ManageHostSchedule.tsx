@@ -1,10 +1,11 @@
-import {  Button, SelectProps, Table } from "antd";
+import { Button, SelectProps, Table } from "antd";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
 import { getHostRules } from "../store/dataApi/HostRuleApiSlice";
 import { ColumnProps } from "antd/es/table";
+import dayjs from "dayjs";
 
 export default function ManageHostSchedule(){
     const dispatch = useAppDispatch()
@@ -70,8 +71,9 @@ export default function ManageHostSchedule(){
     ]
     const columns: ColumnProps<any>[] = [
         {
-            title: "ID",
+            title: "#",
             key: "id",
+            width: 100,
             className: "text-center",
             dataIndex: "id"
         },        
@@ -85,35 +87,45 @@ export default function ManageHostSchedule(){
         {
             title: "規則使用者",
             key: "users",
-            className: "text-left",
+            className: "text-center",
             dataIndex: "users",
             width: 200,
-            render: (user: any, record: any, index: number) => {
+            render: (user: any, _record: any, _index: number) => {
                 return (
                     <div className="">
-                        { user.map((user: any) => user.name).join("、")}
+                        { user.map((user: any) => 
+                            <p className="my-0">{user.name}</p>
+                        )}
                     </div>
                 )
             }
         },
         {
-            title: "排程週次",
-            key: "period",
+            title: "規則期限",
+            key: "range",
             width: 200,
             className: "text-center",
-            dataIndex: "period",
-            render: (text: any) => {
-                return periodItems.find((periodItem) => periodItem.value == text)?.label;
+            dataIndex: "range",
+            render: (_text: any, record: any, _index: number) => {
+                return <>
+                    <p className="my-0">{`${record["startDate"].format("YYYY-MM-DD")} 至`}</p>
+                    <p className="my-0">{`${record["endDate"].format("YYYY-MM-DD")}`}</p>
+                </>
             }
         },
         {
-            title: "排程星期",
-            key: "weekday",
+            title: "排程條件",
+            key: "schedule",
             width: 200,
             className: "text-center",
-            dataIndex: "weekday",
-            render: (text: any) => {
-                return weekdayItems.find((weekdayItem) => weekdayItem.value == text)?.label;
+            dataIndex: "schedule",
+            render: (_text: any, record: any, _index: number) => {
+                const period = record["period"]
+                const weekday = record["weekday"]
+                return <>
+                    <p className="my-0">{`${periodItems.find((periodItem) => periodItem.value == period)?.label}`}</p>
+                    <p className="my-0">{`每${weekdayItems.find((weekdayItem) => weekdayItem.value == weekday)?.label}舉行一次`}</p>
+                </>
             }
         },
         {
@@ -130,7 +142,7 @@ export default function ManageHostSchedule(){
             key: 4,
             className: "text-center",
             title: "操作",
-            width: 200,
+            width: 300,
             render: () => {
                 return <div className="d-flex flex-row gap-2 justify-content-center">
                     <Button type="primary">修改規則</Button>
@@ -152,6 +164,8 @@ export default function ManageHostSchedule(){
                         users: data.users,
                         period: data.period,
                         weekday: data.weekday,
+                        startDate: dayjs(data.startDate, "YYYY-MM-DD"),
+                        endDate: dayjs(data.endDate, "YYYY-MM-DD"),
                         rule: data.rule
                     }
                 })
