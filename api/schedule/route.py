@@ -5,10 +5,15 @@ from uuid import uuid4
 from flask import Blueprint, make_response, request
 
 import store.db.db as db
+import store.db.query.holiday as holiday_db
+import store.db.query.host_rule as host_rule_db
 import store.db.query.schedule as schedule_db
 import store.db.query.user as user_db
 from auth.jwt_util import decode_jwt, fetch_token
 from route_util import audit_route
+from schedule.util import generate_schedule, generate_host_rule_pending_schedules
+from store.db.model.holiday import Holiday
+from store.db.model.host_rule import HostRule
 from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
@@ -23,8 +28,17 @@ schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
 @audit_route(schedule_bp, "/", methods=["GET"])
 def get_all_schedules():
-    schedules: list[Schedule] = schedule_db.get_schedules()
-    return make_response({"status": "OK", "data": [schedule.to_json_without_attachment() for schedule in schedules]})
+    arranged_schedules: list[Schedule] = schedule_db.get_schedules()
+    holidays: list[Holiday] = holiday_db.get_holidays()
+    host_rules: list[HostRule] = host_rule_db.get_host_rules()
+    results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
+
+    for host_rule in host_rules:
+        users: User = host_rule_db.get_host_rule_users(host_rule.id)
+        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, holidays)
+        results.extend(pending_schedules)
+
+    return make_response({"status": "OK", "data": [result.to_json_without_attachment() for result in results]})
 
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):

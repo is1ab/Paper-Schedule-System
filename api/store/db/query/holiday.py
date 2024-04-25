@@ -14,7 +14,6 @@ def add_holiday(holiday: Holiday):
             VALUES(%s, %s);  
             """
         cursor.execute(sql, (holiday.name, holiday.date))
-        cursor.close()
 
 def get_holidays() -> list[Holiday]:
     with create_cursor(row_factory=dict_row) as cursor:
@@ -24,7 +23,6 @@ def get_holidays() -> list[Holiday]:
             """
         cursor.execute(sql)
         results: list[dict[str, Any]] = cursor.fetchall()
-        cursor.close()
         return [Holiday(
             id=result["id"],
             name=result["name"],
@@ -38,4 +36,3 @@ def delete_holiday(date: str):
             WHERE "date"=%s;
             """
         cursor.execute(sql, (date,))
-        cursor.close()

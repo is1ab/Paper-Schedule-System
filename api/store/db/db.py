@@ -22,3 +22,4 @@ def create_cursor(*args, **kwarg):
             yield cursor
         finally:
             cursor.close()
+            

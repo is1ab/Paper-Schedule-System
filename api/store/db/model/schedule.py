@@ -4,6 +4,7 @@ from typing import Any, List
 
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
+from store.db.model.host_rule import HostRule
 from store.db.model.user import User
 
 @dataclass(kw_only=True)
@@ -15,6 +16,8 @@ class Schedule:
     user: User
     attachments: List[ScheduleAttachment] = field(default_factory=list)
     id: str = ""
+    host_rule: HostRule = None
+    host_rule_iterator: int = 0
     schedule_datetime: datetime | None = None
     archived: bool = False
 
@@ -38,6 +41,8 @@ class Schedule:
             "datetime": self.get_format_datetime(),
             "status": self.status.to_json(),
             "user": self.user.to_json(),
+            "hostRule": self.host_rule.to_json() if self.host_rule != None else None,
+            "hostRuleIter": self.host_rule_iterator,
         }
     
 def convert_schedule_by_dict_data(data: dict[str, Any], user=None, attachments=[]) -> Schedule:
