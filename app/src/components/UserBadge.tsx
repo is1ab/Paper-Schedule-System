@@ -59,6 +59,13 @@ function UserBadge(){
                     type: "divider"
                 },
                 {
+                    label: <div onClick={() => navigator("/")}>系統設定</div>,
+                    key: 7
+                },
+                {
+                    type: "divider"
+                },
+                {
                     label:  <div onClick={() => logout()}>登出</div>,
                     key: 6
                 },

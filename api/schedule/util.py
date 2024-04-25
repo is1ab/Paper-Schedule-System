@@ -59,7 +59,7 @@ def generate_host_rule_pending_schedules(
             schedule_datetime=schedule_date
         ))
         host_index += 1
-        schedule_date += timedelta(weeks=1)
+        schedule_date += timedelta(weeks=host_rule.period)
 
     return host_rule_schedules
 
