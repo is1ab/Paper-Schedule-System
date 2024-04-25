@@ -4,7 +4,7 @@ from flask import Blueprint, request, make_response
 
 import store.db.query.host_rule as host_rule_db 
 from store.db.db import create_transection
-from store.db.model.host_rule import HostRule
+from store.db.model.host_rule import HostRule, HostRuleOrder
 from route_util import audit_route
 
 
@@ -21,7 +21,7 @@ def add_hostrule():
     startDate: str = payload["startDate"]
     endDate: str = payload["endDate"]
     rule: str = payload["rule"]
-    orders: list[str] = payload["orders"]
+    orders: list[dict[str, Any]] = payload["orders"]
 
     with create_transection() as (connection, transection):
         id: int = host_rule_db.add_host_rule_without_commit(
@@ -37,8 +37,7 @@ def add_hostrule():
             connection
         )
         host_rule_db.add_host_rule_user_without_commit(
-            id, 
-            orders, 
+            [HostRuleOrder(id, order["account"], order["index"]) for order in orders],
             connection
         )
 

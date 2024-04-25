@@ -23,3 +23,16 @@ class HostRule:
             "rule": self.rule,
             "deleted": self.deleted
         }
+    
+@dataclass
+class HostRuleOrder:
+    host_rule_id: int
+    account: str
+    index: int
+
+    def to_json(self):
+        return {
+            "host_rule_id": self.host_rule_id,
+            "account": self.account,
+            "index": self.index
+        }

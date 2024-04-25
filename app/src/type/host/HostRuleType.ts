@@ -5,5 +5,10 @@ export interface HostRulePayloadType {
     startDate: string,
     endDate: string,
     rule: string,
-    orders: string[]
+    orders: []
+}
+
+export interface HostRuleOrdersPayloadType {
+    account: string,
+    index: number
 }

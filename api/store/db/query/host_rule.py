@@ -3,7 +3,7 @@ from typing import Any
 from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
-from store.db.model.host_rule import HostRule
+from store.db.model.host_rule import HostRule, HostRuleOrder
 from store.db.model.role import Role
 from store.db.model.user import User
 
@@ -33,15 +33,15 @@ def add_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> 
         raise e
 
 
-def add_host_rule_user_without_commit(hostRuleId: int, users: list[str], connection: Connection):
+def add_host_rule_user_without_commit(orders: list[HostRuleOrder], connection: Connection):
     try:
         with connection.cursor() as cursor:
             sql: str = """
                 INSERT INTO public.host_rule_user
-                ("hostRuleId", "account")
-                VALUES (%s, %s);
+                ("hostRuleId", "account", "index")
+                VALUES (%s, %s, %s);
             """
-            cursor.executemany(sql, [(hostRuleId, user) for user in users])
+            cursor.executemany(sql, [(order.host_rule_id, order.account, order.index) for order in orders])
             cursor.close()
     except Exception as e:
         connection.rollback()

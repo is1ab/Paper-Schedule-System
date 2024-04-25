@@ -212,7 +212,12 @@ export default function ProcessHostSchedule(){
             startDate: scheduleRange[0].format("YYYY-MM-DD"),
             endDate: scheduleRange[1].format("YYYY-MM-DD"),
             rule: scheduleRule,
-            orders: userTableDatas.map((user) => user.account)
+            orders: userTableDatas.map((user, index) => (
+                {
+                    account: user.account,
+                    index: index,
+                }
+            ))
         } as HostRulePayloadType)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 setSteps(steps + 1)
