@@ -1,24 +1,25 @@
 import { CheckCircleOutlined, ClockCircleOutlined, LinkOutlined } from "@ant-design/icons";
 import { Badge, Button, Calendar, Descriptions, DescriptionsProps, StepProps, Steps, Tag, Tooltip } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import UserAvatar from "./components/UserAvatar";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import HolidayTooltip from "../components/HolidayTooltip";
-import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
-import EventTooltip from "../components/EventTooltip";
+import { getAllSchedule, getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { useAppDispatch } from "../store/hook";
 export default function ProcessScheduleRequest(){
-    const navigate = useNavigate()
+    const { scheduleId } = useParams()
     const dispatch = useAppDispatch()
     const [steps, setSteps] = useState<number>(0)
+    const [specificSchedule, setSpecificSchedule] = useState<ScheduleType>()
     const [schedules, setSchedules] = useState<ScheduleType[]>([])
     const [cursorSelect, setCursorSelect] = useState<{
         hostRuleId: number,
         account: string,
-        hostRuleIter: number
+        hostRuleIter: number,
+        datetime: Dayjs
     } | null>(null)
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(Date.now()))
     const stepItems: StepProps[] = [
@@ -39,45 +40,37 @@ export default function ProcessScheduleRequest(){
         {
             key: "1",
             label: "名稱",
-            children: "EPREKM: ElGamal proxy re-encryption-based key management scheme with constant rekeying cost and linear public bulletin size",
+            children: `${specificSchedule?.name}`,
             span: 3
         },
         {
             key: "2",
             label: "主持人",
-            children: "黃漢軒",
-        },
-        {
-            key: "3",
-            label: "創立時間",
-            children: "2024/04/19",
+            children: `${specificSchedule?.user.name}`,
         },
         {
             key: "4",
             label: "報告時間",
-            children: "2024/04/19",
+            children: `${cursorSelect == null ? "待定" : cursorSelect.datetime.format("YYYY-MM-DD")}`,
+            span: 2
         },
         {
             key: "5",
             label: "論文連結",
             children: (
-                <div className="d-flex flex-column gap-3">
-                    <Button type="link">https://doi.org/10.2172/6223037</Button>
-                </div>
+                <Button type="link">{specificSchedule?.link}</Button>
             ),
             span: 1
         },
         {
             key: "6",
             label: "附件",
-            children: (
-                <div className="d-flex flex-column gap-3">
-                    <Button type="link" icon={<LinkOutlined />}>附件 1</Button>
-                    <Button type="link" icon={<LinkOutlined />}>附件 2</Button>
-                    <Button type="link" icon={<LinkOutlined />}>附件 3</Button>
-                    <Button type="link" icon={<LinkOutlined />}>附件 4</Button>
-                </div>
-            ),
+            children: <>
+                <Button type="link" icon={<LinkOutlined />}>附件 1</Button>
+                <Button type="link" icon={<LinkOutlined />}>附件 2</Button>
+                <Button type="link" icon={<LinkOutlined />}>附件 3</Button>
+                <Button type="link" icon={<LinkOutlined />}>附件 4</Button>
+            </>,
             span: 1
         }
     ]
@@ -124,7 +117,10 @@ export default function ProcessScheduleRequest(){
                     <Tag icon={<ClockCircleOutlined />} color="default">等待規劃中</Tag>
                 </div>
                 <div className="w-100">
-                    <span style={{color: "#bbbbbb"}}>點擊行程來進行覆蓋</span>
+                    { specificSchedule?.user.id != schedule.user.id ? 
+                        <span style={{color: "#bbbbbb"}}>不可覆蓋，行程主持人不相符</span> :
+                        <span style={{color: "#bbbbbb"}}>點擊行程來進行覆蓋</span>
+                    }
                 </div>
             </div>
         )
@@ -148,15 +144,19 @@ export default function ProcessScheduleRequest(){
                             return (
                                 <Tooltip placement="right" title={<PendingTooltip schedule={schedule}/>}>
                                     <li key={schedule.name} onClick={() => {
-                                         setCursorSelect({
+                                        if(specificSchedule?.user.id != schedule.user.id){
+                                            return
+                                        }
+                                        setCursorSelect({
                                             hostRuleId: schedule.hostRule!.id,
                                             account: schedule.user.account,
-                                            hostRuleIter: schedule.hostRuleIter
+                                            hostRuleIter: schedule.hostRuleIter,
+                                            datetime: date
                                         })
                                     }}>
                                         { (schedule.hostRule && cursorSelect && schedule.hostRule.id == cursorSelect.hostRuleId && schedule.hostRuleIter == cursorSelect.hostRuleIter && schedule.user.account == cursorSelect.account) ?
                                             <Badge status="processing" className="p-1 bg-opacity-25 rounded" style={{backgroundColor: "#00ff8844"}} text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge> :
-                                            <Badge status="processing" text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge>
+                                            <Badge status="processing" style={{color: specificSchedule?.user.id == schedule.user.id ? "black" : "#bbbbbb"}} text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge>
                                         }
                                     </li>
                                 </Tooltip>
@@ -182,11 +182,24 @@ export default function ProcessScheduleRequest(){
         dispatch(getAllSchedule()).then((response: any) => {
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
-                const datas= payload["data"] as ScheduleType[];
+                const datas = payload["data"] as ScheduleType[];
                 setSchedules(datas.filter((data => data.status.id === 2 || data.status.id === 4 || data.status.id === 5)))
             }
         })
-    }, [])
+    }, [scheduleId])
+
+    useEffect(() => {
+        if(scheduleId == undefined){
+            return
+        }
+        dispatch(getSchedule(scheduleId)).then((response) => {
+            if(response.meta.requestStatus == 'fulfilled'){
+                const payload = response.payload;
+                const data = payload["data"] as ScheduleType;
+                setSpecificSchedule(data)
+            }
+        })
+    }, [scheduleId])
 
 
     return (
