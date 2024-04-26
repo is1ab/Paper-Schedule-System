@@ -33,10 +33,10 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "user",
             width: "20%",
-            render: (user: UserType | null, record: any, _index: number) => {
+            render: (user: UserType | null, _record: any, _index: number) => {
                 return user == null ? "" : (
                     <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
-                        <UserAvatar account={record.account} size="xs"></UserAvatar>
+                        <UserAvatar account={user.account} size="xs"></UserAvatar>
                         <span className="my-auto"> {user.name} </span>
                     </Button>
                 )
