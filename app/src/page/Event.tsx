@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import dayjs, { Dayjs } from "dayjs";
-import { Calendar } from "antd";
-import CalendarTask from "../components/CalendarTask";
+import { Badge, Calendar, Tooltip } from "antd";
+import HolidayTooltip from "../components/HolidayTooltip";
+import PendingTooltip from "../components/PendingTooltip";
+import EventTooltip from "../components/EventTooltip";
+import { useNavigate } from "react-router-dom";
 
 function Event(){
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
     const [ events, setEvents ] = useState<ScheduleType[]>([])
 
     useEffect(() => {
@@ -28,7 +32,36 @@ function Event(){
         return (
             <ul className="events">
                 {
-                    specificEvents.map((specificEvent) => <CalendarTask schedule={specificEvent}/>)
+                    specificEvents.map((schedule) => {
+                        if(schedule.status.id == 5){
+                            return (
+                                <Tooltip placement="right" title={<HolidayTooltip holiday={schedule} />}>
+                                    <li key={schedule.name}>
+                                        <Badge status="error" text={`活動暫停：${schedule.name}`}></Badge>
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
+                        if(schedule.status.id == 4){
+                            return (
+                                <Tooltip placement="right" title={<PendingTooltip schedule={schedule}/>}>
+                                    <li key={schedule.name}>
+                                        <Badge status="processing" text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge>
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
+                        return (
+                            <Tooltip placement="right" title={<EventTooltip schedule={schedule} />}>
+                                <li key={schedule.name} onClick={() => navigate(`/Schedule/${schedule.id}`)}>
+                                    { schedule.user ? 
+                                        <Badge status="success" text={schedule.user.name + " - " + schedule.name}></Badge> :
+                                        <Badge status="success" text={schedule.name}></Badge>
+                                    }
+                                </li>
+                            </Tooltip>
+                        )
+                    })
                 }
             </ul>
         )
