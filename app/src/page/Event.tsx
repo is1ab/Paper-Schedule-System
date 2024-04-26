@@ -68,6 +68,9 @@ function Event(){
                     <Tag color="default">{schedule.hostRule?.name}</Tag>
                     <Tag icon={<ClockCircleOutlined />} color="default">等待規劃中</Tag>
                 </div>
+                <div className="d-flex flex-row gap-3">
+                    <span style={{color: "#BBBBBB"}}>暫無會議議程</span>
+                </div>
             </div>
         )
     }
