@@ -17,6 +17,7 @@ def generate_schedule(
 
     for arranged_schedule in arranged_schedules:
         if(arranged_schedule.status.id == 1):
+            results.append(arranged_schedule)
             continue
         schedule_date: str = arranged_schedule.schedule_datetime.strftime("%Y-%m-%d")
         if(schedule_date in holiday_dates):

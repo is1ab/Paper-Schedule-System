@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { ScheduleType } from "../type/schedule/ScheduleType";
+import { ScheduleStatusType, ScheduleType } from "../type/schedule/ScheduleType";
 import { useAppDispatch } from "../store/hook";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { Badge, Button, Table } from "antd";
 import UserAvatar from "./components/UserAvatar";
+import { UserType } from "../type/user/userType";
+import { HostRuleDataType } from "../type/host/HostRuleType";
 
 function ManageScheduleRequest(){
     const dispatch = useAppDispatch()
     const [schedules, setSchedules] = useState<ScheduleType[] | null>(null);
     const [scheduleTableData, setScheduleTableData] = useState<{
         id: string,
-        user: string,
-        account: string
+        user: UserType | undefined
         name: string,
-        status: string,
-        statusId: number,
+        status: ScheduleStatusType,
+        hostrule: HostRuleDataType | undefined,
         action: string
     }[]>([])
     const columns = [
@@ -32,11 +33,11 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "user",
             width: "20%",
-            render: (text: string, record: any, _index: number) => {
-                return (
+            render: (user: UserType | null, record: any, _index: number) => {
+                return user == null ? "" : (
                     <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
                         <UserAvatar account={record.account} size="xs"></UserAvatar>
-                        <span className="my-auto"> {text} </span>
+                        <span className="my-auto"> {user.name} </span>
                     </Button>
                 )
             }
@@ -54,9 +55,9 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "status",
             width: "20%",
-            render: (text: string, record: any, _index: number) => {
+            render: (status: ScheduleStatusType, _record: any, _index: number) => {
                 const color = ["white", "#777777", "green", "red"]
-                return <Badge count={text} color={color[record["statusId"]]}></Badge>
+                return <Badge count={status.name} color={color[status.id]}></Badge>
             }
         },
         {
@@ -80,16 +81,19 @@ function ManageScheduleRequest(){
         dispatch(getAllSchedule()).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
-                const datas = payload["data"] as ScheduleType[];
+                const datas = (payload["data"] as ScheduleType[]).filter(data => {
+                    if([1, 2, 3].includes(data.status.id)){
+                        return (data.hostRule != null && data.hostRule.rule == "SCHEDULE") || (data.hostRule == null)
+                    }
+                });
                 setSchedules(datas);
                 setScheduleTableData(datas.map(data => {
                     return {
                         id: data.id,
-                        user: data.user.name,
-                        account: data.user.account,
+                        user: data.user,
                         name: data.name,
-                        status: data.status.name,
-                        statusId: data.status.id,
+                        status: data.status,
+                        hostrule: data.hostRule,
                         action: ""
                     }
                 }))
@@ -100,11 +104,9 @@ function ManageScheduleRequest(){
     return (
         <Container className="p-5 text-center">
             <h2 className="text-center mb-5">管理活動請求</h2>
-            {schedules && 
-                <div className="d-flex flex-column gap-3">
-                    <Table columns={columns} dataSource={scheduleTableData} className="w-100 text-center"></Table>
-                </div>
-            }
+            <div className="d-flex flex-column gap-3">
+                <Table loading={schedules == null} columns={columns} dataSource={scheduleTableData} className="w-100 text-center"></Table>
+            </div>
         </Container>
     )
 }
