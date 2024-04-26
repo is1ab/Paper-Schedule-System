@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, ClockCircleOutlined, LinkOutlined } from "@ant-design/icons";
-import { Badge, Button, Calendar, Descriptions, DescriptionsProps, StepProps, Steps, Tag, Tooltip } from "antd";
+import { Badge, Button, Calendar, Descriptions, DescriptionsProps, StepProps, Steps, Tabs, Tag, Tooltip } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import HolidayTooltip from "../components/HolidayTooltip";
 import { getAllSchedule, getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { useAppDispatch } from "../store/hook";
+import { HeaderRender } from "antd/es/calendar/generateCalendar";
 export default function ProcessScheduleRequest(){
     const { scheduleId } = useParams()
     const dispatch = useAppDispatch()
@@ -21,6 +22,7 @@ export default function ProcessScheduleRequest(){
         hostRuleIter: number,
         datetime: Dayjs
     } | null>(null)
+    const getUserPendingSchedule = () => schedules.filter((schedule) => (schedule.user && schedule.status.id === 4 && schedule.user.account === specificSchedule?.user.account))
     const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(Date.now()))
     const stepItems: StepProps[] = [
         {
@@ -179,6 +181,12 @@ export default function ProcessScheduleRequest(){
     }
 
     useEffect(() => {
+        if(getUserPendingSchedule().length !== 0){  
+            setSelectedDate(dayjs(getUserPendingSchedule()[0].datetime, "YYYY-MM-DD"))
+        }
+    }, [schedules])
+
+    useEffect(() => {
         dispatch(getAllSchedule()).then((response: any) => {
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
@@ -216,14 +224,31 @@ export default function ProcessScheduleRequest(){
             { steps == 1 &&
                 <div className="p-5 border rounded d-flex flex-column gap-3">
                     <h6> 請覆蓋某個已被規則所排定的活動 </h6>
-                    <div className="w-100 d-flex flex-row gap-3">
-                            <Calendar 
-                                cellRender={cellRender}
-                                className="w-100 p-3 border rounded process-schedule-calendar"
-                                value={selectedDate}
-                                onSelect={(date, _selectInfo) => setSelectedDate(date)}
-                                disabledDate={(date) => !date.isSame(selectedDate, 'month')}
-                            ></Calendar>
+                    <div className="d-flex flex-row gap-3" style={{height: "73vh"}}>
+                        <Tabs
+                            tabPosition="left"
+                            items={getUserPendingSchedule().map((schedule) => {
+                                return {
+                                    label: (
+                                        <div className="d-flex flex-column">
+                                            <span>{schedule.user.name} - {schedule.hostRule?.name}</span>
+                                            <span>{schedule.datetime}</span>
+                                        </div>
+                                    ),
+                                    key: schedule.datetime
+                                }
+                            })}
+                            onTabClick={(key: string, _e) => {
+                                setSelectedDate(dayjs(key, "YYYY-MM-DD"))
+                            }}
+                        />
+                        <Calendar 
+                            cellRender={cellRender}
+                            className="w-100 p-3 border rounded process-schedule-calendar"
+                            value={selectedDate}
+                            onSelect={(date, _selectInfo) => setSelectedDate(date)}
+                            disabledDate={(date) => !date.isSame(selectedDate, 'month')}
+                        ></Calendar>
                     </div>
                     <hr></hr>
                     <Button type="primary" disabled={cursorSelect == null} onClick={() => setSteps(steps + 1)}>完成確認</Button>
