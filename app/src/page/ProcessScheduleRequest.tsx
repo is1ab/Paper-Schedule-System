@@ -1,23 +1,26 @@
 import { CheckCircleOutlined, ClockCircleOutlined, LinkOutlined } from "@ant-design/icons";
 import { Badge, Button, Calendar, Descriptions, DescriptionsProps, StepProps, Steps, Tag, Tooltip } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { ScheduleStatusType, ScheduleType } from "../type/schedule/ScheduleType";
+import { ScheduleType } from "../type/schedule/ScheduleType";
 import UserAvatar from "./components/UserAvatar";
-import { UserType } from "../type/user/userType";
-import { RoleType } from "../type/setting/RoleType";
 import { useNavigate } from "react-router-dom";
-import type { CellRenderInfo } from "rc-picker/lib/interface"
-import { SelectInfo } from "antd/es/calendar/generateCalendar";
+import HolidayTooltip from "../components/HolidayTooltip";
+import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
+import EventTooltip from "../components/EventTooltip";
+import { useAppDispatch } from "../store/hook";
 export default function ProcessScheduleRequest(){
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
     const [steps, setSteps] = useState<number>(0)
+    const [schedules, setSchedules] = useState<ScheduleType[]>([])
     const [cursorSelect, setCursorSelect] = useState<{
-        overrideEventId: string
-    }>({
-        overrideEventId: ""
-    })
+        hostRuleId: number,
+        account: string,
+        hostRuleIter: number
+    } | null>(null)
+    const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs(Date.now()))
     const stepItems: StepProps[] = [
         {
             title: '確認相關資料',
@@ -78,87 +81,38 @@ export default function ProcessScheduleRequest(){
             span: 1
         }
     ]
-    const schedules = [
-        {
-            datetime: "2024-04-25",
-            description: "",
-            id: "0af1db7c-2204-4d53-8640-731d46e90d10",
-            link: "...",
-            name: "實驗室例行會議",
-            status: {
-                id: 1,
-                name: "PENDING"
-            } as ScheduleStatusType,
-            user: {
-                id: 1,
-                account: "109590031",
-                name: "黃漢軒",
-                role: {
-                    id: 1,
-                    name: "Student"
-                } as RoleType,
-                note: "",
-                weight: 1,
-                blocked: false,
-                email: "t109590031@ntut.org.tw",
-                schedules: [] as ScheduleType[]
-            } as UserType,
-            attachments: []
-        },
-        {
-            datetime: "2024-04-26",
-            description: "",
-            id: "0af1db7c-2204-4d53-8640-731d46e90d10",
-            link: "...",
-            name: "Probing the Anisotropy and Non-Gaussianity in the Redshift Space through the Conditional Moments of the First Derivative",
-            status: {
-                id: 3,
-                name: "DONE"
-            },
-            user: {
-                id: 1,
-                account: "109590031",
-                name: "黃漢軒",
-                role: {
-                    id: 1,
-                    name: "Student"
-                } as RoleType,
-                note: "",
-                weight: 1,
-                blocked: false,
-                email: "t109590031@ntut.org.tw",
-                schedules: [] as ScheduleType[]
-            } as UserType,
-            attachments: []
-        },
-        {
-            datetime: "2024-04-28",
-            description: "",
-            id: "0af1db7c-2204-4d53-8640-731d46e90d10",
-            link: "...",
-            name: "Stability of solid-state formamide under Lyα irradiation",
-            status: {
-                id: 3,
-                name: "DONE"
-            },
-            user: {
-                id: 1,
-                account: "109590031",
-                name: "黃漢軒",
-                role: {
-                    id: 1,
-                    name: "Student"
-                } as RoleType,
-                note: "",
-                weight: 1,
-                blocked: false,
-                email: "t109590031@ntut.org.tw",
-                schedules: [] as ScheduleType[]
-            } as UserType,
-            attachments: []
-        }
-    ] as ScheduleType[]
-    const EventTooltip = (schedule: ScheduleType) => {
+
+    const EventTooltip = (props: {
+        schedule: ScheduleType
+    }) => {
+        const schedule = props.schedule;
+        return (
+            <div className="p-2 d-flex flex-column gap-2">
+                { schedule.user &&
+                    <div className="d-flex flex-row gap-1">
+                        <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                        <span className="my-auto">{schedule.user.name}</span>
+                    </div>
+                }
+                <div className="d-flex flex-column gap-1">
+                    <Tag color="default">{schedule.hostRule?.name}</Tag>
+                    <Tag icon={<CheckCircleOutlined />} color="green">{schedule.status.name}</Tag>
+                </div>
+                <div className="d-flex flex-row gap-3">
+                    <span>{schedule.name}</span>
+                </div>
+                <div className="w-100">
+                    <span style={{color: "#bbbbbb"}}>不可覆蓋，該行程已被安排</span>
+                </div>
+            </div>
+        )
+    }
+
+    const PendingTooltip = (props: {
+        schedule: ScheduleType
+    }) => {
+        const schedule = props.schedule;
+        
         return (
             <div className="p-2 d-flex flex-column gap-2">
                 <div className="d-flex flex-row gap-1">
@@ -166,58 +120,74 @@ export default function ProcessScheduleRequest(){
                     <span className="my-auto">{schedule.user.name}</span>
                 </div>
                 <div className="d-flex flex-column gap-1">
-                    <Tag color="default">實驗室例行會議</Tag>
-                    { schedule.status.name == "PENDING" ?
-                        <Tag icon={<ClockCircleOutlined />} color="default">等待排定中</Tag> :
-                        <Tag icon={<CheckCircleOutlined />} color="green">已完成審核</Tag>
-                    }
-                    
-                </div>
-                <div className="d-flex flex-row gap-3">
-                    <span>{schedule.name}</span>
+                    <Tag color="default">{schedule.hostRule?.name}</Tag>
+                    <Tag icon={<ClockCircleOutlined />} color="default">等待規劃中</Tag>
                 </div>
                 <div className="w-100">
-                    { schedule.status.name == "PENDING" ?
-                        <Button type="primary" className="w-100 px-5" onClick={() => {
-                            if(schedule.status.name === "PENDING"){
-                                setCursorSelect({
-                                    overrideEventId: schedule.id
-                                })
-                            }
-                        }}>覆蓋該活動</Button> :
-                        <span style={{color: "#999999"}}>不可選取：活動主題已安排</span>
-                    }
+                    <span style={{color: "#bbbbbb"}}>點擊行程來進行覆蓋</span>
                 </div>
             </div>
         )
     }
-    const cellRender = (date: Dayjs, info: any) => {
-        const items = schedules.filter((schedule) => schedule.datetime == date.format("YYYY-MM-DD")).map((schedule) => {
-            return (
-                <Tooltip placement="right" title={EventTooltip(schedule)}>
-                    <li key={schedule.name} style={{zIndex: 100}}>
-                        { schedule.status.name == "PENDING" ?
-                            <Badge 
-                                status="processing" 
-                                text={<span 
-                                    style={{
-                                        background: cursorSelect.overrideEventId === schedule.id ? "#00ff0033" : "",
-                                        padding: cursorSelect.overrideEventId === schedule.id ? "0.25rem" : "",
-                                    }}>{schedule.user.name + " - " + schedule.name}</span>} 
-                                className="rounded"
-                            ></Badge> :
-                            <Badge status="success" text={schedule.user.name + " - " + schedule.name} style={{color: "#999999", cursor: "Default"}}></Badge>
-                        }
-                    </li>
-                </Tooltip>
-            )
-        })
+
+    const cellRender = (date: Dayjs, _info: any) => {
         return (
             <ul className="events">
-                {items}
-            </ul> 
+                {
+                    schedules.filter((schedule) => schedule.datetime == date.format("YYYY-MM-DD") && dayjs(schedule.datetime, "YYYY-MM-DD").isSame(selectedDate, 'month')).map((schedule) => {
+                        if(schedule.status.id == 5){
+                            return (
+                                <Tooltip placement="right" title={<HolidayTooltip holiday={schedule} />}>
+                                    <li key={schedule.name}>
+                                        <Badge status="error" style={{color: "#bbbbbb"}} text={`活動暫停：${schedule.name}`}></Badge>
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
+                        if(schedule.status.id == 4){
+                            return (
+                                <Tooltip placement="right" title={<PendingTooltip schedule={schedule}/>}>
+                                    <li key={schedule.name} onClick={() => {
+                                         setCursorSelect({
+                                            hostRuleId: schedule.hostRule!.id,
+                                            account: schedule.user.account,
+                                            hostRuleIter: schedule.hostRuleIter
+                                        })
+                                    }}>
+                                        { (schedule.hostRule && cursorSelect && schedule.hostRule.id == cursorSelect.hostRuleId && schedule.hostRuleIter == cursorSelect.hostRuleIter && schedule.user.account == cursorSelect.account) ?
+                                            <Badge status="processing" className="p-1 bg-opacity-25 rounded" style={{backgroundColor: "#00ff8844"}} text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge> :
+                                            <Badge status="processing" text={`${schedule.user.name} - ${schedule.hostRule?.name}`}></Badge>
+                                        }
+                                    </li>
+                                </Tooltip>
+                            )
+                        }
+                        return (
+                            <Tooltip placement="right" title={<EventTooltip schedule={schedule}/>}>
+                                <li key={schedule.name}>
+                                    { schedule.user ? 
+                                        <Badge status="success" style={{color: "#bbbbbb"}} text={schedule.user.name + " - " + schedule.name}></Badge> :
+                                        <Badge status="success" style={{color: "#bbbbbb"}} text={schedule.name}></Badge>
+                                    }
+                                </li>
+                            </Tooltip>
+                        )
+                    })
+                }
+            </ul>
         )
     }
+
+    useEffect(() => {
+        dispatch(getAllSchedule()).then((response: any) => {
+            if(response.meta.requestStatus == 'fulfilled'){
+                const payload = response.payload;
+                const datas= payload["data"] as ScheduleType[];
+                setSchedules(datas.filter((data => data.status.id === 2 || data.status.id === 4 || data.status.id === 5)))
+            }
+        })
+    }, [])
+
 
     return (
         <Container className="p-5">
@@ -236,11 +206,14 @@ export default function ProcessScheduleRequest(){
                     <div className="w-100 d-flex flex-row gap-3">
                             <Calendar 
                                 cellRender={cellRender}
-                                className="w-100 p-3 border rounded"
+                                className="w-100 p-3 border rounded process-schedule-calendar"
+                                value={selectedDate}
+                                onSelect={(date, _selectInfo) => setSelectedDate(date)}
+                                disabledDate={(date) => !date.isSame(selectedDate, 'month')}
                             ></Calendar>
                     </div>
                     <hr></hr>
-                    <Button type="primary" onClick={() => setSteps(steps + 1)}>完成確認</Button>
+                    <Button type="primary" disabled={cursorSelect == null} onClick={() => setSteps(steps + 1)}>完成確認</Button>
                 </div>
             }
             { steps == 2 &&

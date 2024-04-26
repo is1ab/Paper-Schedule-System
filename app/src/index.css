@@ -15,6 +15,14 @@
   border-bottom-color: #FD5E16;
 }
 
+.process-schedule-calendar .ant-picker-date-panel .ant-picker-cell:not(.ant-picker-cell-in-view) .ant-picker-cell-inner {
+  display: none;
+}
+
+.process-schedule-calendar .ant-picker-date-panel .ant-picker-cell:not(.ant-picker-cell-in-view) {
+  pointer-events: none;
+}
+
 .events {
   margin: 0;
   padding: 0;

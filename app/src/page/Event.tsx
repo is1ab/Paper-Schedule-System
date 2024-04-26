@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 function Event(){
     const dispatch = useAppDispatch()
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [ events, setEvents ] = useState<ScheduleType[]>([])
 
     useEffect(() => {
