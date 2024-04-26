@@ -34,8 +34,9 @@ def get_all_schedules():
     results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
 
     for host_rule in host_rules:
+        arranged_host_rule_schedules: list[Schedule] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
         users: User = host_rule_db.get_host_rule_users(host_rule.id)
-        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, holidays)
+        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, arranged_host_rule_schedules, holidays)
         results.extend(pending_schedules)
 
     return make_response({"status": "OK", "data": [result.to_json_without_attachment() for result in results]})

@@ -3,7 +3,7 @@ from typing import Any
 from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
-from store.db.model.host_rule import HostRule, HostRuleOrder
+from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule
 from store.db.model.role import Role
 from store.db.model.user import User
 
@@ -47,6 +47,26 @@ def add_host_rule_user_without_commit(orders: list[HostRuleOrder], connection: C
         connection.rollback()
         raise e 
     
+
+def get_host_rule(host_rule_id: int) -> HostRule:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT id, "name", "startDate", "endDate", "period", weekday, "rule", deleted
+            FROM public.host_rule
+            WHERE id=%s
+        """
+        cursor.execute(sql, (host_rule_id,))
+        result: list[dict[str, Any]] = cursor.fetchone()
+        return HostRule(
+            id=result["id"],
+            name=result["name"],
+            startDate=result["startDate"],
+            endDate=result["endDate"],
+            period=result["period"],
+            weekday=result["weekday"],
+            rule=result["rule"],
+            deleted=result["deleted"]
+        )
 
 def get_host_rules() -> list[HostRule]:
     with create_cursor(row_factory=dict_row) as cursor:
@@ -92,3 +112,20 @@ def get_host_rule_users(host_rule_id: int) -> list[User]:
                 name=result["roleName"]
             )
         ) for result in results]
+    
+def add_host_rule_schedule_without_commit(host_rule_schedule: HostRuleSchedule, connection: Connection):
+    try:
+        with connection.cursor() as cursor:
+            sql: str =  """
+                INSERT INTO public.host_rule_schedule
+                ("hostRuleId", iteration, "scheduleId")
+                VALUES(%s, %s, %s);
+            """
+            cursor.execute(sql, (
+                host_rule_schedule.host_rule_id, 
+                host_rule_schedule.iteration, 
+                host_rule_schedule.schedule_id
+            ))
+    except Exception as e:
+        connection.rollback()
+        raise e

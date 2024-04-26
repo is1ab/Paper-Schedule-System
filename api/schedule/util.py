@@ -19,6 +19,8 @@ def generate_schedule(
         if(arranged_schedule.status.id == 1):
             results.append(arranged_schedule)
             continue
+        if(arranged_schedule.schedule_datetime == None):
+            continue
         schedule_date: str = arranged_schedule.schedule_datetime.strftime("%Y-%m-%d")
         if(schedule_date in holiday_dates):
             continue
@@ -29,6 +31,7 @@ def generate_schedule(
 def generate_host_rule_pending_schedules(
     host_rule: HostRule, 
     host_rule_orders: list[User],
+    arranged_host_rule_schedules: list[Schedule],
     holidays: list[Holiday],
 ):
     holiday_dates: list[str] = _generate_holiday_dates(holidays)
@@ -48,6 +51,23 @@ def generate_host_rule_pending_schedules(
             schedule_date += timedelta(weeks=1)
             continue
         user: User = host_rule_orders[host_index % len(host_rule_orders)]
+        iteration: int = (host_index // len(host_rule_orders))
+        
+        # Check schedule is arranged
+        arragned_schedule: Schedule | None = _find_schedule_arragned(
+            arranged_host_rule_schedules, 
+            host_rule.id, 
+            user.account, 
+            iteration
+        )
+        if arragned_schedule != None:
+            arragned_schedule.schedule_datetime = schedule_date
+            host_rule_schedules.append(arragned_schedule)
+            host_index += 1
+            schedule_date += timedelta(weeks=host_rule.period)
+            continue
+        
+        # Add pending schedule if schedule is not arranged
         host_rule_schedules.append(Schedule(
             name="" if host_rule.rule == "SCHEDULE" else host_rule.name,
             link="",
@@ -56,9 +76,10 @@ def generate_host_rule_pending_schedules(
             user=user if host_rule.rule == "SCHEDULE" else None,
             attachments=[],
             host_rule=host_rule,
-            host_rule_iterator=(host_index // len(host_rule_orders)),
+            host_rule_iterator=iteration,
             schedule_datetime=schedule_date
         ))
+
         host_index += 1
         schedule_date += timedelta(weeks=host_rule.period)
 
@@ -66,3 +87,14 @@ def generate_host_rule_pending_schedules(
 
 def _generate_holiday_dates(holidays: list[Holiday]):
     return [holiday.date.strftime("%Y-%m-%d") for holiday in holidays]
+
+def _find_schedule_arragned(arranged_host_rule_schedules: list[Schedule], host_rule_id: int, account: str, iteration: int) -> Schedule | None:
+    for arranged_host_rule_schedule in arranged_host_rule_schedules:
+        if (
+            arranged_host_rule_schedule.host_rule != None \
+                and arranged_host_rule_schedule.host_rule.id == host_rule_id \
+                and arranged_host_rule_schedule.host_rule_iterator == iteration \
+                and arranged_host_rule_schedule.user.account == account
+        ):
+            return arranged_host_rule_schedule
+    return None

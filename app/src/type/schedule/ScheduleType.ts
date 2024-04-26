@@ -37,3 +37,9 @@ export interface ScheduleAttachmentType {
     realName: string,
     type: string
 }
+
+export interface SpecificScheduleDatePayloadType {
+    scheduleId: string,
+    hostRuleId: number,
+    iteration: number
+}

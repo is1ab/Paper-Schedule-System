@@ -45,7 +45,7 @@ class Schedule:
             "hostRuleIter": self.host_rule_iterator,
         }
     
-def convert_schedule_by_dict_data(data: dict[str, Any], user=None, attachments=[]) -> Schedule:
+def convert_schedule_by_dict_data(data: dict[str, Any], user=None, attachments=[], host_rule=None, host_rule_iter=0) -> Schedule:
     return Schedule(
         id=data["id"],
         name=data["name"],
@@ -57,5 +57,7 @@ def convert_schedule_by_dict_data(data: dict[str, Any], user=None, attachments=[
             name=data["statusName"]
         ),
         user=user,
+        host_rule=host_rule,
+        host_rule_iterator=host_rule_iter,
         attachments=attachments
     )

@@ -4,7 +4,9 @@ from psycopg import Connection
 from psycopg.rows import dict_row
 
 import store.db.query.user as user_db
+import store.db.query.host_rule as host_rule_db
 from store.db.db import create_cursor
+from store.db.model.host_rule import HostRule
 from store.db.model.schedule import Schedule, convert_schedule_by_dict_data
 from store.db.model.schedule_status import ScheduleStatus
 from store.db.model.schedule_attachment import ScheduleAttachment
@@ -157,9 +159,9 @@ def add_schedule_attachments_with_no_commit(connection: Connection, attachment: 
         cursor.connection.rollback()
         raise e    
 
-def modify_schedule(schedule: Schedule) -> None:
+def modify_schedule_without_commit(schedule: Schedule, connection: Connection) -> None:
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
                 update schedule 
                 set name=%s, link=%s, description=%s, date=%s, status=%s, "userId"=%s, archived=%s
@@ -175,7 +177,6 @@ def modify_schedule(schedule: Schedule) -> None:
                 schedule.archived,
                 schedule.id
             ))
-            cursor.connection.commit()
     except Exception as e:
         cursor.connection.rollback()
         raise e
@@ -195,4 +196,31 @@ def get_schedules_by_user(user: User) -> list[Schedule]:
             user: User | None = user_db.get_user(result["userId"])
             attachments: List[ScheduleAttachment] = get_schedule_attachments(str(result["id"]))
             schedule_list.append(convert_schedule_by_dict_data(result, user, attachments))
+        return schedule_list
+    
+def get_arranged_schedules_by_specific_host_rule(host_rule_id: int) -> list[Schedule]:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT "hostRuleId", iteration, "scheduleId", s.*,
+            ss.id as "statusId", ss.status as "statusName"
+            FROM public.host_rule_schedule hrs
+            join schedule s on s.id = hrs."scheduleId"
+            join schedule_status ss on s.status = ss.id
+            where "hostRuleId" = %s
+        """
+        cursor.execute(sql, (host_rule_id, ))
+        results: list[dict[str, Any]] = cursor.fetchall()
+        schedule_list: list[Schedule] = []
+        for result in results:
+            iteration: int = result["iteration"]
+            user: User | None = user_db.get_user(result["userId"])
+            host_rule: HostRule = host_rule_db.get_host_rule(host_rule_id)
+            attachments: List[ScheduleAttachment] = get_schedule_attachments(str(result["id"]))
+            schedule_list.append(convert_schedule_by_dict_data(
+                result, 
+                user, 
+                attachments, 
+                host_rule=host_rule, 
+                host_rule_iter=iteration
+            ))
         return schedule_list

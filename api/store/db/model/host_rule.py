@@ -36,3 +36,16 @@ class HostRuleOrder:
             "account": self.account,
             "index": self.index
         }
+    
+@dataclass
+class HostRuleSchedule:
+    host_rule_id: int
+    iteration: int
+    schedule_id: str
+
+    def to_json(self):
+        return {
+            "hostRuleId": self.host_rule_id,
+            "iteration": self.iteration,
+            "scheduleId": self.schedule_id
+        }

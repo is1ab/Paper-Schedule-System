@@ -1,17 +1,19 @@
 import { CheckCircleOutlined, ClockCircleOutlined, LinkOutlined } from "@ant-design/icons";
-import { Badge, Button, Calendar, Descriptions, DescriptionsProps, StepProps, Steps, Tabs, Tag, Tooltip } from "antd";
+import { Badge, Button, Calendar, Descriptions, DescriptionsProps, Result, StepProps, Steps, Tabs, Tag, Tooltip } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import UserAvatar from "./components/UserAvatar";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import HolidayTooltip from "../components/HolidayTooltip";
 import { getAllSchedule, getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { useAppDispatch } from "../store/hook";
-import { HeaderRender } from "antd/es/calendar/generateCalendar";
+import { specificScheduleDate } from "../store/dataApi/ScheduleAdminApiSlice";
+
 export default function ProcessScheduleRequest(){
     const { scheduleId } = useParams()
+    const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const [steps, setSteps] = useState<number>(0)
     const [specificSchedule, setSpecificSchedule] = useState<ScheduleType>()
@@ -180,6 +182,24 @@ export default function ProcessScheduleRequest(){
         )
     }
 
+    const submit = () => {
+        if(specificSchedule == null){
+            throw Error("specificSchedule should not be null.")
+        }
+        if(cursorSelect == null){
+            throw Error("cursorSelect should not be null.")
+        }
+        dispatch(specificScheduleDate({
+            scheduleId: specificSchedule.id,
+            hostRuleId: cursorSelect.hostRuleId,
+            iteration: cursorSelect.hostRuleIter
+        })).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                setSteps(steps + 1)
+            }
+        })
+    }
+
     useEffect(() => {
         if(getUserPendingSchedule().length !== 0){  
             setSelectedDate(dayjs(getUserPendingSchedule()[0].datetime, "YYYY-MM-DD"))
@@ -251,14 +271,25 @@ export default function ProcessScheduleRequest(){
                         ></Calendar>
                     </div>
                     <hr></hr>
-                    <Button type="primary" disabled={cursorSelect == null} onClick={() => setSteps(steps + 1)}>完成確認</Button>
+                    <Button type="primary" disabled={cursorSelect == null} onClick={() => setSteps(steps + 1)}>提交</Button>
                 </div>
             }
             { steps == 2 &&
                 <div className="p-5 border rounded d-flex flex-column gap-3">
                     <Descriptions className="w-100" bordered title={"活動相關資訊"} items={descriptionItems}></Descriptions>
                     <hr></hr>
-                    <Button type="primary" onClick={() => setSteps(steps + 1)}>完成確認</Button>
+                    <Button type="primary" onClick={() => submit()}>完成確認</Button>
+                </div>
+            }
+            { steps == 3 &&
+                <div className="border rounded p-5 d-flex flex-column gap-5">
+                <Result
+                    status={"success"}
+                    title="審核活動成功"
+                    extra={[
+                        <Button type="primary" className="w-100" onClick={() => navigate("/")}>回到首頁</Button>
+                    ]}
+                />
                 </div>
             }
         </Container>
