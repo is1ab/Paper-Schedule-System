@@ -7,8 +7,10 @@ import { Badge, Button, Table } from "antd";
 import UserAvatar from "./components/UserAvatar";
 import { UserType } from "../type/user/userType";
 import { HostRuleDataType } from "../type/host/HostRuleType";
+import { useNavigate } from "react-router-dom";
 
 function ManageScheduleRequest(){
+    const naviage = useNavigate()
     const dispatch = useAppDispatch()
     const [schedules, setSchedules] = useState<ScheduleType[] | null>(null);
     const [scheduleTableData, setScheduleTableData] = useState<{
@@ -66,11 +68,11 @@ function ManageScheduleRequest(){
             className: "text-center",
             key: "action",
             width: "20%",
-            render: () => {
+            render: (_text: any, record: any, _index: number) => {
                 return (
                 <div className="d-flex flex-row gap-3"> 
-                    <Button type="primary" style={{background: "orange"}}>查看事件</Button>
-                    <Button type="primary">進行審核</Button>
+                    <Button type="primary" onClick={() => naviage(`/Schedule/${record["id"]}`)} style={{background: "orange"}}>查看事件</Button>
+                    <Button type="primary" onClick={() => naviage(`./${record["id"]}`)}>進行審核</Button>
                 </div>
                 )
             }
