@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Tuple
 
 from psycopg.rows import dict_row
 
@@ -86,6 +86,31 @@ def get_host_rules() -> list[HostRule]:
             rule=result["rule"],
             deleted=result["deleted"]
         ) for result in results]
+    
+def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[HostRule, int]:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT id, "name", "startDate", "endDate", "period", weekday, "rule", deleted, hrs.iteration, hrs."scheduleId"
+            FROM public.host_rule
+            join host_rule_schedule hrs on hrs."hostRuleId" = id
+            where hrs."scheduleId" = %s
+        """
+        cursor.execute(sql, (schedule_id,))
+        result: list[dict[str, Any]] = cursor.fetchone()
+        iteration: int = result["iteration"]
+        return (
+            HostRule(
+                id=result["id"],
+                name=result["name"],
+                startDate=result["startDate"],
+                endDate=result["endDate"],
+                period=result["period"],
+                weekday=result["weekday"],
+                rule=result["rule"],
+                deleted=result["deleted"]
+            ), 
+            iteration
+        )
 
 def get_host_rule_users(host_rule_id: int) -> list[User]:
     with create_cursor(row_factory=dict_row) as cursor:

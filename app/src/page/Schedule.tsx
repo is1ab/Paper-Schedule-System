@@ -1,19 +1,15 @@
-import { Alert, Button, Card, Container } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconDefinition, faCalendar, faFloppyDisk, faLink, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../store/hook";
 import { getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
-import InfoRoundIcon from '@rsuite/icons/InfoRound';
-import dayjs from "dayjs";
+import { Button, Card, List, Tabs, TabsProps, Timeline } from "antd";
+import { CalendarOutlined, FolderOutlined, ImportOutlined, LinkOutlined } from "@ant-design/icons";
+import UserImage from "./components/UserImage";
 
-function Schedule(props: {
-    reviewMode: boolean
-}){
+function Schedule(){
     const dispatch = useAppDispatch()
-    const reviewMode = props.reviewMode;
     const { scheduleId } = useParams()
     const [ schedule, setSchedule ] = useState<ScheduleType | null>(null);
 
@@ -28,94 +24,144 @@ function Schedule(props: {
         })
     }, [scheduleId])
 
-    const DetailItem = (props: {
-        icon: IconDefinition,
-        text: string
-    }) => {
-        const icon = props.icon;
-        const text = props.text;
-        return (
-            <div className="py-3 d-flex flex-row gap-5">
-                <div className="w-25 d-flex flex-row justify-content-end">
-                    <FontAwesomeIcon size="xl" width={21} icon={icon} className="my-auto w-fit-content text-primary"></FontAwesomeIcon>
-                </div>
-                <div className="w-100 d-flex flex-row justify-content-start">
-                    <p className="my-0 w-100 text-left">{text}</p>
-                </div>
-            </div> 
-        )
-    }
+    const listItems = [
+        {
+            title: "活動日程",
+            icon: <CalendarOutlined style={{fontSize: "3rem"}}></CalendarOutlined>,
+            description: schedule?.datetime
+        },
+        {
+            title: "活動規則",
+            icon: <ImportOutlined  style={{fontSize: "3rem"}}></ImportOutlined>,
+            description: schedule?.hostRule?.name
+        },
+        {
+            title: "活動連結",
+            icon: <LinkOutlined  style={{fontSize: "3rem"}}></LinkOutlined>,
+            description: <Button className="p-0" type="link">{schedule?.link}</Button>
+        },
+        {
+            title: "活動附件",
+            icon: <FolderOutlined  style={{fontSize: "3rem"}}></FolderOutlined>,
+            description: schedule?.attachments.map((attachment) => attachment.realName)
+        }
+    ]
 
-    const ProgressItem = (props: {
-        text: string
-    }) => {
-        const text = props.text;
-        return (
-            <div className="ms-5 border-start border-info border-4 p-3 d-flex flex-row gap-5">
-                <div className="rounded-circle bg-info my-auto" style={{width: "14px", height: "14px", marginLeft: "-24.5161px"}}></div>
-                <p className="my-0">{text}</p>
+    const progressItems = [
+        {
+            label: "2024-04-25",
+            children: "活動已建立"
+        },
+        {
+            color: "green",
+            label: "2024-04-25",
+            children: [
+                <p className="my-0">活動已通過審核</p>,
+                <p className="my-0">於「2024-06-25」進行報告</p>,
+                <p className="my-0">在「實驗室例行會議」規則</p>
+            ]
+        },
+        {
+            color: "red",
+            label: "2024-04-25",
+            children: [
+                <p className="my-0">活動修改權限已鎖定</p>,
+                <p className="my-0">若需修改活動，請聯繫管理員</p>
+            ]
+        },
+        {
+            label: "2024-04-29",
+            children: [
+                <p className="my-0">活動已進行發信</p>,
+                <p className="my-0">發信給規則定義的與會者共 16 位</p>,
+            ]
+        },
+        {
+            label: "2024-06-24",
+            children: [
+                <p>已提醒主辦者明天將有活動</p>,
+            ]
+        },
+        {
+            color: "green",
+            label: "2024-06-25",
+            children: [
+                <p>活動已舉行</p>,
+            ]
+        }
+    ]
+
+    const tabItems: TabsProps['items'] = [
+        {
+            key: "1",
+            label: "活動資訊",
+            children: <div className="d-flex flex-row justify-content-center gap-4"> 
+                { schedule && 
+                <>
+                    <Card title={"活動資訊"} className="w-100">
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={listItems}
+                            renderItem={(item) => {
+                                return (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            avatar={item.icon}
+                                            title={item.title}
+                                            description={item.description}
+                                        />
+                                    </List.Item>
+                                )
+                            }}
+                        />
+                    </Card>
+                    <Card title={"活動日誌"} className="w-100">
+                        <Timeline mode="left" items={progressItems}></Timeline>
+                    </Card>
+                </>
+                }
             </div>
-        )
-    }
+        },
+        {
+            key: "3",
+            label: "活動規則與主持人",
+            children: <div className="d-flex flex-row justify-content-center gap-4">
+                { schedule && 
+                    <>
+                        <Card title={"主持人"} className="w-100">
+                            <div className="w-100 d-flex flex-row gap-5">
+                                <UserImage width="10vw" account={schedule?.user.account}></UserImage>
+                                <div className="my-auto">
+                                    <p className="font-bold">黃漢軒</p>
+                                    <p className="my-1">大學部、顧問</p>
+                                    <p className="my-1">t109590031@ntut.org.tw</p>
+                                </div>
+                            </div>
+                        </Card>
+                        <Card title={"活動規則"} className="w-100">
+                            <div className="w-100 d-flex flex-row gap-5">
+                                <UserImage width="10vw" account={""}></UserImage>
+                                <div className="my-auto">
+                                    <p className="font-bold">實驗室例行會議</p>
+                                    <p className="font-bold my-0">一個禮拜一次、每週三舉行一次</p>
+                                    <p className="font-bold my-0">主持人輪替主持會議</p>
+                                    <p className="font-bold my-0">共有 16 位成員參與這個會議</p>
+                                </div>
+                            </div>
+                        </Card>
+                    </>
+                }
+            </div>
+        }
+    ]
 
     return (
         <Container className="p-5">
             <h2 className="text-center mb-5">活動資訊</h2>
-            <div className="d-flex flex-column gap-3">
-                { schedule && 
-                    <>
-                        <Alert variant="warning" className="d-flex flex-row justify-content-between">
-                            <div className="d-flex flex-row gap-3">
-                                <InfoRoundIcon className="my-auto"></InfoRoundIcon>
-                                <span className="my-auto">該活動尚未審核，請先進行審核</span>
-                            </div>
-                            <Button variant="warning">進行審核</Button>
-                        </Alert>
-                        <Card className="p-5 fs-3 text-left">
-                            <strong><p className="my-0">{schedule.name}</p></strong>
-                        </Card>
-                        <div className="w-100 d-flex flex-row gap-5">
-                            <div className="w-50">
-                                <div className="">
-                                    <h5 className="text-center mb-3">詳細資訊</h5>
-                                    <Card className="p-4">
-                                        <DetailItem icon={faUser} text={`${schedule.user.name} <${schedule.user.email}>`} />
-                                        <DetailItem icon={faCalendar} text={schedule.datetime == null ? "等待審核後配置" : dayjs(schedule.datetime).format("YYYY/MM/DD")} />
-                                        <DetailItem icon={faLink} text={schedule.link} />
-                                        {
-                                            schedule.attachments.map((attachment) => {
-                                                return <DetailItem icon={faFloppyDisk} text={attachment.realName} />
-                                            })
-                                        }
-                                    </Card>
-                                </div>
-                            </div>
-                            <div className="w-50 d-flex flex-column gap-3">
-                                { reviewMode ?
-                                    <div>
-                                        <h5 className="text-center mb-3">審核</h5>
-                                        <Card className="p-5 d-flex flex-column gap-3">
-                                            <Button variant="success">同意該活動請求</Button>
-                                            <Button variant="danger">拒絕該活動請求</Button>
-
-                                        </Card>
-                                    </div> :
-                                    <div>
-                                        <h5 className="text-center mb-3">日誌</h5>
-                                        <Card className="p-5">
-                                            <ProgressItem text={"活動已建立"}></ProgressItem>
-                                            <ProgressItem text={"活動已審核通過"}></ProgressItem>
-                                            <ProgressItem text={"完成發信提醒"}></ProgressItem>
-                                            <ProgressItem text={"活動已開始"}></ProgressItem>
-                                            <ProgressItem text={"活動已結束"}></ProgressItem>
-                                        </Card>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </>
-                }
-            </div>
+            <Card className="p-4 mb-3">
+                <h2 className="my-0">{schedule?.name}</h2>
+            </Card>
+            <Tabs items={tabItems}></Tabs>
         </Container>
     )
 }

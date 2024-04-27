@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from psycopg import Connection
 from psycopg.rows import dict_row
@@ -39,6 +39,9 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
         cursor.execute(sql, (schedule_uuid,))
         result: dict[str, Any] = cursor.fetchone()
         user: User | None = user_db.get_user(result["userId"])
+        host_rule_and_iteration: Tuple[HostRule, int] = host_rule_db.get_host_rule_and_iteration_with_schedule_id(schedule_uuid)
+        host_rule: HostRule = host_rule_and_iteration[0]
+        iteration: int = host_rule_and_iteration[1]
         attachments: List[ScheduleAttachment] = get_schedule_attachments(schedule_uuid)
         return Schedule(**{
             "id": result["id"],
@@ -50,6 +53,8 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
                 "id": result["statusId"],
                 "name": result["statusName"]
             }),
+            "host_rule": host_rule,
+            "host_rule_iterator": iteration,
             "user": user,
             "attachments": [attachment for attachment in attachments]
         })

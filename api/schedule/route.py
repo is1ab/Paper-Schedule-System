@@ -28,23 +28,18 @@ schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
 @audit_route(schedule_bp, "/", methods=["GET"])
 def get_all_schedules():
-    arranged_schedules: list[Schedule] = schedule_db.get_schedules()
-    holidays: list[Holiday] = holiday_db.get_holidays()
-    host_rules: list[HostRule] = host_rule_db.get_host_rules()
-    results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
-
-    for host_rule in host_rules:
-        arranged_host_rule_schedules: list[Schedule] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
-        users: User = host_rule_db.get_host_rule_users(host_rule.id)
-        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, arranged_host_rule_schedules, holidays)
-        results.extend(pending_schedules)
+    results: list[Schedule] = generate_schedules()
 
     return make_response({"status": "OK", "data": [result.to_json_without_attachment() for result in results]})
 
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
-    schedule: Schedule | None = schedule_db.get_schedule(schedule_uuid)
-    assert schedule is not None
+    results: list[Schedule] = generate_schedules()
+    print(results)
+    schedule: Schedule | None = next((schedule for schedule in results if str(schedule.id) == schedule_uuid), None)
+
+    if schedule == None:
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent schedule.")
 
     return make_response({"status": "OK", "data": schedule.to_json()})
 
@@ -148,3 +143,18 @@ def upload_attachment():
 @audit_route(schedule_bp, "/put_off", methods=["POST"])
 def put_off_schedule():
     return make_response({"status": "Not Implemented."})
+
+
+def generate_schedules() -> list[Schedule]:
+    arranged_schedules: list[Schedule] = schedule_db.get_schedules()
+    holidays: list[Holiday] = holiday_db.get_holidays()
+    host_rules: list[HostRule] = host_rule_db.get_host_rules()
+    results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
+
+    for host_rule in host_rules:
+        arranged_host_rule_schedules: list[Schedule] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
+        users: User = host_rule_db.get_host_rule_users(host_rule.id)
+        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, arranged_host_rule_schedules, holidays)
+        results.extend(pending_schedules)
+
+    return results
