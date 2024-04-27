@@ -87,7 +87,7 @@ def get_host_rules() -> list[HostRule]:
             deleted=result["deleted"]
         ) for result in results]
     
-def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[HostRule, int]:
+def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[HostRule, int] | None:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             SELECT id, "name", "startDate", "endDate", "period", weekday, "rule", deleted, hrs.iteration, hrs."scheduleId"
@@ -96,7 +96,11 @@ def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[Host
             where hrs."scheduleId" = %s
         """
         cursor.execute(sql, (schedule_id,))
-        result: list[dict[str, Any]] = cursor.fetchone()
+        result: list[dict[str, Any]] | None = cursor.fetchone()
+        
+        if result is None:
+            return None
+
         iteration: int = result["iteration"]
         return (
             HostRule(

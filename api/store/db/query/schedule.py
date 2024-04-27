@@ -39,9 +39,14 @@ def get_schedule(schedule_uuid: str) -> Schedule | None:
         cursor.execute(sql, (schedule_uuid,))
         result: dict[str, Any] = cursor.fetchone()
         user: User | None = user_db.get_user(result["userId"])
-        host_rule_and_iteration: Tuple[HostRule, int] = host_rule_db.get_host_rule_and_iteration_with_schedule_id(schedule_uuid)
-        host_rule: HostRule = host_rule_and_iteration[0]
-        iteration: int = host_rule_and_iteration[1]
+        host_rule_and_iteration: Tuple[HostRule, int] | None = host_rule_db.get_host_rule_and_iteration_with_schedule_id(schedule_uuid)
+        host_rule: HostRule = None
+        iteration: int = 0
+
+        if host_rule_and_iteration is not None:
+            host_rule: HostRule = host_rule_and_iteration[0]
+            iteration: int = host_rule_and_iteration[1]
+        
         attachments: List[ScheduleAttachment] = get_schedule_attachments(schedule_uuid)
         return Schedule(**{
             "id": result["id"],
