@@ -1,4 +1,4 @@
-import { Button, Card, Container, Image } from "react-bootstrap";
+import { Button, Container, Image } from "react-bootstrap";
 import Logo from "../assets/logo.png"
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../store/hook";
@@ -7,7 +7,8 @@ import { UserType } from "../type/user/userType";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { ScheduleType } from "../type/schedule/ScheduleType";
+import { Card, Table } from "antd";
+import { getScheduleColumn } from "../columns/ScheduleColumns";
 
 function User(){
     const dispatch = useAppDispatch();
@@ -93,20 +94,6 @@ function User(){
         })
     }
 
-    const ScheduleCard = (props: {
-        schedule: ScheduleType
-    }) => {
-        const schedule = props.schedule;
-        return (
-            <Card className="p-3 d-flex flex-row gap-3" onClick={() => navigate(`/schedule/${schedule.id}`)} style={{cursor: "pointer"}}>
-                <div className="d-flex flex-column text-start">
-                    <span className="fs-5 font-bold">{schedule.name}</span>
-                    <span><a href={schedule.link} target="_blank">{schedule.link}</a></span>
-                </div>
-            </Card>
-        )
-    }
-
     return (
         <>
             <Container className="p-5 d-flex flex-row gap-5">
@@ -148,33 +135,9 @@ function User(){
                             </div>
                         </div>
                     </div>
-                    <div className="w-75 p-3">
-                        <div className="w-100 p-3 rounded border">
-                            <div>
-                                <h2 className="pt-3">待審核活動</h2>
-                                <div className="d-flex flex-column py-3 gap-3">
-                                    { getUserPendingSchedule().map((schedule) => {
-                                            return (
-                                                <ScheduleCard schedule={schedule}></ScheduleCard>
-                                            )
-                                        }
-                                    )}
-                                </div>
-                            </div>
-                            <hr></hr>
-                            <div>
-                                <h2 className="pt-3">已安排活動</h2>
-                                <div className="d-flex flex-column py-3 gap-3">
-                                    { getUserArrangedSchedule().map((schedule) => {
-                                            return (
-                                                <ScheduleCard schedule={schedule}></ScheduleCard>
-                                            )
-                                        }
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div> 
+                    <Card title="個人活動" className="w-100">
+                        <Table columns={getScheduleColumn(navigate).filter((prop) => prop.key != "user")} dataSource={user.schedules} pagination={{pageSize: 5}}></Table>
+                    </Card>
                 </>
                 }
             </Container>

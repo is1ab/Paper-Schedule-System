@@ -4,7 +4,7 @@ import { ScheduleStatusType } from "../type/schedule/ScheduleType"
 import UserAvatar from "../page/components/UserAvatar"
 import { NavigateFunction } from "react-router-dom"
 
-export function getScheduleColumn(navigate: NavigateFunction){
+export function getScheduleColumn(navigate: NavigateFunction, verify: boolean = false){
     return [
         {
             title: "ID",
@@ -57,9 +57,11 @@ export function getScheduleColumn(navigate: NavigateFunction){
             width: "20%",
             render: (_text: any, record: any, _index: number) => {
                 return (
-                <div className="d-flex flex-row gap-3"> 
+                <div className="d-flex flex-row gap-3 justify-content-center"> 
                     <Button type="primary" onClick={() => navigate(`/Schedule/${record["id"]}`)} style={{background: "orange"}}>查看事件</Button>
-                    <Button type="primary" onClick={() => navigate(`./${record["id"]}`)}>進行審核</Button>
+                    { verify && 
+                        <Button type="primary" onClick={() => navigate(`./${record["id"]}`)}>進行審核</Button>
+                    }
                 </div>
                 )
             }
