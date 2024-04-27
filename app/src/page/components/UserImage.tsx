@@ -24,7 +24,7 @@ function UserImage(props: {
     }, [account])
 
     return (
-        <Image width={width} height={width} className={`my-auto`} src={avatarSource}></Image>
+        <Image width={width} className={`my-auto`} src={avatarSource}></Image>
     )
 }
 

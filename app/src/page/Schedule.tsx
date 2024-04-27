@@ -143,8 +143,10 @@ function Schedule(){
                         </Card>
                         { schedule.hostRule && 
                             <Card title={"活動規則"} className="w-100">
-                                <div className="w-100 d-flex flex-row gap-5">
-                                    <UserImage width="10vw" account={""}></UserImage>
+                                <div className="w-100 d-flex flex-row gap-5" style={{height: "10vw"}}>
+                                    <div className="my-auto">
+                                        <UserImage width="10vw" account={""}></UserImage>
+                                    </div>
                                     <div className="my-auto">
                                         <p className="font-bold">{schedule.hostRule.name}</p>
                                         <p className="font-bold my-0">{
