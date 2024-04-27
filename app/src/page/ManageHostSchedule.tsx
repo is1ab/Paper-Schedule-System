@@ -1,4 +1,4 @@
-import { Button, SelectProps, Table } from "antd";
+import { Button, Table } from "antd";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hook";
@@ -6,69 +6,14 @@ import { useEffect, useState } from "react";
 import { getHostRules } from "../store/dataApi/HostRuleApiSlice";
 import { ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
+import weekdayItems from "../items/weekdayItems";
+import periodItems from "../items/PeriodItems";
+import scheduleRuleItems from "../items/ScheduleItems";
 
 export default function ManageHostSchedule(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [tableData, setTableData] = useState([])
-    const weekdayItems: SelectProps["options"] = [
-        {
-            label: "週一",
-            value: "1"
-        },
-        {
-            label: "週二",
-            value: "2"
-        },
-        {
-            label: "週三",
-            value: "3"
-        },
-        {
-            label: "週四",
-            value: "4"
-        },
-        {
-            label: "週五",
-            value: "5"
-        },
-        {
-            label: "週六",
-            value: "6"
-        },
-        {
-            label: "週日",
-            value: "7"
-        }
-    ]
-    const periodItems: SelectProps["options"] = [
-        {
-            label: "一個禮拜一次",
-            value: "1"
-        },
-        {
-            label: "兩個禮拜一次",
-            value: "2"
-        },
-        {
-            label: "三個禮拜一次",
-            value: "3"
-        },
-        {
-            label: "四個禮拜一次",
-            value: "4"
-        }
-    ]
-    const scheduleRuleItems: SelectProps["options"] = [
-        {
-            label: "對於每個禮拜，所有主持人共同主持會議",
-            value: "ALL"
-        },
-        {
-            label: "主持人輪替主持會議",
-            value: "SCHEDULE"
-        }
-    ]
     const columns: ColumnProps<any>[] = [
         {
             title: "#",

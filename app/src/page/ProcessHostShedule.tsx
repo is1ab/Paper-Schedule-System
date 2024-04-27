@@ -14,6 +14,9 @@ import DragableTable from "../components/DragableTable";
 import DeletableTable from "../components/DeletableTable";
 import { addHostRule } from "../store/dataApi/HostRuleApiSlice";
 import { HostRulePayloadType } from "../type/host/HostRuleType";
+import weekdayItems from "../items/weekdayItems";
+import periodItems from "../items/PeriodItems";
+import scheduleRuleItems from "../items/ScheduleItems";
 
 const { RangePicker } = DatePicker;
 
@@ -38,64 +41,6 @@ export default function ProcessHostSchedule(){
     const [userTableDatas, setUserTableDatas] = useState<UserTypeWithKey[]>([])
     const showEmptyRuleNameError = () =>  showError && isEmptyRuleNameError
     const showEmptyMemberError = () => showError && isEmptyMemberError
-    const weekdayItems: SelectProps["options"] = [
-        {
-            label: "週一",
-            value: "1"
-        },
-        {
-            label: "週二",
-            value: "2"
-        },
-        {
-            label: "週三",
-            value: "3"
-        },
-        {
-            label: "週四",
-            value: "4"
-        },
-        {
-            label: "週五",
-            value: "5"
-        },
-        {
-            label: "週六",
-            value: "6"
-        },
-        {
-            label: "週日",
-            value: "7"
-        }
-    ]
-    const periodItems: SelectProps["options"] = [
-        {
-            label: "一個禮拜一次",
-            value: "1"
-        },
-        {
-            label: "兩個禮拜一次",
-            value: "2"
-        },
-        {
-            label: "三個禮拜一次",
-            value: "3"
-        },
-        {
-            label: "四個禮拜一次",
-            value: "4"
-        }
-    ]
-    const scheduleRuleItems: SelectProps["options"] = [
-        {
-            label: "對於每個禮拜，所有主持人共同主持會議",
-            value: "ALL"
-        },
-        {
-            label: "主持人輪替主持會議",
-            value: "SCHEDULE"
-        }
-    ]
     const stepItems: StepProps[] = [
         {
             title: '新增規則使用者',
