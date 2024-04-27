@@ -3,15 +3,19 @@ import { UserType } from "../type/user/userType"
 import { ScheduleStatusType } from "../type/schedule/ScheduleType"
 import UserAvatar from "../page/components/UserAvatar"
 import { NavigateFunction } from "react-router-dom"
+import { render } from "react-dom"
 
 export function getScheduleColumn(navigate: NavigateFunction, verify: boolean = false){
     return [
         {
             title: "ID",
             dataIndex: "id",
-            className: "text-center",
+            className: "text-center font-mono",
             key: "id",
-            width: "20%"
+            width: "20%",
+            render: (id: string) => {
+                return id.split("-")[4]
+            }
         },
         {
             title: "使用者",
