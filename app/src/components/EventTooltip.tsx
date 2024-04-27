@@ -16,11 +16,17 @@ export default function EventTooltip(props: {
                 </div>
             }
             <div className="d-flex flex-column gap-1">
-                <Tag color="default">實驗室例行會議</Tag>
-                <Tag icon={<CheckCircleOutlined />} color="green">已完成審核</Tag>
+                <Tag color="default">{schedule.name}</Tag>
+                <Tag icon={<CheckCircleOutlined />} color="green">{schedule.status.name}</Tag>
             </div>
             <div className="d-flex flex-row gap-3">
                 <span>{schedule.name}</span>
+            </div>
+            <div className="d-flex flex-row gap-3">
+                { schedule.hostRule?.rule == "ALL" ?
+                    <span style={{color: "#bbbbbb"}}>無法點擊，暫時不支援呈現非主持人輪替活動</span> :
+                    <span style={{color: "#bbbbbb"}}>點擊來查看活動詳細資訊</span>
+                }
             </div>
         </div>
     )
