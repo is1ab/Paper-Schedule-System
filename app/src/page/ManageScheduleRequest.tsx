@@ -51,7 +51,7 @@ function ManageScheduleRequest(){
         <Container className="p-5 text-center">
             <h2 className="text-center mb-5">管理活動請求</h2>
             <div className="d-flex flex-column gap-3">
-                <Table loading={schedules == null} columns={getScheduleColumn(naviage)} dataSource={scheduleTableData} className="w-100 text-center"></Table>
+                <Table loading={schedules == null} columns={getScheduleColumn(naviage, true)} dataSource={scheduleTableData} className="w-100 text-center"></Table>
             </div>
         </Container>
     )
