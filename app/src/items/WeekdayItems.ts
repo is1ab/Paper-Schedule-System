@@ -1,6 +1,6 @@
 import { SelectProps } from "antd";
 
-const weekdayItems: SelectProps["options"] = [
+export const weekdayItems: SelectProps["options"] = [
     {
         label: "週一",
         value: "1"
@@ -31,4 +31,6 @@ const weekdayItems: SelectProps["options"] = [
     }
 ]
 
-export default weekdayItems == null ? [] : weekdayItems;
+export function getWeekdayLabelByValue(value: string): string | undefined{
+    return weekdayItems?.find((weekdayItem) => weekdayItem.value === value)?.label as string | undefined;
+}

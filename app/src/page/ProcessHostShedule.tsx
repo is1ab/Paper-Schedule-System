@@ -14,9 +14,9 @@ import DragableTable from "../components/DragableTable";
 import DeletableTable from "../components/DeletableTable";
 import { addHostRule } from "../store/dataApi/HostRuleApiSlice";
 import { HostRulePayloadType } from "../type/host/HostRuleType";
-import weekdayItems from "../items/weekdayItems";
-import periodItems from "../items/PeriodItems";
-import scheduleRuleItems from "../items/ScheduleItems";
+import { periodItems, getPeriodLabelByValue } from "../items/PeriodItems";
+import { scheduleRuleItems } from "../items/ScheduleItems";
+import { getWeekdayLabelByValue, weekdayItems } from "../items/WeekdayItems";
 
 const { RangePicker } = DatePicker;
 
@@ -326,8 +326,8 @@ export default function ProcessHostSchedule(){
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <Descriptions bordered>
                         <Descriptions.Item label={"排程規則"} span={2}>{scheduleRuleName}</Descriptions.Item>
-                        <Descriptions.Item label={"排程星期"} span={1}>{weekdayItems.find((weekdayItem => weekdayItem.value === scheduleRuleWeekday))?.label}</Descriptions.Item>
-                        <Descriptions.Item label={"排程週期"} span={2}>{periodItems.find((periodItem => periodItem.value === scheduleRulePeriod))?.label}</Descriptions.Item>
+                        <Descriptions.Item label={"排程星期"} span={1}>{getWeekdayLabelByValue(scheduleRuleWeekday)}</Descriptions.Item>
+                        <Descriptions.Item label={"排程週期"} span={2}>{getPeriodLabelByValue(scheduleRulePeriod)}</Descriptions.Item>
                         <Descriptions.Item label={"排程日期"} span={1}>{`${scheduleRange[0].format("YYYY-MM-DD")} ~ ${scheduleRange[1].format("YYYY-MM-DD")}`}</Descriptions.Item>
                         <Descriptions.Item label={"排程順序"} span={3}>
                             <ol className="my-0">

@@ -1,6 +1,6 @@
 import { SelectProps } from "antd";
 
-const scheduleRuleItems: SelectProps["options"] = [
+export const scheduleRuleItems: SelectProps["options"] = [
     {
         label: "對於每個禮拜，所有主持人共同主持會議",
         value: "ALL"
@@ -11,4 +11,6 @@ const scheduleRuleItems: SelectProps["options"] = [
     }
 ]
 
-export default scheduleRuleItems == null ? [] : scheduleRuleItems;
+export function getScheduleRuleLabelByValue(value: string): string | undefined{
+    return scheduleRuleItems?.find((scheduleRuleItem) => scheduleRuleItem.value === value)?.label as string | undefined;
+}

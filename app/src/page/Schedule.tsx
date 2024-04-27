@@ -7,6 +7,9 @@ import { ScheduleType } from "../type/schedule/ScheduleType";
 import { Button, Card, List, Tabs, TabsProps, Timeline } from "antd";
 import { CalendarOutlined, FolderOutlined, ImportOutlined, LinkOutlined } from "@ant-design/icons";
 import UserImage from "./components/UserImage";
+import { getWeekdayLabelByValue } from "../items/WeekdayItems";
+import { getScheduleRuleLabelByValue } from "../items/ScheduleItems";
+import { getPeriodLabelByValue } from "../items/PeriodItems";
 
 function Schedule(){
     const dispatch = useAppDispatch()
@@ -138,17 +141,22 @@ function Schedule(){
                                 </div>
                             </div>
                         </Card>
-                        <Card title={"活動規則"} className="w-100">
-                            <div className="w-100 d-flex flex-row gap-5">
-                                <UserImage width="10vw" account={""}></UserImage>
-                                <div className="my-auto">
-                                    <p className="font-bold">實驗室例行會議</p>
-                                    <p className="font-bold my-0">一個禮拜一次、每週三舉行一次</p>
-                                    <p className="font-bold my-0">主持人輪替主持會議</p>
-                                    <p className="font-bold my-0">共有 16 位成員參與這個會議</p>
+                        { schedule.hostRule && 
+                            <Card title={"活動規則"} className="w-100">
+                                <div className="w-100 d-flex flex-row gap-5">
+                                    <UserImage width="10vw" account={""}></UserImage>
+                                    <div className="my-auto">
+                                        <p className="font-bold">{schedule.hostRule.name}</p>
+                                        <p className="font-bold my-0">{
+                                            getPeriodLabelByValue(schedule.hostRule.period.toString())}，
+                                            每{getWeekdayLabelByValue(schedule.hostRule.weekday.toString())}舉行一次
+                                        </p>
+                                        <p className="font-bold my-0">{getScheduleRuleLabelByValue(schedule.hostRule.rule)}</p>
+                                        <p className="font-bold my-0">共有 0 位成員參與這個規則</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </Card>
+                            </Card>
+                        }
                     </>
                 }
             </div>

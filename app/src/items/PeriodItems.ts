@@ -1,6 +1,6 @@
 import { SelectProps } from "antd";
 
-const periodItems: SelectProps["options"] = [
+export const periodItems: SelectProps["options"] = [
     {
         label: "一個禮拜一次",
         value: "1"
@@ -19,4 +19,6 @@ const periodItems: SelectProps["options"] = [
     }
 ]
 
-export default periodItems == null ? [] : periodItems;
+export function getPeriodLabelByValue(value: string): string | undefined{
+    return periodItems?.find((periodItem) => periodItem.value === value)?.label as string | undefined;
+}

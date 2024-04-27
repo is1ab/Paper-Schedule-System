@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { getHostRules } from "../store/dataApi/HostRuleApiSlice";
 import { ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
-import weekdayItems from "../items/weekdayItems";
-import periodItems from "../items/PeriodItems";
-import scheduleRuleItems from "../items/ScheduleItems";
+import { getWeekdayLabelByValue } from "../items/WeekdayItems";
+import { getPeriodLabelByValue } from "../items/PeriodItems";
+import { getScheduleRuleLabelByValue } from "../items/ScheduleItems";
 
 export default function ManageHostSchedule(){
     const dispatch = useAppDispatch()
@@ -68,8 +68,8 @@ export default function ManageHostSchedule(){
                 const period = record["period"]
                 const weekday = record["weekday"]
                 return <>
-                    <p className="my-0">{`${periodItems.find((periodItem) => periodItem.value == period)?.label}`}</p>
-                    <p className="my-0">{`每${weekdayItems.find((weekdayItem) => weekdayItem.value == weekday)?.label}舉行一次`}</p>
+                    <p className="my-0">{`${getPeriodLabelByValue(period)}`}</p>
+                    <p className="my-0">{`每${getWeekdayLabelByValue(weekday)}舉行一次`}</p>
                 </>
             }
         },
@@ -80,7 +80,7 @@ export default function ManageHostSchedule(){
             className: "text-center",
             dataIndex: "rule",
             render: (text: any) => {
-                return scheduleRuleItems.find((scheduleRuleItem) => scheduleRuleItem.value == text)?.label;
+                return getScheduleRuleLabelByValue(text)
             }
         },
         {
