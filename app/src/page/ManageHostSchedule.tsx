@@ -65,8 +65,8 @@ export default function ManageHostSchedule(){
             className: "text-center",
             dataIndex: "schedule",
             render: (_text: any, record: any, _index: number) => {
-                const period = record["period"]
-                const weekday = record["weekday"]
+                const period = record["period"].toString()
+                const weekday = record["weekday"].toString()
                 return <>
                     <p className="my-0">{`${getPeriodLabelByValue(period)}`}</p>
                     <p className="my-0">{`每${getWeekdayLabelByValue(weekday)}舉行一次`}</p>
