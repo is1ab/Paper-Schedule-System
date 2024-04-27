@@ -199,7 +199,7 @@ export const getSelfAvatar = createAsyncThunk(
 )
 
 export const getUserAvatar = createAsyncThunk(
-    "userApi/getSelfAvatar",
+    "userApi/getUserAvatar",
     async (
         account: string,
         thunkApi

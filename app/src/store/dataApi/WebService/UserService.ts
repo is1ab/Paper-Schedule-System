@@ -9,7 +9,7 @@ export class UserService extends BaseService {
     }
 
     getUser = (userId: string) => {
-        return axios.get(`/user/${userId}/userInfo`, this.getAxiosRequestConfig())
+        return axios.get(`/user/${userId}/`, this.getAxiosRequestConfig())
     }
 
     getUsers = () => {

@@ -29,7 +29,7 @@ function UserBadge(){
             key: 'SubMenu',
             children: isLogin ? [
                 {
-                    label: <div onClick={() => navigator("/user/0")}>查看個人資料</div>,
+                    label: <div onClick={() => navigator(`/user/${user?.account}`)}>查看個人資料</div>,
                     key: 0
                 },
                 {

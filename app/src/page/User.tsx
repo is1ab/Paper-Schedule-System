@@ -2,17 +2,18 @@ import { Button, Container, Image } from "react-bootstrap";
 import Logo from "../assets/logo.png"
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../store/hook";
-import { getSelfAvatar, getSelfUserInfo, uploadAvatar } from "../store/dataApi/UserApiSlice";
+import { getSelfAvatar, getSelfUserInfo, getUser, getUserAvatar, uploadAvatar } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, Table } from "antd";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
 
 function User(){
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { userId } = useParams()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [ user, setUser ] = useState<UserType | undefined>()
     const [ avatarFile, setAvatarFile ] = useState<File | null>();
@@ -28,14 +29,17 @@ function User(){
     }
 
     useEffect(() => {
-        dispatch(getSelfUserInfo()).then((response) => {
+        if(userId == undefined){
+            return
+        }
+        dispatch(getUser(userId)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const user = payload["data"] as UserType;
                 setUser(user)
             }
         })
-    }, [])
+    }, [userId])
     
     const getUserPendingSchedule = () => {
         if(user == undefined){
@@ -52,7 +56,10 @@ function User(){
     }
 
     useEffect(() => {
-        dispatch(getSelfAvatar()).then((response: any) => {
+        if(userId == undefined){
+            return
+        }
+        dispatch(getUserAvatar(userId)).then((response: any) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload as Blob;
                 setAvatar(URL.createObjectURL(payload))

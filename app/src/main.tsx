@@ -41,7 +41,7 @@ const router = createBrowserRouter(
       <Route path="/ManageUser" element={<ManageUser/>}></Route>
       <Route path="/ManageUserWeight" element={<ManageUserWeight/>}></Route>
       <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
-      <Route path="/Schedule/:scheduleId" element={<Schedule reviewMode={false}/>}></Route>
+      <Route path="/Schedule/:scheduleId" element={<Schedule/>}></Route>
       <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
       <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
       <Route path="/ManageHoliday" element={<ManageHoliday/>}></Route>
