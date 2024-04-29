@@ -16,15 +16,20 @@ def get_audit_log_parameters(audit_log_id: str):
         """
         cursor.execute(sql, (audit_log_id,))
         results: list[dict[str, Any]] = cursor.fetchall()
-        return [AuditLogParameter(
-            id=result["id"],
-            auditLogId=result["auditLogId"],
-            parameterName=result["parameterName"],
-            parameterValue=result["parameterValue"]
-        ) for result in results]
+        return [
+            AuditLogParameter(
+                id=result["id"],
+                auditLogId=result["auditLogId"],
+                parameterName=result["parameterName"],
+                parameterValue=result["parameterValue"],
+            )
+            for result in results
+        ]
 
 
-def add_audit_log_parameter_without_commit(connection: Connection, parameter: AuditLogParameter):
+def add_audit_log_parameter_without_commit(
+    connection: Connection, parameter: AuditLogParameter
+):
     try:
         with connection.cursor() as cursor:
             sql: str = """
@@ -33,11 +38,14 @@ def add_audit_log_parameter_without_commit(connection: Connection, parameter: Au
                 VALUES(%s, %s, %s)
                 RETURNING id;
             """
-            cursor.execute(sql, (
-                parameter.auditLogId,
-                parameter.parameterName,
-                parameter.parameterValue
-            ))
+            cursor.execute(
+                sql,
+                (
+                    parameter.auditLogId,
+                    parameter.parameterName,
+                    parameter.parameterValue,
+                ),
+            )
             id: str = cursor.fetchone()[0]
             return id
     except Exception:

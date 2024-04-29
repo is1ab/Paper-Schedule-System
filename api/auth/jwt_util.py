@@ -49,14 +49,14 @@ class HS256JWTCodec:
         return True
 
 
-def fetch_token(jwt: str | None): 
-    if(jwt == None):
+def fetch_token(jwt: str | None):
+    if jwt == None:
         return ""
-    
+
     pattern: re.Pattern = re.compile("Bearer (.+)")
     groups = re.findall(pattern, jwt)
 
-    if(len(groups) == 0):
+    if len(groups) == 0:
         return ""
     else:
         return groups[0]
@@ -64,10 +64,7 @@ def fetch_token(jwt: str | None):
 
 def make_jwt(username: str, student_id: str) -> str:
     codec = HS256JWTCodec("some_random_key")
-    return codec.encode({
-        "username": username, 
-        "studentId": student_id
-    })
+    return codec.encode({"username": username, "studentId": student_id})
 
 
 def decode_jwt(jwt: str) -> dict[str, Any]:

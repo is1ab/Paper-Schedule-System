@@ -8,8 +8,17 @@ from store.db.model.action import Action
 from store.db.model.user import User
 from store.db.query.action import get_action
 
+
 class AuditLog:
-    def __init__(self, action: str, timestamp: datetime, ip: IPv4Address, user: User, action_id: str, data: dict[str, Any]):
+    def __init__(
+        self,
+        action: str,
+        timestamp: datetime,
+        ip: IPv4Address,
+        user: User,
+        action_id: str,
+        data: dict[str, Any],
+    ):
         self.action = action
         self.timestamp = timestamp
         self.ip = ip
@@ -25,10 +34,10 @@ class AuditLog:
             "user": f"{self.user.name} <{self.user.email}>",
             "action": action.type,
             "actionId": action.id,
-            "data": self.data
+            "data": self.data,
         }
 
-    def _fetch_message(action_id: str) -> Action: 
+    def _fetch_message(action_id: str) -> Action:
         with current_app.app_context():
             action: Action | None = get_action(actionId=action_id)
             assert action is not None

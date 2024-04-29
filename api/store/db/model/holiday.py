@@ -4,6 +4,7 @@ from datetime import datetime
 from store.db.model.user import User, anonymousUser
 from store.db.model.schedule import Schedule, ScheduleStatus
 
+
 @dataclass
 class Holiday:
     name: str
@@ -14,9 +15,9 @@ class Holiday:
         return {
             "id": self.id,
             "name": self.name,
-            "date": self.date.strftime("%Y-%m-%d")
+            "date": self.date.strftime("%Y-%m-%d"),
         }
-    
+
     def to_schedule(self) -> Schedule:
         return Schedule(
             name=self.name,
@@ -27,5 +28,5 @@ class Holiday:
             attachments=[],
             id=self.id,
             schedule_datetime=self.date,
-            archived=False
+            archived=False,
         )

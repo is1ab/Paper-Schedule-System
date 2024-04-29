@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class ScheduleAttachment:
     schedule_id: str
@@ -13,5 +14,5 @@ class ScheduleAttachment:
             "id": self.id,
             "virtualName": self.file_virtual_name,
             "realName": self.file_real_name,
-            "type": self.file_type
+            "type": self.file_type,
         }

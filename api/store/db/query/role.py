@@ -5,6 +5,7 @@ from psycopg.rows import dict_row
 from store.db.db import create_cursor
 from store.db.model.role import Role
 
+
 def get_role() -> list[Role]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
@@ -15,7 +16,4 @@ def get_role() -> list[Role]:
         cursor.execute(sql)
         results: dict[str, Any] = cursor.fetchall()
         cursor.close()
-        return [Role(
-            result["roleId"],
-            result["roleName"]
-        ) for result in results]
+        return [Role(result["roleId"], result["roleName"]) for result in results]

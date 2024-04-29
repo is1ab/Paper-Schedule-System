@@ -1,14 +1,11 @@
 from dataclasses import dataclass
 
+
 @dataclass
-class Action: 
+class Action:
     id: str
     type: str
     messagePattern: str
 
     def to_json(self):
-        return {
-            "id": self.id,
-            "type": self.type,
-            "messagePattern": self.messagePattern
-        }
+        return {"id": self.id, "type": self.type, "messagePattern": self.messagePattern}

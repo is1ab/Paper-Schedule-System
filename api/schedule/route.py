@@ -30,13 +30,21 @@ schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 def get_all_schedules():
     results: list[Schedule] = generate_schedules()
 
-    return make_response({"status": "OK", "data": [result.to_json_without_attachment() for result in results]})
+    return make_response(
+        {
+            "status": "OK",
+            "data": [result.to_json_without_attachment() for result in results],
+        }
+    )
+
 
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
     results: list[Schedule] = generate_schedules()
     print(results)
-    schedule: Schedule | None = next((schedule for schedule in results if str(schedule.id) == schedule_uuid), None)
+    schedule: Schedule | None = next(
+        (schedule for schedule in results if str(schedule.id) == schedule_uuid), None
+    )
 
     if schedule == None:
         return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent schedule.")
@@ -55,7 +63,7 @@ def check_duplicate_url():
 
     if schedule1 is not None or schedule2 is not None:
         return make_single_message_response(HTTPStatus.FORBIDDEN, "URL already exists.")
-    
+
     return make_response({"status": "OK"})
 
 
@@ -75,12 +83,18 @@ def add_schedule():
         fileKey: str = attachment["fileKey"]
         temp_storage = TempStorage(TunnelCode.ATTACHMENT)
         if not temp_storage.check_exists(file_name=fileKey, file_type="pdf"):
-            return make_single_message_response(HTTPStatus.FORBIDDEN, f"File {fileKey} not exists.")
+            return make_single_message_response(
+                HTTPStatus.FORBIDDEN, f"File {fileKey} not exists."
+            )
         else:
-            file_content = temp_storage.read_file_bytes(file_name=fileKey, file_type="pdf")
+            file_content = temp_storage.read_file_bytes(
+                file_name=fileKey, file_type="pdf"
+            )
             real_storage = RealStorage(TunnelCode.ATTACHMENT)
             real_storage.touch_file(file_name=fileKey, file_type="pdf")
-            real_storage.write_file_bytes(file_name=fileKey, file_type="pdf", data=file_content)
+            real_storage.write_file_bytes(
+                file_name=fileKey, file_type="pdf", data=file_content
+            )
 
     # Handle SQL Data Insertion
     with create_transection() as (connection, transection):
@@ -89,21 +103,29 @@ def add_schedule():
             link=payload["link"],
             description=payload["description"],
             status=schedule_status,
-            user=user_object
+            user=user_object,
         )
         schedule_id: str = schedule_db.add_schedule_with_no_commit(connection, schedule)
 
-        attachments = [ScheduleAttachment(
-            schedule_id=schedule_id,
-            file_real_name=attachment["realName"],
-            file_virtual_name=attachment["fileKey"],
-            file_type="pdf"
-        ) for attachment in payload["attachments"]]
+        attachments = [
+            ScheduleAttachment(
+                schedule_id=schedule_id,
+                file_real_name=attachment["realName"],
+                file_virtual_name=attachment["fileKey"],
+                file_type="pdf",
+            )
+            for attachment in payload["attachments"]
+        ]
 
         for attachment in attachments:
             schedule_db.add_schedule_attachments_with_no_commit(connection, attachment)
-            
-    return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}"})
+
+    return make_response(
+        {
+            "status": "OK",
+            "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}",
+        }
+    )
 
 
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["PUT"])
@@ -121,7 +143,7 @@ def modified_schedule(schedule_uuid: str):
         user=schedule.user,
         attachments=schedule.attachments,
         schedule_datetime=schedule.schedule_datetime,
-        archived=payload["archived"]
+        archived=payload["archived"],
     )
 
     schedule_db.modify_schedule(new_schedule)
@@ -152,9 +174,13 @@ def generate_schedules() -> list[Schedule]:
     results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
 
     for host_rule in host_rules:
-        arranged_host_rule_schedules: list[Schedule] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
+        arranged_host_rule_schedules: list[
+            Schedule
+        ] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
         users: User = host_rule_db.get_host_rule_users(host_rule.id)
-        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule, users, arranged_host_rule_schedules, holidays)
+        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(
+            host_rule, users, arranged_host_rule_schedules, holidays
+        )
         results.extend(pending_schedules)
 
     return results
