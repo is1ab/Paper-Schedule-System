@@ -4,11 +4,11 @@ from uuid import uuid4
 
 from flask import Blueprint, make_response, request
 
-import store.db.db as db
 import store.db.query.holiday as holiday_db
 import store.db.query.host_rule as host_rule_db
 import store.db.query.schedule as schedule_db
 import store.db.query.user as user_db
+from store.db.db import create_transection
 from auth.jwt_util import decode_jwt, fetch_token
 from route_util import audit_route
 from schedule.util import generate_schedule, generate_host_rule_pending_schedules
@@ -83,7 +83,7 @@ def add_schedule():
             real_storage.write_file_bytes(file_name=fileKey, file_type="pdf", data=file_content)
 
     # Handle SQL Data Insertion
-    with db.create_transection():
+    with create_transection() as (connection, transection):
         schedule = Schedule(
             name=payload["name"],
             link=payload["link"],
@@ -91,7 +91,7 @@ def add_schedule():
             status=schedule_status,
             user=user_object
         )
-        schedule_id: str = schedule_db.add_schedule_with_no_commit(schedule)
+        schedule_id: str = schedule_db.add_schedule_with_no_commit(connection, schedule)
 
         attachments = [ScheduleAttachment(
             schedule_id=schedule_id,
@@ -101,7 +101,7 @@ def add_schedule():
         ) for attachment in payload["attachments"]]
 
         for attachment in attachments:
-            schedule_db.add_schedule_attachments_with_no_commit(attachment)
+            schedule_db.add_schedule_attachments_with_no_commit(connection, attachment)
             
     return make_response({"status": "OK", "message": f"Payload added. key={schedule_id}, attachment_count={len(attachments)}"})
 
