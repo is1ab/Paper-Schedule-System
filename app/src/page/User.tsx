@@ -2,14 +2,14 @@ import { Button, Container, Image } from "react-bootstrap";
 import Logo from "../assets/logo.png"
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "../store/hook";
-import { getSelfAvatar, getSelfUserInfo, getUser, getUserAvatar, uploadAvatar } from "../store/dataApi/UserApiSlice";
+import { getSelfUserInfo, getUser, getUserAvatar, uploadAvatar } from "../store/dataApi/UserApiSlice";
 import { UserType } from "../type/user/userType";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, List, Table, Tag } from "antd";
+import { Card, Table } from "antd";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
-import { FileOutlined, InfoCircleFilled, InfoCircleOutlined, InfoOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { FileOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 
 function User(){
     const dispatch = useAppDispatch();
@@ -165,15 +165,15 @@ function User(){
                             <div className="border p-4 rounded d-flex flex-column gap-2">
                                 <div className="d-flex flex-row gap-3">
                                     <MailOutlined></MailOutlined>
-                                    <span>t109590031@ntut.org.tw</span>
+                                    <span>{user.email}</span>
                                 </div>
                                 <div className="d-flex flex-row gap-3">
                                     <UserOutlined></UserOutlined>
-                                    <span>Ungraduated</span>
+                                    <span>{user.role.name}</span>
                                 </div>
                                 <div className="d-flex flex-row gap-3">
                                     <FileOutlined></FileOutlined>
-                                    <span>大學部、顧問</span>
+                                    <span>{user.note}</span>
                                 </div>
                             </div>
                         </div>

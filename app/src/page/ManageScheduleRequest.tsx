@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { ScheduleStatusType, ScheduleType } from "../type/schedule/ScheduleType";
+import { ScheduleType } from "../type/schedule/ScheduleType";
 import { useAppDispatch } from "../store/hook";
 import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { Table } from "antd";
-import { UserType } from "../type/user/userType";
-import { HostRuleDataType } from "../type/host/HostRuleType";
 import { useNavigate } from "react-router-dom";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
 
@@ -13,14 +11,6 @@ function ManageScheduleRequest(){
     const naviage = useNavigate()
     const dispatch = useAppDispatch()
     const [schedules, setSchedules] = useState<ScheduleType[] | undefined>();
-    const [scheduleTableData, setScheduleTableData] = useState<{
-        id: string,
-        user: UserType | undefined
-        name: string,
-        status: ScheduleStatusType,
-        hostrule: HostRuleDataType | undefined,
-        action: string
-    }[]>([])
     
 
     useEffect(() => {

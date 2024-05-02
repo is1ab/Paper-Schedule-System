@@ -1,7 +1,6 @@
 import { Alert, Button, DatePicker, Descriptions, Input, Result, Select, SelectProps, StepProps, Steps, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import UserAvatar from "./components/UserAvatar";
 import { CheckCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "../store/hook";
 import { getUsers } from "../store/dataApi/UserApiSlice";
@@ -80,7 +79,7 @@ export default function ProcessHostSchedule(){
             className: "text-center",
             key: "name",
             width: "16%",
-            render: (text: string, record: UserType, _index: number) => {
+            render: (_text: string, record: UserType, _index: number) => {
                 return (
                     <UserAvatarButton user={record}/>
                 )
