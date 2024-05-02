@@ -10,11 +10,13 @@ import UserImage from "./components/UserImage";
 import { getWeekdayLabelByValue } from "../items/WeekdayItems";
 import { getScheduleRuleLabelByValue } from "../items/ScheduleItems";
 import { getPeriodLabelByValue } from "../items/PeriodItems";
+import { getHostRuleUserCount } from "../store/dataApi/HostRuleApiSlice";
 
 function Schedule(){
     const dispatch = useAppDispatch()
     const { scheduleId } = useParams()
     const [ schedule, setSchedule ] = useState<ScheduleType | null>(null);
+    const [ hostRuleUserCount, setHostRuleUserCount ] = useState<number | null>(null)
 
     useEffect(() => {
         if(scheduleId == null){
@@ -154,7 +156,7 @@ function Schedule(){
                                             每{getWeekdayLabelByValue(schedule.hostRule.weekday.toString())}舉行一次
                                         </p>
                                         <p className="font-bold my-0">{getScheduleRuleLabelByValue(schedule.hostRule.rule)}</p>
-                                        <p className="font-bold my-0">共有 0 位成員參與這個規則</p>
+                                        <p className="font-bold my-0">共有 {hostRuleUserCount} 位成員參與這個規則</p>
                                     </div>
                                 </div>
                             </Card>
@@ -164,6 +166,19 @@ function Schedule(){
             </div>
         }
     ]
+
+    useEffect(() => {
+        if(!schedule || !schedule.hostRule){
+            return
+        }
+        dispatch(getHostRuleUserCount(schedule.hostRule.id)).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload
+                const hostRuleUserCount = payload["data"]
+                setHostRuleUserCount(hostRuleUserCount)
+            }
+        })
+    }, [schedule])
 
     return (
         <Container className="p-5">

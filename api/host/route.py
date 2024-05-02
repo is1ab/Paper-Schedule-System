@@ -5,6 +5,7 @@ from flask import Blueprint, request, make_response
 import store.db.query.host_rule as host_rule_db
 from store.db.db import create_transection
 from store.db.model.host_rule import HostRule, HostRuleOrder
+from store.db.model.user import User
 from route_util import audit_route
 
 
@@ -56,3 +57,10 @@ def getHostRules():
         result.append(host_rule_json)
 
     return make_response({"status": "OK", "data": result})
+
+
+@audit_route(host_bp, "/<host_rule_id>/count", methods=["GET"])
+def get_host_rule_user_count(host_rule_id: int):
+    host_rule_users: list[User] = host_rule_db.get_host_rule_users(host_rule_id=host_rule_id)
+
+    return make_response({"status": "OK", "data": len(host_rule_users)})

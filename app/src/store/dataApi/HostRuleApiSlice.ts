@@ -44,3 +44,21 @@ export const getHostRules = createAsyncThunk(
         }
     }
 )
+
+export const getHostRuleUserCount = createAsyncThunk(
+    'hostRuleApi/getHostRules',
+    async (hostRuleId: number, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new HostRuleService(token);
+            const res = await service.getHostRuleUserCount(hostRuleId)
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`hostRuleApi/getHostRules: ${err}`)
+            })
+        }
+    }
+)
