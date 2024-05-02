@@ -15,7 +15,7 @@ export default function UserAvatarButton(props: {
             className="mx-auto d-flex flex-row gap-2 justify-content-center" 
             onClick={() => navigate(`/User/${user.account}/`)}
         >
-            <UserAvatar account={user.account} size="xs"></UserAvatar>
+            <UserAvatar account={user.account} size={22}></UserAvatar>
             <span className="my-auto"> {user.name} </span>
         </Button>
     )

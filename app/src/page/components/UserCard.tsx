@@ -20,7 +20,7 @@ function UserCard(props: {
         <div className={className == null ? `col col-md-4 col-12 p-2` : className}>
             <Card className="p-3 d-flex flex-row gap-3" onClick={() => navigate(`/user/${account}/`)} style={{cursor: "pointer"}}>
                 <div className="d-flex flex-column">
-                    <UserAvatar account={account} size="lg"></UserAvatar>
+                    <UserAvatar account={account} size={64}></UserAvatar>
                 </div>
                 <div className="d-flex flex-column text-start">
                     <span className="fs-5 font-bold">{name}</span>

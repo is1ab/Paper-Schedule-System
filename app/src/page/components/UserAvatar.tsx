@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../store/hook";
 import Logo from "../../assets/logo.png"
 import { getUserAvatar } from "../../store/dataApi/UserApiSlice";
-import { Avatar } from "rsuite";
-import { TypeAttributes } from "rsuite/esm/@types/common";
+import { Avatar } from "antd";
+import { AvatarSize } from "antd/es/avatar/AvatarContext";
 
 function UserAvatar(props: {
-    size: TypeAttributes.Size
+    size: AvatarSize | undefined
     account: string
 }){
     const dispatch = useAppDispatch()
@@ -19,12 +19,14 @@ function UserAvatar(props: {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload as Blob;
                 setAvatarSource(URL.createObjectURL(payload))
+            }else{
+                setAvatarSource(Logo)
             }
         })
     }, [account])
 
     return (
-        <Avatar size={size} className="my-auto" circle src={avatarSource}></Avatar>
+        <Avatar size={size} className="my-auto" src={avatarSource} style={{backgroundColor: "#77777722"}}></Avatar>
     )
 }
 
