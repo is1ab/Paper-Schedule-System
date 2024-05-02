@@ -11,7 +11,7 @@ export default function EventTooltip(props: {
         <div className="p-2 d-flex flex-column gap-2">
             { schedule.user &&
                 <div className="d-flex flex-row gap-1">
-                    <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                    <UserAvatar account={schedule.user.account} size={22}></UserAvatar>
                     <span className="my-auto">{schedule.user.name}</span>
                 </div>
             }

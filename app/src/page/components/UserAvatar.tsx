@@ -26,7 +26,7 @@ function UserAvatar(props: {
     }, [account])
 
     return (
-        <Avatar size={size} className="my-auto" src={avatarSource} style={{backgroundColor: "#77777722"}}></Avatar>
+        <Avatar size={size} className="my-auto" src={avatarSource} style={{backgroundColor: "#bbbbbb"}}></Avatar>
     )
 }
 

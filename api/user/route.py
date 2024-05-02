@@ -9,6 +9,7 @@ from magic import Magic
 import store.db.query.user as user_db
 import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
+from schedule.route import generate_schedules
 from route_util import audit_route
 from store.db.model.schedule import Schedule
 from store.db.model.user import User
@@ -24,10 +25,11 @@ def get_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
 
-    schedules: list[Schedule] = schedule_db.get_schedules_by_user(user)
+    schedules: list[Schedule] = generate_schedules()
+    user_schedules: list[Schedule] = filter(lambda schedule: schedule.user is not None and schedule.user.id == user.id, schedules)
 
     result = user.to_json()
-    result |= {"schedules": [schedule.to_json() for schedule in schedules]}
+    result |= {"schedules": [schedule.to_json() for schedule in user_schedules]}
 
     return make_response({"status": "OK", "data": result})
 
@@ -39,7 +41,9 @@ def get_self_user_info():
 
     studentId: str = jwt_payload["studentId"]
     user: User | None = user_db.get_user(studentId)
-    schedules: list[Schedule] = schedule_db.get_schedules_by_user(user)
+    
+    schedules: list[Schedule] = generate_schedules()
+    user_schedules: list[Schedule] = filter(lambda schedule: schedule.user.id == user.id, schedules)
 
     result = user.to_json()
     result |= {"schedules": [schedule.to_json() for schedule in schedules]}

@@ -17,6 +17,7 @@ import { HostRulePayloadType } from "../type/host/HostRuleType";
 import { periodItems, getPeriodLabelByValue } from "../items/PeriodItems";
 import { scheduleRuleItems } from "../items/ScheduleItems";
 import { getWeekdayLabelByValue, weekdayItems } from "../items/WeekdayItems";
+import UserAvatarButton from "../components/UserAvatarButton";
 
 const { RangePicker } = DatePicker;
 
@@ -79,12 +80,9 @@ export default function ProcessHostSchedule(){
             className: "text-center",
             key: "name",
             width: "16%",
-            render: (text: string, record: any, _index: number) => {
+            render: (text: string, record: UserType, _index: number) => {
                 return (
-                    <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
-                        <UserAvatar account={record.account} size="xs"></UserAvatar>
-                        <span className="my-auto"> {text} </span>
-                    </Button>
+                    <UserAvatarButton user={record}/>
                 )
             }
         },
@@ -269,7 +267,6 @@ export default function ProcessHostSchedule(){
                         <RangePicker 
                             className="w-100" 
                             value={scheduleRange}
-                            minDate={dayjs(Date.now())}
                             onChange={(dates: NoUndefinedRangeValueType<dayjs.Dayjs> | null, _dateString: [string, string]) => {
                                 if(dates == null){
                                     return

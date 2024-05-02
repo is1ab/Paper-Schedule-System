@@ -7,8 +7,9 @@ import { UserType } from "../type/user/userType";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, Table } from "antd";
+import { Card, List, Table, Tag } from "antd";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
+import { FileOutlined, InfoCircleFilled, InfoCircleOutlined, InfoOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 
 function User(){
     const dispatch = useAppDispatch();
@@ -50,6 +51,13 @@ function User(){
                 setSelfUser(user)
             }
         })
+    }
+
+    const getUserUnarrangedSchedule = () => {
+        if(user == undefined){
+            return []
+        }
+        return user.schedules.filter((schedule) => schedule.status.id === 4)
     }
     
     const getUserPendingSchedule = () => {
@@ -154,9 +162,31 @@ function User(){
                         </div>
                         <h2>{user?.name}</h2>
                         <div className="w-100">
+                            <div className="border p-4 rounded d-flex flex-column gap-2">
+                                <div className="d-flex flex-row gap-3">
+                                    <MailOutlined></MailOutlined>
+                                    <span>t109590031@ntut.org.tw</span>
+                                </div>
+                                <div className="d-flex flex-row gap-3">
+                                    <UserOutlined></UserOutlined>
+                                    <span>Ungraduated</span>
+                                </div>
+                                <div className="d-flex flex-row gap-3">
+                                    <FileOutlined></FileOutlined>
+                                    <span>大學部、顧問</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-100">
                             <div className="border p-3 rounded d-flex flex-row gap-3">
                                 <div className="w-100 d-flex flex-column gap-1">
-                                    <div className="bg-primary p-3 w-100 text-white fs-2">
+                                    <div className="bg-danger p-3 w-100 text-white fs-2">
+                                        <span>{ getUserUnarrangedSchedule().length }</span>
+                                    </div>
+                                    <span>等待安排</span>
+                                </div>
+                                <div className="w-100 d-flex flex-column gap-1">
+                                    <div className="bg-secondary p-3 w-100 text-white fs-2">
                                         <span>{ getUserPendingSchedule().length }</span>
                                     </div>
                                     <span>待審核</span>

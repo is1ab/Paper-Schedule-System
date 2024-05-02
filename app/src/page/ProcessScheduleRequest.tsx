@@ -87,7 +87,7 @@ export default function ProcessScheduleRequest(){
             <div className="p-2 d-flex flex-column gap-2">
                 { schedule.user &&
                     <div className="d-flex flex-row gap-1">
-                        <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                        <UserAvatar account={schedule.user.account} size={22}></UserAvatar>
                         <span className="my-auto">{schedule.user.name}</span>
                     </div>
                 }
@@ -113,7 +113,7 @@ export default function ProcessScheduleRequest(){
         return (
             <div className="p-2 d-flex flex-column gap-2">
                 <div className="d-flex flex-row gap-1">
-                    <UserAvatar account={schedule.user.account} size="xs"></UserAvatar>
+                    <UserAvatar account={schedule.user.account} size={22}></UserAvatar>
                     <span className="my-auto">{schedule.user.name}</span>
                 </div>
                 <div className="d-flex flex-column gap-1">
