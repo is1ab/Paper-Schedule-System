@@ -5,21 +5,14 @@ import { useAppDispatch } from "../store/hook";
 import { UserType } from "../type/user/userType";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { RoleType } from "../type/setting/RoleType";
 import { Button, Table } from "antd";
-import UserAvatar from "./components/UserAvatar";
 import { CheckCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import UserAvatarButton from "../components/UserAvatarButton";
 
 function ManageUser(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
-    const [userTableDatas, setUserTableDatas] = useState<{
-        account: string,
-        name: string,
-        note: string,
-        blocked: boolean
-        role: RoleType
-    }[]>([])
+    const [userTableDatas, setUserTableDatas] = useState<UserType[]>([])
 
     const columns = [
         {
@@ -35,12 +28,9 @@ function ManageUser(){
             className: "text-center",
             key: "name",
             width: "16%",
-            render: (text: string, record: any, _index: number) => {
+            render: (_text: string, record: UserType, _index: number) => {
                 return (
-                    <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
-                        <UserAvatar account={record.account} size="xs"></UserAvatar>
-                        <span className="my-auto"> {text} </span>
-                    </Button>
+                    <UserAvatarButton user={record}></UserAvatarButton>
                 )
             }
         },
@@ -189,15 +179,7 @@ function ManageUser(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const users = (payload["data"] as UserType[]).sort((a, b) => a.role.id - b.role.id)
-                setUserTableDatas(users.map(user => {
-                    return {
-                        account: user.account,
-                        name: user.name,
-                        note: user.note,
-                        blocked: user.blocked,
-                        role: user.role
-                    }
-                }))
+                setUserTableDatas(users)
             }
         })
     }

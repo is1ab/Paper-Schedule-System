@@ -1,9 +1,8 @@
 import { Badge, Button } from "antd"
 import { UserType } from "../type/user/userType"
 import { ScheduleStatusType } from "../type/schedule/ScheduleType"
-import UserAvatar from "../page/components/UserAvatar"
 import { NavigateFunction } from "react-router-dom"
-import { render } from "react-dom"
+import UserAvatarButton from "../components/UserAvatarButton"
 
 export function getScheduleColumn(navigate: NavigateFunction, verify: boolean = false){
     return [
@@ -28,10 +27,7 @@ export function getScheduleColumn(navigate: NavigateFunction, verify: boolean = 
                     return ""
                 }
                 return (
-                    <Button type="default" className="mx-auto d-flex flex-row gap-2 justify-content-center">
-                        <UserAvatar account={user.account} size="xs"></UserAvatar>
-                        <span className="my-auto"> {user.name} </span>
-                    </Button>
+                    <UserAvatarButton user={user}></UserAvatarButton>
                 )
             }
         },
