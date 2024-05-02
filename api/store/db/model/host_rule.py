@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+
 @dataclass
 class HostRule:
     name: str
@@ -21,9 +22,10 @@ class HostRule:
             "period": self.period,
             "weekday": self.weekday,
             "rule": self.rule,
-            "deleted": self.deleted
+            "deleted": self.deleted,
         }
-    
+
+
 @dataclass
 class HostRuleOrder:
     host_rule_id: int
@@ -34,9 +36,10 @@ class HostRuleOrder:
         return {
             "host_rule_id": self.host_rule_id,
             "account": self.account,
-            "index": self.index
+            "index": self.index,
         }
-    
+
+
 @dataclass
 class HostRuleSchedule:
     host_rule_id: int
@@ -47,5 +50,5 @@ class HostRuleSchedule:
         return {
             "hostRuleId": self.host_rule_id,
             "iteration": self.iteration,
-            "scheduleId": self.schedule_id
+            "scheduleId": self.schedule_id,
         }

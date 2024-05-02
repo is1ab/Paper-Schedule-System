@@ -8,7 +8,10 @@ from store.db.db import create_transection
 from store.db.model.schedule import Schedule, ScheduleStatus
 from store.db.model.host_rule import HostRuleSchedule
 
-schedule_admin_bp = Blueprint("schedule_admin", __name__, url_prefix="/api/admin/schedule")
+schedule_admin_bp = Blueprint(
+    "schedule_admin", __name__, url_prefix="/api/admin/schedule"
+)
+
 
 @audit_route(schedule_admin_bp, "/<schedule_uuid>/specificDate", methods=["POST"])
 def specific_schedule_date(schedule_uuid: str):
@@ -19,11 +22,14 @@ def specific_schedule_date(schedule_uuid: str):
     iteration: int = payload["iteration"]
 
     with create_transection() as (connection, transection):
-        host_rule_db.add_host_rule_schedule_without_commit(HostRuleSchedule(
-            schedule_id=schedule_uuid,
-            host_rule_id=host_rule_id,
-            iteration=iteration
-        ), connection)
+        host_rule_db.add_host_rule_schedule_without_commit(
+            HostRuleSchedule(
+                schedule_id=schedule_uuid,
+                host_rule_id=host_rule_id,
+                iteration=iteration,
+            ),
+            connection,
+        )
         schedule.status = ScheduleStatus(2, "已完成")
         schedule_db.modify_schedule_without_commit(schedule, connection)
 

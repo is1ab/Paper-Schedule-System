@@ -7,6 +7,7 @@ from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule
 from store.db.model.role import Role
 from store.db.model.user import User
 
+
 def add_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> int:
     try:
         with connection.cursor() as cursor:
@@ -16,15 +17,18 @@ def add_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> 
                 VALUES(%s, %s, %s, %s, %s, %s, %s)
                 RETURNING "id"
             """
-            cursor.execute(sql, (
-                hostRule.name,
-                hostRule.startDate,
-                hostRule.endDate,
-                hostRule.period,
-                hostRule.weekday,
-                hostRule.rule,
-                hostRule.deleted
-            ))
+            cursor.execute(
+                sql,
+                (
+                    hostRule.name,
+                    hostRule.startDate,
+                    hostRule.endDate,
+                    hostRule.period,
+                    hostRule.weekday,
+                    hostRule.rule,
+                    hostRule.deleted,
+                ),
+            )
             id: int = cursor.fetchone()[0]
             cursor.close()
             return id
@@ -33,7 +37,9 @@ def add_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> 
         raise e
 
 
-def add_host_rule_user_without_commit(orders: list[HostRuleOrder], connection: Connection):
+def add_host_rule_user_without_commit(
+    orders: list[HostRuleOrder], connection: Connection
+):
     try:
         with connection.cursor() as cursor:
             sql: str = """
@@ -41,12 +47,15 @@ def add_host_rule_user_without_commit(orders: list[HostRuleOrder], connection: C
                 ("hostRuleId", "account", "index")
                 VALUES (%s, %s, %s);
             """
-            cursor.executemany(sql, [(order.host_rule_id, order.account, order.index) for order in orders])
+            cursor.executemany(
+                sql,
+                [(order.host_rule_id, order.account, order.index) for order in orders],
+            )
             cursor.close()
     except Exception as e:
         connection.rollback()
-        raise e 
-    
+        raise e
+
 
 def get_host_rule(host_rule_id: int) -> HostRule:
     with create_cursor(row_factory=dict_row) as cursor:
@@ -65,8 +74,9 @@ def get_host_rule(host_rule_id: int) -> HostRule:
             period=result["period"],
             weekday=result["weekday"],
             rule=result["rule"],
-            deleted=result["deleted"]
+            deleted=result["deleted"],
         )
+
 
 def get_host_rules() -> list[HostRule]:
     with create_cursor(row_factory=dict_row) as cursor:
@@ -76,18 +86,24 @@ def get_host_rules() -> list[HostRule]:
         """
         cursor.execute(sql)
         results: list[dict[str, Any]] = cursor.fetchall()
-        return [HostRule(
-            id=result["id"],
-            name=result["name"],
-            startDate=result["startDate"],
-            endDate=result["endDate"],
-            period=result["period"],
-            weekday=result["weekday"],
-            rule=result["rule"],
-            deleted=result["deleted"]
-        ) for result in results]
-    
-def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[HostRule, int] | None:
+        return [
+            HostRule(
+                id=result["id"],
+                name=result["name"],
+                startDate=result["startDate"],
+                endDate=result["endDate"],
+                period=result["period"],
+                weekday=result["weekday"],
+                rule=result["rule"],
+                deleted=result["deleted"],
+            )
+            for result in results
+        ]
+
+
+def get_host_rule_and_iteration_with_schedule_id(
+    schedule_id: str,
+) -> Tuple[HostRule, int] | None:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             SELECT id, "name", "startDate", "endDate", "period", weekday, "rule", deleted, hrs.iteration, hrs."scheduleId"
@@ -97,7 +113,7 @@ def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[Host
         """
         cursor.execute(sql, (schedule_id,))
         result: list[dict[str, Any]] | None = cursor.fetchone()
-        
+
         if result is None:
             return None
 
@@ -111,10 +127,11 @@ def get_host_rule_and_iteration_with_schedule_id(schedule_id: str) -> Tuple[Host
                 period=result["period"],
                 weekday=result["weekday"],
                 rule=result["rule"],
-                deleted=result["deleted"]
-            ), 
-            iteration
+                deleted=result["deleted"],
+            ),
+            iteration,
         )
+
 
 def get_host_rule_users(host_rule_id: int) -> list[User]:
     with create_cursor(row_factory=dict_row) as cursor:
@@ -129,32 +146,38 @@ def get_host_rule_users(host_rule_id: int) -> list[User]:
         """
         cursor.execute(sql, (host_rule_id,))
         results: list[dict[str, Any]] = cursor.fetchall()
-        return [User(
-            id=result["id"],
-            name=result["name"],
-            account=result["account"],
-            email=result["email"],
-            note=result["note"],
-            blocked=result["blocked"],
-            role=Role(
-                id=result["role"],
-                name=result["roleName"]
+        return [
+            User(
+                id=result["id"],
+                name=result["name"],
+                account=result["account"],
+                email=result["email"],
+                note=result["note"],
+                blocked=result["blocked"],
+                role=Role(id=result["role"], name=result["roleName"]),
             )
-        ) for result in results]
-    
-def add_host_rule_schedule_without_commit(host_rule_schedule: HostRuleSchedule, connection: Connection):
+            for result in results
+        ]
+
+
+def add_host_rule_schedule_without_commit(
+    host_rule_schedule: HostRuleSchedule, connection: Connection
+):
     try:
         with connection.cursor() as cursor:
-            sql: str =  """
+            sql: str = """
                 INSERT INTO public.host_rule_schedule
                 ("hostRuleId", iteration, "scheduleId")
                 VALUES(%s, %s, %s);
             """
-            cursor.execute(sql, (
-                host_rule_schedule.host_rule_id, 
-                host_rule_schedule.iteration, 
-                host_rule_schedule.schedule_id
-            ))
+            cursor.execute(
+                sql,
+                (
+                    host_rule_schedule.host_rule_id,
+                    host_rule_schedule.iteration,
+                    host_rule_schedule.schedule_id,
+                ),
+            )
     except Exception as e:
         connection.rollback()
         raise e

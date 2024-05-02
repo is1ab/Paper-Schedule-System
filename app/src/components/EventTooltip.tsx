@@ -16,7 +16,7 @@ export default function EventTooltip(props: {
                 </div>
             }
             <div className="d-flex flex-column gap-1">
-                <Tag color="default">{schedule.name}</Tag>
+                <Tag color="default">{schedule.hostRule?.name}</Tag>
                 <Tag icon={<CheckCircleOutlined />} color="green">{schedule.status.name}</Tag>
             </div>
             <div className="d-flex flex-row gap-3">

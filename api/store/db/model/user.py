@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from store.db.model.role import Role
 
+
 @dataclass
 class User:
     id: int | None
@@ -20,9 +21,10 @@ class User:
             "name": self.name,
             "note": self.note,
             "blocked": self.blocked,
-            "role": self.role.to_json()
+            "role": self.role.to_json(),
         }
-    
+
+
 anonymousUser: User = User(
     id=None,
     account="Anonymous",
@@ -30,8 +32,5 @@ anonymousUser: User = User(
     name=None,
     note=None,
     blocked=False,
-    role=Role(
-        id=0,
-        name="Anonymous"
-    )
+    role=Role(id=0, name="Anonymous"),
 )

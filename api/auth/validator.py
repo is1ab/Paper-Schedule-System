@@ -23,7 +23,9 @@ def validate_user_id_should_be_able_to_access_or_return_http_status_code_401(
         user: User | None = user_db.get_user(account)
 
         if user == None:
-            return make_single_message_response(HTTPStatus.UNAUTHORIZED, "登入失敗，目前沒有權限登入這個系統")
+            return make_single_message_response(
+                HTTPStatus.UNAUTHORIZED, "登入失敗，目前沒有權限登入這個系統"
+            )
 
         return func(*args, **kwargs)
 

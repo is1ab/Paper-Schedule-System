@@ -18,11 +18,12 @@ from util import make_single_message_response
 
 user_bp = Blueprint("user", __name__, url_prefix="/api/user")
 
+
 @audit_route(user_bp, "/<account>/", methods=["GET"])
 def get_user(account: str):
     user: User | None = user_db.get_user(account)
     assert user is not None
-    
+
     schedules: list[Schedule] = schedule_db.get_schedules_by_user(user)
 
     result = user.to_json()
@@ -58,7 +59,7 @@ def add_user():
         "role": payload["role"],
         "email": payload["email"],
         "note": payload["note"],
-        "blocked": False
+        "blocked": False,
     }
     user_info_model |= {"account": user_id}
 
@@ -81,7 +82,7 @@ def modify_user(account: str):
         "role": payload["role"],
         "email": payload["email"],
         "note": payload["note"],
-        "blocked": False
+        "blocked": False,
     }
 
     user_db.set_user(account, User(**user_info_model))
@@ -100,7 +101,7 @@ def blocked_user(account: str):
         "role": user.role,
         "email": user.email,
         "note": user.note,
-        "blocked": True
+        "blocked": True,
     }
 
     user_db.set_user(account, User(**user_info_model))
@@ -119,7 +120,7 @@ def unblocked_user(account: str):
         "role": user.role,
         "email": user.email,
         "note": user.note,
-        "blocked": True
+        "blocked": True,
     }
 
     user_db.set_user(account, User(**user_info_model))
@@ -155,7 +156,7 @@ def upload_self_avatar():
 
     mime: Magic = Magic(mime=True)
     mimeType = mime.from_buffer(content)
-    if(mimeType.split("/")[0] != "image"):
+    if mimeType.split("/")[0] != "image":
         return make_single_message_response(HTTPStatus.FORBIDDEN, "Invalid Image file.")
 
     student_id: str = jwt_payload["studentId"]
@@ -165,14 +166,14 @@ def upload_self_avatar():
     real_storage.touch_file(filename, "avatar")
 
     real_storage.write_file_bytes(filename, "avatar", content)
-    return make_response({"status": "OK"}) 
+    return make_response({"status": "OK"})
 
 
 def fetch_avatar(account: str):
     filename: str = sha256(account.encode()).hexdigest()
 
     real_storage: RealStorage = RealStorage(TunnelCode.AVATAR)
-    
+
     if not real_storage.check_exists(filename, "avatar"):
         return make_single_message_response(HTTPStatus.FORBIDDEN, "Absent avatar.")
 
@@ -183,5 +184,7 @@ def fetch_avatar(account: str):
 
     response: Response = make_response(avatar_content)
     response.headers.set("Content-Type", mimeType)
-    response.headers.set("Content-Description", "attachment", filename=f"{account}{extension}")
+    response.headers.set(
+        "Content-Description", "attachment", filename=f"{account}{extension}"
+    )
     return response
