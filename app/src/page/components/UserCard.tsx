@@ -17,7 +17,7 @@ function UserCard(props: {
     const className = props.className
 
     return (
-        <div className={className == null ? `col col-md-6 col-12 p-2` : className}>
+        <div className={className == null ? `col col-md-4 col-12 p-2` : className}>
             <Card className="p-3 d-flex flex-row gap-3" onClick={() => navigate(`/user/${account}/`)} style={{cursor: "pointer"}}>
                 <div className="d-flex flex-column">
                     <UserAvatar account={account} size="lg"></UserAvatar>

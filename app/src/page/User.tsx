@@ -16,6 +16,7 @@ function User(){
     const { userId } = useParams()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [ user, setUser ] = useState<UserType | undefined>()
+    const [ selfUser, setSelfUser ] = useState<UserType | undefined>()
     const [ avatarFile, setAvatarFile ] = useState<File | null>();
     const [ avatar, setAvatar ] = useState<string | undefined>(Logo) 
     const [ isShowAvatarEditor, setIsShowAvatarEditor ] = useState<boolean>(false);
@@ -40,6 +41,16 @@ function User(){
             }
         })
     }, [userId])
+
+    const fetchSelfUserInfo = () => {
+        dispatch(getSelfUserInfo()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload
+                const user = payload["data"] as UserType
+                setSelfUser(user)
+            }
+        })
+    }
     
     const getUserPendingSchedule = () => {
         if(user == undefined){
@@ -101,6 +112,10 @@ function User(){
         })
     }
 
+    useEffect(() => {
+        fetchSelfUserInfo()
+    }, [])
+
     return (
         <>
             <Container className="p-5 d-flex flex-row gap-5">
@@ -108,21 +123,34 @@ function User(){
                 <>
                     <div className="d-flex flex-column gap-3 text-center">
                         <div className="w-100">
-                            <input 
-                                ref={fileInputRef} 
-                                type='file' 
-                                onChange={() => handleInputFileOnChange()}
-                                accept="image/png, image/jpeg"
-                                hidden
-                            ></input>
-                            <Button 
-                                style={{ width: 250, height: 250, borderRadius: "100%" }} 
-                                variant="btn-outline-secondary" 
-                                className="border p-0"
-                                onClick={() => handleUpload()}
-                            >
-                                <Image roundedCircle src={avatar} width="100%" height="100%"></Image>
-                            </Button>
+                            { selfUser?.account == userId ?
+                            <>
+                                <input 
+                                    ref={fileInputRef} 
+                                    type='file' 
+                                    onChange={() => handleInputFileOnChange()}
+                                    accept="image/png, image/jpeg"
+                                    hidden
+                                ></input>
+                                <Button 
+                                    style={{ width: 250, height: 250, borderRadius: "100%" }} 
+                                    variant="btn-outline-secondary" 
+                                    className="border p-0"
+                                    onClick={() => handleUpload()}
+                                >
+                                    <Image roundedCircle src={avatar} width="100%" height="100%"></Image>
+                                </Button>
+                            </> :
+                            <>
+                                 <Button 
+                                    style={{ width: 250, height: 250, borderRadius: "100%", cursor: "default" }} 
+                                    variant="btn-outline-secondary" 
+                                    className="border p-0"
+                                >
+                                    <Image roundedCircle src={avatar} width="100%" height="100%"></Image>
+                                </Button>
+                            </> 
+                            }
                         </div>
                         <h2>{user?.name}</h2>
                         <div className="w-100">

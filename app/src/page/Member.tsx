@@ -17,6 +17,7 @@ function Member(){
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
                 const users = payload["data"] as UserType[]
+                users.sort((a, b) => a.note.localeCompare(b.note))
                 setUsers(users);
             }
         })
