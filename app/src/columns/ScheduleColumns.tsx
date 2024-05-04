@@ -45,7 +45,7 @@ export function getScheduleColumn(navigate: NavigateFunction, verify: boolean = 
             key: "date",
             width: "20%",
             render: (_date: any, record: any, _index: number) => {
-                return <span>{record.hostRule.name}</span>
+                return <span>{record.hostRule?.name}</span>
             }
         },
         {
