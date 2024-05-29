@@ -23,6 +23,8 @@ def ntut_login(student_id: str, password: str) -> bool:
     header: dict[str, str] = {"User-Agent": "Direk Android App"}
     res: Response = post(login_url, data=data, headers=header)
 
+    print(res.json())
+
     res_json: dict[str, Any] = res.json()
 
     return {"studentId": student_id, "username": res_json["givenName"]}

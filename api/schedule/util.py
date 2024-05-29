@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from store.db.model.user import User, anonymousUser
 from store.db.model.schedule import Schedule, ScheduleStatus
 from store.db.model.holiday import Holiday
-from store.db.model.host_rule import HostRule, HostRuleOrder
+from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSwapRecord
 
 
 def generate_schedule(
@@ -89,6 +89,16 @@ def generate_host_rule_pending_schedules(
         schedule_date += timedelta(weeks=host_rule.period)
 
     return host_rule_schedules
+
+
+def swap_schedule(schedules: list[Schedule], host_rule_swap_records: list[HostRuleSwapRecord]):
+    for record in host_rule_swap_records:
+        specific_schedule = _find_schedule_arragned(schedules, record.host_rule_id, record.specific_user_account, record.specific_iteration)
+        swap_schedule = _find_schedule_arragned(schedules, record.host_rule_id, record.swap_user_account, record.swap_iteration)
+        specific_schedule_index = schedules.index(specific_schedule)
+        swap_schedule_index = schedules.index(swap_schedule)
+        schedules[swap_schedule_index].schedule_datetime, schedules[specific_schedule_index].schedule_datetime = schedules[specific_schedule_index].schedule_datetime, schedules[swap_schedule_index].schedule_datetime
+    return schedules    
 
 
 def _generate_holiday_dates(holidays: list[Holiday]):

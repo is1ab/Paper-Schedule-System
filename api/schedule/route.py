@@ -11,9 +11,9 @@ import store.db.query.user as user_db
 from store.db.db import create_transection
 from auth.jwt_util import decode_jwt, fetch_token
 from route_util import audit_route
-from schedule.util import generate_schedule, generate_host_rule_pending_schedules
+from schedule.util import generate_schedule, generate_host_rule_pending_schedules, swap_schedule
 from store.db.model.holiday import Holiday
-from store.db.model.host_rule import HostRule
+from store.db.model.host_rule import HostRule, HostRuleSwapRecord
 from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
@@ -181,6 +181,8 @@ def generate_schedules() -> list[Schedule]:
         pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(
             host_rule, users, arranged_host_rule_schedules, holidays
         )
+        swap_records: list[HostRuleSwapRecord] = host_rule_db.get_host_rule_swap_records(host_rule.id)
+        pending_schedules = swap_schedule(pending_schedules, swap_records)
         results.extend(pending_schedules)
 
     return results

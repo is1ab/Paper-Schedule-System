@@ -3,7 +3,7 @@ from typing import Any, Tuple
 from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
-from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule
+from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleSwapRecord
 from store.db.model.role import Role
 from store.db.model.user import User
 
@@ -181,3 +181,49 @@ def add_host_rule_schedule_without_commit(
     except Exception as e:
         connection.rollback()
         raise e
+
+
+def add_host_rule_swap_record_without_commit(
+    host_rule_swap_record: HostRuleSwapRecord, connection: Connection
+):
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                INSERT INTO public.host_rule_swap
+                ("hostRuleId", "specificUserAccount", "specificIteration", "swapUserAccount", "swapIteration")
+                VALUES(%s, %s, %s, %s, %s);
+            """
+            cursor.execute(
+                sql,
+                (
+                    host_rule_swap_record.host_rule_id,
+                    host_rule_swap_record.specific_user_account,
+                    host_rule_swap_record.specific_iteration,
+                    host_rule_swap_record.swap_user_account,
+                    host_rule_swap_record.swap_iteration
+                )
+            )
+    except Exception as e:
+        connection.rollback()
+        raise e
+    
+def get_host_rule_swap_records(
+    host_rule_id: int
+) -> list[HostRuleSwapRecord]:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT id, "hostRuleId", "specificIteration", "swapIteration", "specificUserAccount", "swapUserAccount"
+            FROM public.host_rule_swap
+            WHERE "hostRuleId" = %s
+        """
+        cursor.execute(sql, (host_rule_id, ))
+        results: list[dict[str, Any]] = cursor.fetchall()
+        return [
+            HostRuleSwapRecord(
+                host_rule_id=host_rule_id,
+                specific_user_account=result["specificUserAccount"],
+                specific_iteration=result["specificIteration"],
+                swap_user_account=result["swapUserAccount"],
+                swap_iteration=result["swapIteration"]
+            ) for result in results
+        ]
