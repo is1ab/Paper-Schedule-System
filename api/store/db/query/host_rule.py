@@ -237,14 +237,13 @@ def add_temporary_event_without_commit(
         with connection.cursor() as cursor:
             sql: str = """
                 INSERT INTO public.host_rule_temporary_event
-                ("hostRuleId", "date", "scheduleId", "isReplace")
-                VALUES(%s, %s, %s, %s);
+                ("hostRuleId", "scheduleId", "isReplace")
+                VALUES(%s, %s, %s);
             """
             cursor.execute(
                 sql,
                 (
                     temporary_event.host_rule_id,
-                    temporary_event.date,
                     temporary_event.schedule_id,
                     temporary_event.is_replace
                 )
@@ -257,7 +256,7 @@ def add_temporary_event_without_commit(
 def get_temporary_events(host_rule_id: int) -> list[HostRuleTemporaryEvent]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
-            SELECT "hostRuleId", "date", "scheduleId", "isReplace"
+            SELECT "hostRuleId", "scheduleId", "isReplace"
             FROM public.host_rule_temporary_event
             WHERE "hostRuleId" = %s
         """
@@ -269,7 +268,6 @@ def get_temporary_events(host_rule_id: int) -> list[HostRuleTemporaryEvent]:
         return [
             HostRuleTemporaryEvent(
                 host_rule_id=result["hostRuleId"],
-                date=result["date"],
                 schedule_id=result["scheduleId"],
                 is_replace=result["isReplace"]
             ) for result in results

@@ -174,7 +174,6 @@ def generate_schedules() -> list[Schedule]:
 
     for host_rule in host_rules:
         pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule)
-        print(pending_schedules)
         swap_schedule(pending_schedules, host_rule)
         results.extend(pending_schedules)
 

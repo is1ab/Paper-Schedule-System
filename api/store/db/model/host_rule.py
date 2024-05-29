@@ -72,18 +72,16 @@ class HostRuleSwapRecord:
             "swapIteration": self.swap_iteration
         }
     
-    
+
 @dataclass
 class HostRuleTemporaryEvent:
     host_rule_id: int
-    date: datetime
     schedule_id: str
     is_replace: bool
 
     def to_json(self):
         return {
             "hostRuleId": self.host_rule_id,
-            "date": self.date.strftime("%Y-%m-%d"),
             "scheduleId": self.schedule_id,
             "isReplace": self.is_replace
         }

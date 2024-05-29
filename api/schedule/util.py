@@ -105,7 +105,6 @@ def generate_host_rule_pending_schedules(
 
 def swap_schedule(schedules: list[Schedule], host_rule: HostRule):
     swap_records: list[HostRuleSwapRecord] = host_rule_db.get_host_rule_swap_records(host_rule.id)
-    print(schedules)
     for record in swap_records:
         specific_schedule = _find_arragned_schedule_by_account_and_iteration(schedules, record.host_rule_id, record.specific_user_account, record.specific_iteration)
         swap_schedule = _find_arragned_schedule_by_account_and_iteration(schedules, record.host_rule_id, record.swap_user_account, record.swap_iteration)
@@ -123,9 +122,14 @@ def _find_arranged_temporary_schedule_by_datetime(
     temporary_events: list[HostRuleTemporaryEvent],
     date: datetime
 ) -> tuple[Schedule | None, bool | None]:
+    temporary_schedules: list[Schedule] = []
     for temporary_event in temporary_events:
-        if temporary_event.date == date:
-            schedule = schedule_db.get_schedule(temporary_event.schedule_id)
+        schedule = schedule_db.get_schedule(temporary_event.schedule_id)
+        assert schedule is not None
+        temporary_schedules.append(schedule)
+
+    for schedule in temporary_schedules:
+        if schedule.schedule_datetime == date:
             is_replace = temporary_event.is_replace
             return (schedule, is_replace)
     return (None, None)
