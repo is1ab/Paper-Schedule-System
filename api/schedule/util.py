@@ -9,28 +9,13 @@ from store.db.model.holiday import Holiday
 from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSwapRecord, HostRuleTemporaryEvent
 
 
+# TODO: Should be migrated.
 def generate_schedule(
     arranged_schedules: list[Schedule],
 ) -> list[Schedule]:
     results: list[Schedule] = []
     holidays: list[Holiday] = holiday_db.get_holidays()
     holiday_dates: list[str] = _generate_holiday_dates(holidays)
-
-    for holiday in holidays:
-        results.append(holiday.to_schedule())
-
-    for arranged_schedule in arranged_schedules:
-        if arranged_schedule.status.id == 5:
-            continue
-        if arranged_schedule.status.id == 1:
-            results.append(arranged_schedule)
-            continue
-        if arranged_schedule.schedule_datetime == None:
-            continue
-        schedule_date: str = arranged_schedule.schedule_datetime.strftime("%Y-%m-%d")
-        if schedule_date in holiday_dates:
-            continue
-        results.append(arranged_schedule)
 
     return results
 
