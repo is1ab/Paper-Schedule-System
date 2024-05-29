@@ -66,8 +66,24 @@ class HostRuleSwapRecord:
     def to_json(self):
         return {
             "hostRuleId": self.host_rule_id,
-            "specificUserId": self.specific_user_id,
+            "specificUserId": self.specific_user_account,
             "specificIteration": self.specific_iteration,
-            "swapUserId": self.swap_user_id,
+            "swapUserId": self.specific_user_account,
             "swapIteration": self.swap_iteration
+        }
+    
+    
+@dataclass
+class HostRuleTemporaryEvent:
+    host_rule_id: int
+    date: datetime
+    schedule_id: str
+    is_replace: bool
+
+    def to_json(self):
+        return {
+            "hostRuleId": self.host_rule_id,
+            "date": self.date.strftime("%Y-%m-%d"),
+            "scheduleId": self.schedule_id,
+            "isReplace": self.is_replace
         }

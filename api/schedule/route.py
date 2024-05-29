@@ -169,20 +169,13 @@ def put_off_schedule():
 
 def generate_schedules() -> list[Schedule]:
     arranged_schedules: list[Schedule] = schedule_db.get_schedules()
-    holidays: list[Holiday] = holiday_db.get_holidays()
     host_rules: list[HostRule] = host_rule_db.get_host_rules()
-    results: list[Schedule] = generate_schedule(arranged_schedules, holidays)
+    results: list[Schedule] = generate_schedule(arranged_schedules)
 
     for host_rule in host_rules:
-        arranged_host_rule_schedules: list[
-            Schedule
-        ] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
-        users: User = host_rule_db.get_host_rule_users(host_rule.id)
-        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(
-            host_rule, users, arranged_host_rule_schedules, holidays
-        )
-        swap_records: list[HostRuleSwapRecord] = host_rule_db.get_host_rule_swap_records(host_rule.id)
-        pending_schedules = swap_schedule(pending_schedules, swap_records)
+        pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule)
+        print(pending_schedules)
+        swap_schedule(pending_schedules, host_rule)
         results.extend(pending_schedules)
 
     return results

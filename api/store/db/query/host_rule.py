@@ -3,7 +3,7 @@ from typing import Any, Tuple
 from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
-from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleSwapRecord
+from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleSwapRecord, HostRuleTemporaryEvent
 from store.db.model.role import Role
 from store.db.model.user import User
 
@@ -206,7 +206,8 @@ def add_host_rule_swap_record_without_commit(
     except Exception as e:
         connection.rollback()
         raise e
-    
+
+
 def get_host_rule_swap_records(
     host_rule_id: int
 ) -> list[HostRuleSwapRecord]:
@@ -225,5 +226,51 @@ def get_host_rule_swap_records(
                 specific_iteration=result["specificIteration"],
                 swap_user_account=result["swapUserAccount"],
                 swap_iteration=result["swapIteration"]
+            ) for result in results
+        ]
+    
+
+def add_temporary_event_without_commit(
+    temporary_event: HostRuleTemporaryEvent, connection: Connection
+):
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                INSERT INTO public.host_rule_temporary_event
+                ("hostRuleId", "date", "scheduleId", "isReplace")
+                VALUES(%s, %s, %s, %s);
+            """
+            cursor.execute(
+                sql,
+                (
+                    temporary_event.host_rule_id,
+                    temporary_event.date,
+                    temporary_event.schedule_id,
+                    temporary_event.is_replace
+                )
+            )
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def get_temporary_events(host_rule_id: int) -> list[HostRuleTemporaryEvent]:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT "hostRuleId", "date", "scheduleId", "isReplace"
+            FROM public.host_rule_temporary_event
+            WHERE "hostRuleId" = %s
+        """
+        cursor.execute(
+            sql,
+            (host_rule_id, )
+        )
+        results: list[dict[str, Any]] = cursor.fetchall()
+        return [
+            HostRuleTemporaryEvent(
+                host_rule_id=result["hostRuleId"],
+                date=result["date"],
+                schedule_id=result["scheduleId"],
+                is_replace=result["isReplace"]
             ) for result in results
         ]
