@@ -65,8 +65,10 @@ function Home() {
                         )
                     }) 
                 }
+                { announcements.length != 0 &&
+                    <hr className="w-100"></hr>
+                }
             </div>
-            <hr className="w-100"></hr>
             <div className="my-auto h-fit-content text-center">
                 <div className="w-25 mx-auto">
                     <Image preview={false} src={Logo} className="mx-auto w-100"></Image>
