@@ -2,12 +2,10 @@ import { Layout, Menu, MenuProps } from "antd";
 import logo from "../assets/logo.png"
 import UserBadge from "../components/UserBadge";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 
 function Is1abNavbar() {
   const { Header } = Layout;
   const navigate = useNavigate()
-  const dispatch = useDispatch()
 
   const leftItems: MenuProps['items'] = [
     {
