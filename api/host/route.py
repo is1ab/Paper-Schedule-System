@@ -4,7 +4,7 @@ from flask import Blueprint, request, make_response
 
 import store.db.query.host_rule as host_rule_db
 from store.db.db import create_transection
-from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSwapRecord
+from store.db.model.host_rule import HostRule, HostRuleOrder
 from store.db.model.user import User
 from route_util import audit_route
 

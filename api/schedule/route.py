@@ -4,16 +4,14 @@ from uuid import uuid4
 
 from flask import Blueprint, make_response, request
 
-import store.db.query.holiday as holiday_db
 import store.db.query.host_rule as host_rule_db
 import store.db.query.schedule as schedule_db
 import store.db.query.user as user_db
 from store.db.db import create_transection
 from auth.jwt_util import decode_jwt, fetch_token
 from route_util import audit_route
-from schedule.util import generate_schedule, generate_host_rule_pending_schedules, swap_schedule
-from store.db.model.holiday import Holiday
-from store.db.model.host_rule import HostRule, HostRuleSwapRecord
+from schedule.util import generate_host_rule_pending_schedules, swap_schedule
+from store.db.model.host_rule import HostRule
 from store.db.model.schedule import Schedule
 from store.db.model.schedule_attachment import ScheduleAttachment
 from store.db.model.schedule_status import ScheduleStatus
@@ -168,9 +166,8 @@ def put_off_schedule():
 
 
 def generate_schedules() -> list[Schedule]:
-    arranged_schedules: list[Schedule] = schedule_db.get_schedules()
     host_rules: list[HostRule] = host_rule_db.get_host_rules()
-    results: list[Schedule] = generate_schedule(arranged_schedules)
+    results: list[Schedule] = []
 
     for host_rule in host_rules:
         pending_schedules: list[Schedule] = generate_host_rule_pending_schedules(host_rule)

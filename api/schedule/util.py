@@ -1,33 +1,18 @@
 from datetime import datetime, timedelta
 
-import store.db.query.holiday as holiday_db
 import store.db.query.host_rule as host_rule_db
 import store.db.query.schedule as schedule_db
 from store.db.model.user import User, anonymousUser
 from store.db.model.schedule import Schedule, ScheduleStatus
-from store.db.model.holiday import Holiday
 from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSwapRecord, HostRuleTemporaryEvent
-
-
-# TODO: Should be migrated.
-def generate_schedule(
-    arranged_schedules: list[Schedule],
-) -> list[Schedule]:
-    results: list[Schedule] = []
-    holidays: list[Holiday] = holiday_db.get_holidays()
-    holiday_dates: list[str] = _generate_holiday_dates(holidays)
-
-    return results
 
 
 def generate_host_rule_pending_schedules(
     host_rule: HostRule,
 ):
-    holidays: list[Holiday] = holiday_db.get_holidays()
     temporary_events: list[HostRuleTemporaryEvent] = host_rule_db.get_temporary_events(host_rule.id)
     host_rule_orders: list[User] = host_rule_db.get_host_rule_users(host_rule.id)
     arranged_host_rule_schedules: list[Schedule] = schedule_db.get_arranged_schedules_by_specific_host_rule(host_rule.id)
-    holiday_dates: list[str] = _generate_holiday_dates(holidays)
     host_rule_schedules: list[Schedule] = []
     start_date: datetime = host_rule.startDate
     end_date: datetime = host_rule.endDate
@@ -41,13 +26,6 @@ def generate_host_rule_pending_schedules(
         )
 
     while schedule_date <= end_date:
-        date: str = schedule_date.strftime("%Y-%m-%d")
-
-        # if date is holiday, pass it.
-        if date in holiday_dates:
-            schedule_date += timedelta(weeks=1)
-            continue
-
         arranged_temporary_schedule: Schedule | None
         is_replace: bool | None
         arranged_temporary_schedule, is_replace = _find_arranged_temporary_schedule_by_datetime(
@@ -97,10 +75,6 @@ def swap_schedule(schedules: list[Schedule], host_rule: HostRule):
         swap_schedule_index = schedules.index(swap_schedule)
         schedules[swap_schedule_index].schedule_datetime, schedules[specific_schedule_index].schedule_datetime = schedules[specific_schedule_index].schedule_datetime, schedules[swap_schedule_index].schedule_datetime
     return schedules    
-
-
-def _generate_holiday_dates(holidays: list[Holiday]):
-    return [holiday.date.strftime("%Y-%m-%d") for holiday in holidays]
 
 
 def _find_arranged_temporary_schedule_by_datetime(
