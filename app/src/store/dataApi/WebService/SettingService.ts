@@ -9,4 +9,8 @@ export class SettingService extends BaseService {
     getRoles = () => {
         return axios.get("/setting/role", this.getAxiosRequestConfig())
     }
+
+    getAnnouncments = () => {
+        return axios.get("/setting/announcement", this.getAxiosRequestConfig())
+    }
 }
