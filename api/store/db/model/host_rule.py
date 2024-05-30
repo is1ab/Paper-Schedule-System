@@ -55,25 +55,6 @@ class HostRuleSchedule:
 
 
 @dataclass
-class HostRuleSwapRecord:
-    host_rule_id: int
-    specific_user_account: str
-    specific_iteration: int
-    swap_user_account: str
-    swap_iteration: str
-    id: int | None = None
-
-    def to_json(self):
-        return {
-            "hostRuleId": self.host_rule_id,
-            "specificUserId": self.specific_user_account,
-            "specificIteration": self.specific_iteration,
-            "swapUserId": self.specific_user_account,
-            "swapIteration": self.swap_iteration
-        }
-    
-
-@dataclass
 class HostRuleTemporaryEvent:
     host_rule_id: int
     schedule_id: str
