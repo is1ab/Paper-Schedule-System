@@ -1,0 +1,12 @@
+FROM python:3.11
+
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 build-essential python3-dev -y
+
+COPY . /opt/PSS
+WORKDIR /opt/PSS
+RUN python -m pip install "cython<3.0.0" wheel
+RUN python -m pip install "pyyaml==6.0" --no-build-isolation
+RUN python -m pip install --only-binary :all: greenlet
+RUN python -m pip install -r requirements.txt
+
+CMD flask run --host 0.0.0.0 --port 8080

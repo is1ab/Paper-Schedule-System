@@ -1,0 +1,9 @@
+FROM node
+
+COPY . /opt/PSS
+
+WORKDIR /opt/PSS
+RUN npm install
+RUN npm install -g serve
+
+CMD npx serve -l tcp://0.0.0.0:3000
