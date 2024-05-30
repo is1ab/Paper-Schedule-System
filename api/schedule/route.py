@@ -39,7 +39,6 @@ def get_all_schedules():
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
     results: list[Schedule] = generate_schedules()
-    print(results)
     schedule: Schedule | None = next(
         (schedule for schedule in results if str(schedule.id) == schedule_uuid), None
     )
