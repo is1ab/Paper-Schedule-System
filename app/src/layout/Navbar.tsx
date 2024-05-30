@@ -2,10 +2,17 @@ import { Layout, Menu, MenuProps } from "antd";
 import logo from "../assets/logo.png"
 import UserBadge from "../components/UserBadge";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../store/hook";
+import { useEffect } from "react";
+import { getLabZhName, getOrganizationZhName, getSystemArguments } from "../store/dataApi/SettingApiSlice";
+import { useSelector } from "react-redux";
 
 function Is1abNavbar() {
   const { Header } = Layout;
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const orginazionZhName = useSelector(getOrganizationZhName)
+  const labZhName = useSelector(getLabZhName)
 
   const leftItems: MenuProps['items'] = [
     {
@@ -17,6 +24,14 @@ function Is1abNavbar() {
       key: 'member',
     }
   ]
+
+  useEffect(() => {
+    dispatch(getSystemArguments())
+  }, [])
+
+  useEffect(() => {
+    document.title = `${orginazionZhName} ${labZhName}`
+  }, [orginazionZhName, labZhName])
 
   return (
     <Header style={{background: "#DDDDDD00"}} className="w-100">
@@ -30,7 +45,7 @@ function Is1abNavbar() {
               height="40"
               className="my-auto"
             />
-            <span className="text-nowrap">資訊安全實驗室</span>
+            <span className="text-nowrap">{labZhName}</span>
           </div>
           <div>
             <Menu

@@ -13,4 +13,8 @@ export class SettingService extends BaseService {
     getAnnouncments = () => {
         return axios.get("/setting/announcement", this.getAxiosRequestConfig())
     }
+
+    getSystemArgs = () => {
+        return axios.get("/setting/system_arg", this.getAxiosRequestConfig())
+    }
 }

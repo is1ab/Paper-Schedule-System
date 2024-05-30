@@ -3,11 +3,16 @@ import Logo from "../assets/logo.png"
 import { Alert, Image } from "antd"
 import { useAppDispatch } from "../store/hook"
 import { useEffect, useState } from "react"
-import { getAnnouncments } from "../store/dataApi/SettingApiSlice"
+import { getAnnouncments, getLabEnName, getLabZhName, getOrganizationEnName, getOrganizationZhName } from "../store/dataApi/SettingApiSlice"
+import { useSelector } from "react-redux"
 
 function Home() {
   const dispatch = useAppDispatch()
   const [announcements, setAnnouncements] = useState<AnnouncementType[]>([])
+  const labZhName = useSelector(getLabZhName)
+  const labEnName = useSelector(getLabEnName)
+  const orgZhName = useSelector(getOrganizationZhName)
+  const orgEnName = useSelector(getOrganizationEnName)
 
   const typeTransform = (type: "ERROR" | "WARNING" | "INFO") => {
     if(type == 'ERROR'){
@@ -74,8 +79,8 @@ function Home() {
                     <Image preview={false} src={Logo} className="mx-auto w-100"></Image>
                 </div>
                 <br/>
-                <h1>國立臺北科技大學 資訊安全實驗室</h1>
-                <h2> Information Security Lab, NTUT </h2>
+                <h1>{orgZhName} {labZhName}</h1>
+                <h2>{labEnName}, {orgEnName} </h2>
             </div>
             <hr className="w-100"></hr>
         </div>
