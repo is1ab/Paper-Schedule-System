@@ -6,7 +6,7 @@ import { Container } from "react-bootstrap";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import UserAvatar from "./components/UserAvatar";
 import { useNavigate, useParams } from "react-router-dom";
-import HolidayTooltip from "../components/HolidayTooltip";
+import TemporaryEventTooltip from "../components/TemporaryEventTooltip";
 import { getAllSchedule, getSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { useAppDispatch } from "../store/hook";
 import { specificScheduleDate } from "../store/dataApi/ScheduleAdminApiSlice";
@@ -137,7 +137,7 @@ export default function ProcessScheduleRequest(){
                     schedules.filter((schedule) => schedule.datetime == date.format("YYYY-MM-DD") && dayjs(schedule.datetime, "YYYY-MM-DD").isSame(selectedDate, 'month')).map((schedule) => {
                         if(schedule.status.id == 5){
                             return (
-                                <Tooltip placement="right" title={<HolidayTooltip holiday={schedule} />}>
+                                <Tooltip placement="right" title={<TemporaryEventTooltip schedule={schedule} />}>
                                     <li key={schedule.name}>
                                         <Badge status="error" style={{color: "#bbbbbb"}} text={`活動暫停：${schedule.name}`}></Badge>
                                     </li>

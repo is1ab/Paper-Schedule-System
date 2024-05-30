@@ -5,7 +5,7 @@ import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import dayjs, { Dayjs } from "dayjs";
 import { Badge, Calendar, Tooltip, message } from "antd";
-import HolidayTooltip from "../components/HolidayTooltip";
+import TemporaryEventTooltip from "../components/TemporaryEventTooltip";
 import PendingTooltip from "../components/PendingTooltip";
 import EventTooltip from "../components/EventTooltip";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +36,7 @@ function Event(){
                     specificEvents.map((schedule) => {
                         if(schedule.status.id == 5){
                             return (
-                                <Tooltip placement="right" title={<HolidayTooltip holiday={schedule} />}>
+                                <Tooltip placement="right" title={<TemporaryEventTooltip schedule={schedule} />}>
                                     <li key={schedule.name}>
                                         <Badge status="error" text={`${schedule.name}`}></Badge>
                                     </li>
