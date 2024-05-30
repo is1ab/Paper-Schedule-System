@@ -26,6 +26,7 @@ def generate_host_rule_pending_schedules(
         )
 
     while schedule_date <= end_date:
+        # Check is temporary schedule existed. 
         arranged_temporary_schedule: Schedule | None
         is_replace: bool | None
         arranged_temporary_schedule, is_replace = _find_arranged_temporary_schedule_by_datetime(
@@ -34,6 +35,7 @@ def generate_host_rule_pending_schedules(
         )
 
         if arranged_temporary_schedule is not None:
+            arranged_temporary_schedule.host_rule = host_rule
             host_rule_schedules.append(arranged_temporary_schedule)
         
             if is_replace:
@@ -42,6 +44,7 @@ def generate_host_rule_pending_schedules(
             schedule_date += timedelta(weeks=1)
             continue
 
+        # Start to arranged schedule by account and iteration
         user: User = host_rule_orders[host_index % len(host_rule_orders)]
         iteration: int = host_index // len(host_rule_orders)
         arranged_schedule: Schedule | None = _find_arragned_schedule_by_account_and_iteration(
