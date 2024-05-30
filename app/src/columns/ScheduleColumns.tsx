@@ -1,6 +1,6 @@
 import { Badge, Button } from "antd"
 import { UserType } from "../type/user/userType"
-import { ScheduleStatusType, ScheduleType } from "../type/schedule/ScheduleType"
+import { ScheduleStatusType } from "../type/schedule/ScheduleType"
 import { NavigateFunction } from "react-router-dom"
 import UserAvatarButton from "../components/UserAvatarButton"
 

@@ -1,5 +1,5 @@
 import AvatarEditor from "react-avatar-editor";
-import { Button, Image, Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { useRef } from "react";
 
 function Is1abAvatarEditor(props: {
