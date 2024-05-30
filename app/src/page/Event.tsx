@@ -38,7 +38,7 @@ function Event(){
                             return (
                                 <Tooltip placement="right" title={<HolidayTooltip holiday={schedule} />}>
                                     <li key={schedule.name}>
-                                        <Badge status="error" text={`活動暫停：${schedule.name}`}></Badge>
+                                        <Badge status="error" text={`${schedule.name}`}></Badge>
                                     </li>
                                 </Tooltip>
                             )

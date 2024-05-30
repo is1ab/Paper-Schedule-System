@@ -3,7 +3,7 @@ from typing import Any, Tuple
 from psycopg.rows import dict_row
 
 from store.db.db import Connection, create_cursor
-from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleSwapRecord, HostRuleTemporaryEvent
+from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleTemporaryEvent
 from store.db.model.role import Role
 from store.db.model.user import User
 

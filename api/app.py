@@ -6,7 +6,6 @@ from typing import Any, Mapping
 
 from audit.route import audit_bp
 from auth.route import auth_bp
-from holiday.route import holiday_bp
 from host.route import host_bp
 from schedule.route import schedule_bp
 from schedule.admin_route import schedule_admin_bp
@@ -31,7 +30,6 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
 
     app.register_blueprint(audit_bp)
     app.register_blueprint(auth_bp)
-    app.register_blueprint(holiday_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(schedule_admin_bp)
     app.register_blueprint(schedule_bp)
