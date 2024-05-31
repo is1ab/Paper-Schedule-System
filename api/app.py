@@ -23,7 +23,7 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
         app.config.from_mapping(test_config)
 
     app.config["ConnectionPool"] = ConnectionPool(
-        "postgresql://is1ab_admin:is1ab%401321@localhost:5432/PPS",
+        "postgresql://is1ab_admin:is1ab%401321@pss-database:5432/PSS",
         timeout=10,
         min_size=10,
     )

@@ -62,7 +62,7 @@ SET row_security = off;
 --
 
 --
--- Database "PPS" dump
+-- Database "PSS" dump
 --
 
 --
@@ -87,13 +87,13 @@ SET row_security = off;
 
 --
 -- TOC entry 3464 (class 1262 OID 16384)
--- Name: PPS; Type: DATABASE; Schema: -; Owner: -
+-- Name: PSS; Type: DATABASE; Schema: -; Owner: -
 --
 
-CREATE DATABASE "PPS" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
+CREATE DATABASE "PSS" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
 
 
-\connect "PPS"
+\connect "PSS"
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -372,6 +372,23 @@ CREATE TABLE public."user" (
     account character varying NOT NULL
 );
 
+INSERT INTO public."role" (id, "name") VALUES(3, 'Guest');
+INSERT INTO public."role" (id, "name") VALUES(2, 'Student');
+INSERT INTO public."role" (id, "name") VALUES(1, 'Professor');
+INSERT INTO public.system_argument ("key", value) VALUES('LAB_EN', 'Information Security Lab');
+INSERT INTO public.system_argument ("key", value) VALUES('ORG_EN', 'NTUT');
+INSERT INTO public.system_argument ("key", value) VALUES('ORG_ZH', '國立臺北科技大學');
+INSERT INTO public.system_argument ("key", value) VALUES('LAB_ZH', '資訊安全實驗室');
+INSERT INTO public."action" (id, "type", "messagePattern") VALUES('56b89550-33b1-41b9-ab5b-61f20e2bddf5'::uuid, 'REQUEST', 'User {user} request the route {route}');
+INSERT INTO public."action" (id, "type", "messagePattern") VALUES('e91c0efd-317a-4245-a87d-74c2fd60651b'::uuid, 'ACTION', 'User {user} confirm the schedule {scheduleId}');
+INSERT INTO public."action" (id, "type", "messagePattern") VALUES('bf6c7a9e-9f08-4307-b7f4-581d6cd3e995'::uuid, 'ACTION', 'System send the notice email for the schedule {scheduleId}');
+INSERT INTO public."action" (id, "type", "messagePattern") VALUES('979c718a-9c7a-4424-9344-09c3747f8a32'::uuid, 'ACTION', 'User {user} set the datetime {datetime} on the schedule {scheduleId}');
+INSERT INTO public.schedule_status (id, status) VALUES(1, '等待審核中');
+INSERT INTO public.schedule_status (id, status) VALUES(2, '已完成');
+INSERT INTO public.schedule_status (id, status) VALUES(3, '已拒絕');
+INSERT INTO public.schedule_status (id, status) VALUES(4, '等待規劃中');
+INSERT INTO public.schedule_status (id, status) VALUES(5, '臨時事件');
+INSERT INTO public."user" ("name", email, note, "blocked", "role", account) VALUES('黃漢軒', 't109590031@ntut.org.tw', '大學部、顧問', false, 2, '109590031');
 
 --
 -- TOC entry 3273 (class 2606 OID 24949)

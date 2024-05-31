@@ -1,6 +1,7 @@
 FROM python:3.11
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 build-essential python3-dev -y
+RUN sed -i 's/deb.debian.org/debian.csie.ntu.edu.tw/g' /etc/apt/sources.list.d/debian.sources
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 build-essential python3-dev libmagic1 -y
 
 COPY . /opt/PSS
 WORKDIR /opt/PSS
