@@ -25,6 +25,9 @@ services:
     build: "./api/"
     depends_on: 
       - database
+    environment:
+      - PSS_DB_HOST=pss-database
+      - PSS_DB_PORT=5432
   frontend:
     container_name: pps-frontend
     build: "./app/"
