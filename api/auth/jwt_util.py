@@ -70,3 +70,7 @@ def make_jwt(username: str, student_id: str) -> str:
 def decode_jwt(jwt: str) -> dict[str, Any]:
     codec = HS256JWTCodec("some_random_key")
     return codec.decode(jwt)["data"]
+
+def is_jwt_valid(jwt: str) -> bool:
+    codec = HS256JWTCodec("some_random_key")
+    return codec.is_valid_jwt(jwt)

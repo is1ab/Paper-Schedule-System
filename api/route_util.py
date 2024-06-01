@@ -9,7 +9,7 @@ import store.db.query.action as action_db
 import store.db.query.aduit_log as audit_log_db
 import store.db.query.audit_log_parameter as audit_log_parameter_db
 import store.db.query.user as user_db
-from auth.jwt_util import decode_jwt, fetch_token
+from auth.jwt_util import decode_jwt, fetch_token, is_jwt_valid
 from store.db.model.action import Action
 from store.db.model.audit_log import AuditLog
 from store.db.model.audit_log_parameter import AuditLogParameter
@@ -28,7 +28,7 @@ def record_request_audit_log(
         user: User = anonymousUser
         action: Action = action_db.get_action("56b89550-33b1-41b9-ab5b-61f20e2bddf5")
 
-        if jwt != "":
+        if jwt != "" and is_jwt_valid(jwt):
             jwt_payload: dict[str, Any] = decode_jwt(jwt)
             user = user_db.get_user(jwt_payload["studentId"])
 

@@ -23,12 +23,8 @@ services:
   backend:
     container_name: pps-backend
     build: "./api/"
-    ports:
-      - 8080:8080
     depends_on: 
       - database
   frontend:
     container_name: pps-frontend
     build: "./app/"
-    ports:
-      - 3000:3000
