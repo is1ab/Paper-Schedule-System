@@ -369,9 +369,11 @@ CREATE TABLE public."user" (
     note character varying NOT NULL,
     blocked boolean DEFAULT false NOT NULL,
     role integer NOT NULL,
-    account character varying NOT NULL
+    account character varying NOT NULL,
+    "password" varchar NULL
 );
 
+INSERT INTO public."role" (id, "name") VALUES(4, 'Admin');
 INSERT INTO public."role" (id, "name") VALUES(3, 'Guest');
 INSERT INTO public."role" (id, "name") VALUES(2, 'Student');
 INSERT INTO public."role" (id, "name") VALUES(1, 'Professor');
@@ -388,7 +390,7 @@ INSERT INTO public.schedule_status (id, status) VALUES(2, '已完成');
 INSERT INTO public.schedule_status (id, status) VALUES(3, '已拒絕');
 INSERT INTO public.schedule_status (id, status) VALUES(4, '等待規劃中');
 INSERT INTO public.schedule_status (id, status) VALUES(5, '臨時事件');
-INSERT INTO public."user" ("name", email, note, "blocked", "role", account) VALUES('黃漢軒', 't109590031@ntut.org.tw', '大學部、顧問', false, 2, '109590031');
+INSERT INTO public."user" ("name", email, note, "blocked", "role", account, "password") VALUES('管理員', 'root@pss.net', '管理員', false, 4, 'root', '981ca9fb9f590f6e5bdfdefbcb45aefc9d6f3b80b1973a9c3c6bf62d347c3f77');
 
 --
 -- TOC entry 3273 (class 2606 OID 24949)
