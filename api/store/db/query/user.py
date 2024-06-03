@@ -10,7 +10,7 @@ from store.db.model.user import User
 def get_user(account: str) -> User | None:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
-            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
+            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account, u.password
             from "user" u 
             join "role" r on r.id = u."role"
             where u.account = %s;            
@@ -20,7 +20,7 @@ def get_user(account: str) -> User | None:
 
         if result == None:
             return None
-
+        
         cursor.close()
         return User(
             result["id"],
@@ -28,6 +28,7 @@ def get_user(account: str) -> User | None:
             result["email"],
             result["name"],
             result["note"],
+            result["password"],
             result["blocked"],
             Role(result["roleId"], result["roleName"]),
         )
@@ -36,7 +37,7 @@ def get_user(account: str) -> User | None:
 def get_users() -> List[User]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
-            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account
+            select u.id, u."name", u.email, u.note, u."blocked", r.id as "roleId", r.name as "roleName", u.account, u.password
             from "user" u 
             join "role" r on r.id = u."role";       
         """
@@ -50,6 +51,7 @@ def get_users() -> List[User]:
                 result["email"],
                 result["name"],
                 result["note"],
+                result["password"],
                 result["blocked"],
                 Role(result["roleId"], result["roleName"]),
             )

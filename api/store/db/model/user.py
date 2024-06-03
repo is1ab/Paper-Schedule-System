@@ -10,6 +10,7 @@ class User:
     email: str | None
     name: str | None
     note: str | None
+    password: str | None
     blocked: bool
     role: Role
 
@@ -31,6 +32,7 @@ anonymousUser: User = User(
     email="anonymous@pps.net",
     name=None,
     note=None,
+    password=None,
     blocked=False,
     role=Role(id=0, name="Anonymous"),
 )
