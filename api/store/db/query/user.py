@@ -1,5 +1,7 @@
+import hashlib
 from typing import Any, List
 
+from psycopg import Connection
 from psycopg.rows import dict_row
 
 from store.db.db import create_cursor
@@ -101,4 +103,22 @@ def set_user(account: str, user: User) -> None:
             cursor.close()
     except Exception as e:
         cursor.connection.rollback()
+        raise e
+
+
+def update_password_without_commit(account: str, password: str, connection: Connection) -> None:
+    try:
+        password_sha256 = hashlib.sha256(password.encode()).hexdigest()
+        with connection.cursor() as cursor:
+            sql: str = """
+                UPDATE public."user"
+                SET "password"=%s
+                WHERE account=%s;
+            """
+            cursor.execute(
+                sql,
+                (password_sha256, account)
+            )
+    except Exception as e:
+        connection.rollback()
         raise e

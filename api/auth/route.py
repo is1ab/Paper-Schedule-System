@@ -4,12 +4,13 @@ from typing import Any
 from flask import Blueprint, Response, make_response, request
 
 import store.db.query.user as user_db
-from auth.jwt_util import make_jwt
+from auth.jwt_util import decode_jwt, fetch_token, make_jwt
 from auth.ntut_auth_util import ntut_login
 from auth.validator import (
     validate_user_id_should_be_able_to_access_or_return_http_status_code_401,
 )
 from route_util import audit_route
+from store.db.db import create_transection
 from store.db.model.user import User
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
@@ -31,6 +32,24 @@ def login_route() -> Response:
     else:
         return _password_login(account, password, user)
             
+
+@audit_route(auth_bp, "/update_password", methods=["POST"])
+def update_password_route() -> Response:
+    payload: dict[str, Any] | None = request.get_json(silent=True)
+    assert payload is not None
+
+    jwt: str = fetch_token(request.headers.get("Authorization"))
+    jwt_payload: dict[str, Any] = decode_jwt(jwt)
+    assert jwt_payload is not None
+
+    account: str = jwt_payload["studentId"]
+    password: str = payload["password"]
+
+    with create_transection() as (connection, _) :
+        user_db.update_password_without_commit(account, password, connection)
+    
+    return make_response({"status": "OK"})
+
 
 def _ntut_login(account, password):
     login_result: dict[str, str] = ntut_login(account, password)
