@@ -3,12 +3,14 @@ import logo from "../assets/logo.png"
 import UserBadge from "../components/UserBadge";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hook";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getLabZhName, getOrganizationZhName, getSystemArguments } from "../store/dataApi/SettingApiSlice";
 import { useSelector } from "react-redux";
+import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
 
 function Is1abNavbar() {
   const { Header } = Layout;
+  const [isLogin, setIsLogin] = useState<boolean>(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const orginazionZhName = useSelector(getOrganizationZhName)
@@ -30,6 +32,14 @@ function Is1abNavbar() {
   }, [])
 
   useEffect(() => {
+    dispatch(getSelfUserInfo()).then((response) => {
+      if(response.meta.requestStatus === 'fulfilled'){
+        setIsLogin(true)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
     document.title = `${orginazionZhName} ${labZhName}`
   }, [orginazionZhName, labZhName])
 
@@ -48,13 +58,15 @@ function Is1abNavbar() {
             <span className="text-nowrap">{labZhName}</span>
           </div>
           <div>
-            <Menu
-                className="w-100"
-                mode="horizontal"
-                items={leftItems}
-                style={{background: "transparent", border: "0"}}
-                selectedKeys={[]}
-            />
+            { isLogin &&
+              <Menu
+                  className="w-100"
+                  mode="horizontal"
+                  items={leftItems}
+                  style={{background: "transparent", border: "0"}}
+                  selectedKeys={[]}
+              />
+            }
           </div>
         </div>
         <div className="d-flex flex-row w-fit-content">
