@@ -1,6 +1,6 @@
 import hashlib
+from http import HTTPStatus
 from typing import Any
-
 from flask import Blueprint, Response, make_response, request
 
 import store.db.query.user as user_db
@@ -12,6 +12,7 @@ from auth.validator import (
 from route_util import audit_route
 from store.db.db import create_transection
 from store.db.model.user import User
+from util import make_single_message_response
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -59,10 +60,10 @@ def _ntut_login(account: str, password: str, user: User):
 
 def _password_login(account: str, password: str, user: User):
     if user is None:
-        return make_response({"status": "Failed", "message": "User is not allow to login the system."})
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "User is not allow to login the system.")
 
     if hashlib.sha256(password.encode()).hexdigest() != user.password:
-        return make_response({"status": "Failed", "message": "Incorrect password."})
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Incorrect password.")
 
     jwt: str = make_jwt(user.name, account, user.role)
     return make_response({"status": "OK", "token": jwt})
