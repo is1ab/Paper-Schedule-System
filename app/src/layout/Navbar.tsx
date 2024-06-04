@@ -1,7 +1,7 @@
 import { Layout, Menu, MenuProps } from "antd";
 import logo from "../assets/logo.png"
 import UserBadge from "../components/UserBadge";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
 import { getLabZhName, getOrganizationZhName, getSystemArguments } from "../store/dataApi/SettingApiSlice";
@@ -10,6 +10,7 @@ import { getSelfUserInfo } from "../store/dataApi/UserApiSlice";
 
 function Is1abNavbar() {
   const { Header } = Layout;
+  const { state } = useLocation()
   const [isLogin, setIsLogin] = useState<boolean>(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -37,7 +38,7 @@ function Is1abNavbar() {
         setIsLogin(true)
       }
     })
-  }, [])
+  }, [state])
 
   useEffect(() => {
     document.title = `${orginazionZhName} ${labZhName}`
