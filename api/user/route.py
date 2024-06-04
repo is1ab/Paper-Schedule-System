@@ -64,6 +64,7 @@ def add_user():
         "email": payload["email"],
         "note": payload["note"],
         "blocked": False,
+        "password": None
     }
     user_info_model |= {"account": user_id}
 

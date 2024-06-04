@@ -66,8 +66,8 @@ def add_user(user: User) -> None:
         with create_cursor() as cursor:
             sql: str = """
                 INSERT INTO public."user"
-                ("name", email, note, "blocked", "role", account)
-                VALUES(%s, %s, %s, %s, %s, %s);            
+                ("name", email, note, "blocked", "role", account, "password")
+                VALUES(%s, %s, %s, %s, %s, %s, %s);            
                 """
             cursor.execute(
                 sql,
@@ -78,6 +78,7 @@ def add_user(user: User) -> None:
                     user.blocked,
                     user.role,
                     user.account,
+                    None
                 ),
             )
             cursor.connection.commit()
