@@ -28,7 +28,7 @@ def login_route() -> Response:
     user: User = user_db.get_user(account)
 
     if user.password is None:
-        return _ntut_login(account, password)
+        return _ntut_login(account, password, user)
     else:
         return _password_login(account, password, user)
             
@@ -51,9 +51,9 @@ def update_password_route() -> Response:
     return make_response({"status": "OK"})
 
 
-def _ntut_login(account, password):
+def _ntut_login(account: str, password: str, user: User):
     login_result: dict[str, str] = ntut_login(account, password)
-    jwt: str = make_jwt(login_result["username"], login_result["studentId"])
+    jwt: str = make_jwt(login_result["username"], login_result["studentId"], user.role)
     return make_response({"status": "OK", "token": jwt})
 
 
@@ -64,5 +64,5 @@ def _password_login(account: str, password: str, user: User):
     if hashlib.sha256(password.encode()).hexdigest() != user.password:
         return make_response({"status": "Failed", "message": "Incorrect password."})
 
-    jwt: str = make_jwt(user.name, account)
+    jwt: str = make_jwt(user.name, account, user.role)
     return make_response({"status": "OK", "token": jwt})
