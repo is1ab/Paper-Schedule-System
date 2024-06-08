@@ -10,13 +10,6 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 
 --
--- Roles
---
-
-CREATE ROLE is1ab_admin;
-ALTER ROLE is1ab_admin WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:9CYCCGtgqmphcoFJSAuoJw==$c0Lam5bpsgWkLnMc/nz4kU8NXmfT2pWKXlXYYmXPmZA=:L4Wvg8HzLbGm8E2l5rHtpXEe8/XMF/SLL5khtBOJujE=';
-
---
 -- User Configurations
 --
 
