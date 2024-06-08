@@ -13,7 +13,7 @@ function RootAuthorizedLayout(){
                 navigate("/")
             }
             const payload = response.payload;
-            const account = payload["account"];
+            const account = payload["data"]["account"];
             if(account !== "root"){
                 navigate("/")
             }
