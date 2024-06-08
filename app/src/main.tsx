@@ -27,24 +27,33 @@ import ManageUserWeight from './page/ManageUserWeight.tsx';
 import ProcessScheduleRequest from './page/ProcessScheduleRequest.tsx';
 import ManageHostSchedule from './page/ManageHostSchedule.tsx';
 import ProcessHostSchedule from './page/ProcessHostShedule.tsx';
+import AuthorizedLayout from './layout/AuthorizedLayout.tsx';
+import RootAuthorizedLayout from './layout/RootAuthorizedLayout.tsx';
+import UnauthorizedLayout from './layout/UnauthorizedLayout.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<RootLayout />}>
       <Route path="/" element={<Home/>} />
-      <Route path="/Login" element={<Login/>}></Route>
-      <Route path="/Event" element={<Event/>}></Route>
-      <Route path="/Member" element={<Member/>}></Route>
-      <Route path="/User/:userId" element={<User/>}></Route>
-      <Route path="/AddSchedule" element={<AddSchedule/>}></Route>
-      <Route path="/ManageUser" element={<ManageUser/>}></Route>
-      <Route path="/ManageUserWeight" element={<ManageUserWeight/>}></Route>
-      <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
-      <Route path="/Schedule/:scheduleId" element={<Schedule/>}></Route>
-      <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
-      <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
-      <Route path="/ManageHostSchedule" element={<ManageHostSchedule/>}></Route>
-      <Route path="/ManageHostSchedule/0/Edit" element={<ProcessHostSchedule/>}></Route>
+      <Route element={<UnauthorizedLayout />}>
+        <Route path="/Login" element={<Login/>}></Route>
+      </Route>
+      <Route element={<AuthorizedLayout />}>
+        <Route path="/Event" element={<Event/>}></Route>
+        <Route path="/Member" element={<Member/>}></Route>
+        <Route path="/User/:userId" element={<User/>}></Route>
+        <Route path="/AddSchedule" element={<AddSchedule/>}></Route>
+        <Route path="/Schedule/:scheduleId" element={<Schedule/>}></Route>
+      </Route>
+      <Route element={<RootAuthorizedLayout />}>
+        <Route path="/ManageUser" element={<ManageUser/>}></Route>
+        <Route path="/ManageUserWeight" element={<ManageUserWeight/>}></Route>
+        <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
+        <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
+        <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
+        <Route path="/ManageHostSchedule" element={<ManageHostSchedule/>}></Route>
+        <Route path="/ManageHostSchedule/0/Edit" element={<ProcessHostSchedule/>}></Route>
+      </Route>
     </Route>
   )
 );
