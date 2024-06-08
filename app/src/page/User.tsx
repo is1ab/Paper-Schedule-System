@@ -6,12 +6,13 @@ import { getSelfUserInfo, getUser, getUserAvatar, uploadAvatar } from "../store/
 import { UserType } from "../type/user/userType";
 import Is1abAvatarEditor from "./components/AvatarEditor";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Card, Table } from "antd";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
 import { FileOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
 
 function User(){
+    const { state } = useLocation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const { userId } = useParams()
@@ -82,9 +83,11 @@ function User(){
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload as Blob;
                 setAvatar(URL.createObjectURL(payload))
+            }else{
+                setAvatar(Logo)
             }
         })
-    }, [])
+    }, [dispatch, userId, state])
 
     const handleUpload = () => {
         if(fileInputRef.current == null){
