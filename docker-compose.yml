@@ -8,7 +8,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_USER: "is1ab_admin"
-      POSTGRES_PASSWORD: "is1ab@1321"
+      POSTGRES_PASSWORD: "is1ab----1321"
     volumes:
       - ./script.sql:/docker-entrypoint-initdb.d/script.sql:ro
   nginx:
@@ -27,6 +27,8 @@ services:
     depends_on: 
       - database
     environment:
+      - PSS_DB_ROLE=is1ab_admin
+      - PSS_DB_PASSWORD=is1ab----1321
       - PSS_DB_HOST=pss-database
       - PSS_DB_PORT=5432
   frontend:

@@ -24,9 +24,11 @@ def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
 
     db_host = os.environ.get("PSS_DB_HOST", "localhost")
     db_port = os.environ.get("PSS_DB_PORT", "5432")
+    db_user = os.environ.get("PSS_DB_USER", "is1ab_admin")
+    db_password = os.environ.get("PSS_DB_PASSWORD", "is1ab@1321")
 
     app.config["ConnectionPool"] = ConnectionPool(
-        f"postgresql://is1ab_admin:is1ab%401321@{db_host}:{db_port}/PSS",
+        f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/PSS",
         timeout=10,
         min_size=10,
     )
