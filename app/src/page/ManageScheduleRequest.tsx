@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import { useAppDispatch } from "../store/hook";
-import { getAllPendingApproveSchedule, getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
+import { getAllPendingApproveSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { Table } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getScheduleColumn } from "../columns/ScheduleColumns";

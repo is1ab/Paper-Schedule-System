@@ -65,7 +65,9 @@ function UserBadge(){
     ]
 
     const getItemChildrenByRole = () => {
-        let items: ({type: string} | {label: JSX.Element, key: number})[] = []
+        // Please forgive me that MenuItemGroupType should support MenuDividerType but in this case it doesn't support ¯\_(ツ)_/¯.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let items: any[] = []
         if(user === undefined){
             return items
         }
