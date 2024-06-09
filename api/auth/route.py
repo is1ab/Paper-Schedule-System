@@ -55,7 +55,7 @@ def update_password_route() -> Response:
 
 def _ntut_login(account: str, password: str, user: User):
     login_result: dict[str, str] = ntut_login(account, password)
-    jwt: str = make_jwt(login_result["username"], login_result["studentId"], user.role)
+    jwt: str = make_jwt(login_result["username"], login_result["studentId"], user)
     return make_response({"status": "OK", "token": jwt})
 
 
