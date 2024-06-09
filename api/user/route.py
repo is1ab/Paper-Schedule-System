@@ -112,13 +112,15 @@ def blocked_user(account: str):
         "id": user.id,
         "account": user.account,
         "name": user.name,
-        "roles": user.roles,
         "email": user.email,
         "note": user.note,
         "blocked": True,
+        "password": user.password
     }
 
-    user_db.set_user(account, User(**user_info_model))
+    with create_transection() as (connection, transection):
+        user_db.set_user_without_commit(account, User(**user_info_model), connection)
+    
     return make_response({"status": "OK", "message": f"User {account} blocked."})
 
 
@@ -133,12 +135,12 @@ def unblocked_user(account: str):
         "name": user.name,
         "email": user.email,
         "note": user.note,
-        "blocked": True,
+        "blocked": False,
+        "password": user.password
     }
 
     with create_transection() as (connection, transection):
         user_db.set_user_without_commit(account, User(**user_info_model), connection)
-        user_db.update_roles_without_commit(account, [role.id for role in user.roles], connection)
     
     return make_response({"status": "OK", "message": f"User {account} unblocked."})
 

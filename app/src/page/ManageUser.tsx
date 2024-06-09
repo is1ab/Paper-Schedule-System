@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
-import { blockedUser, getUsers, unblockedUser } from "../store/dataApi/UserApiSlice";
+import { blockedUser, getSelfUserInfo, getUsers, unblockedUser } from "../store/dataApi/UserApiSlice";
 import { useAppDispatch } from "../store/hook";
 import { UserType } from "../type/user/userType";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import UserAvatarButton from "../components/UserAvatarButton";
 function ManageUser(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const [self, setSelf] = useState<UserType | undefined>();
     const [userTableDatas, setUserTableDatas] = useState<UserType[]>([])
 
     const columns = [
@@ -81,13 +82,27 @@ function ManageUser(){
             key: "action",
             width: "16%",
             render: (_text: string, record: UserType, _index: number) => {
-                return (
-                    <div className="d-flex flex-row gap-3">
-                        <Button type="primary" onClick={() => navigate(`/User/${record.account}/Edit`)}> 編輯帳號 </Button>
-                        { !record.blocked ? 
+                const isAbleToBlock = () => {
+                    return self?.account != record.account && record.roles.slice(-1)[0].name !== "Root"
+                }
+                const isAbleToEdit = () => {
+                    return record.roles.slice(-1)[0].name !== "Root"
+                }
+                return self === undefined ? null : (
+                    <div className="d-flex flex-row gap-3 justify-content-center">
+                        { isAbleToEdit() ?
+                            <Button type="primary" onClick={() => navigate(`/User/${record.account}/Edit`)}> 編輯帳號 </Button> :
+                            null
+                        }
+                        { isAbleToBlock() ? 
+                            <>
+                            { !record.blocked ? 
                             <Button danger type="primary" onClick={() => blockUser(record.account)}> 凍結帳號 </Button> :
                             <Button danger type="primary" onClick={() => unblockUser(record.account)}> 解凍帳號 </Button>
+                            } 
+                            </> : null
                         }
+                        
                     </div>
                 )
             }
@@ -191,6 +206,14 @@ function ManageUser(){
     useEffect(() => {
         refreshUsers()
     }, [])
+
+    useEffect(() => {
+        dispatch(getSelfUserInfo()).then((response) => {
+            const payload = response.payload;
+            const user = payload["data"] as UserType;
+            setSelf(user);
+        })
+    }, [dispatch])
 
     return (
         <Container className="p-5">
