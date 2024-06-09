@@ -40,8 +40,8 @@ function ManageUser(){
             className: "text-center",
             key: "role",
             width: "16%",
-            render: (_text: string, record: any, _index: number) => {
-                return <span>{record.role.name}</span>
+            render: (_text: string, record: UserType, _index: number) => {
+                return <span>{record.roles.map((role) => role.name)}</span>
             }
         },
         {
@@ -57,7 +57,7 @@ function ManageUser(){
             className: "text-center",
             key: "status",
             width: "16%",
-            render: (_text: string, record: any, _index: number) => {
+            render: (_text: string, record: UserType, _index: number) => {
                 return (
                     <div>
                         { record.blocked ?
@@ -80,7 +80,7 @@ function ManageUser(){
             className: "text-center",
             key: "action",
             width: "16%",
-            render: (_text: string, record: any, _index: number) => {
+            render: (_text: string, record: UserType, _index: number) => {
                 return (
                     <div className="d-flex flex-row gap-3">
                         <Button type="primary" onClick={() => navigate(`/User/${record.account}/Edit`)}> 編輯帳號 </Button>
@@ -178,7 +178,11 @@ function ManageUser(){
         dispatch(getUsers()).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
-                const users = (payload["data"] as UserType[]).sort((a, b) => a.role.id - b.role.id)
+                const users = (payload["data"] as UserType[]).sort((a, b) => {
+                    const highestPermissionRoleA = a.roles.slice(-1)[0];
+                    const highestPermissionRoleB = b.roles.slice(-1)[0];
+                    return highestPermissionRoleA.id - highestPermissionRoleB.id;
+                })
                 setUserTableDatas(users)
             }
         })

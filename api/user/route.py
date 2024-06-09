@@ -12,6 +12,7 @@ import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
 from schedule.route import generate_schedules
 from route_util import audit_route
+from store.db.db import create_transection
 from store.db.model.schedule import Schedule
 from store.db.model.role import Role
 from store.db.model.user import User
@@ -63,7 +64,6 @@ def add_user():
     user_info_model: dict[str, Any] = {
         "id": user_id,
         "name": payload["name"],
-        "role": payload["role"],
         "email": payload["email"],
         "note": payload["note"],
         "blocked": False,
@@ -71,7 +71,10 @@ def add_user():
     }
     user_info_model |= {"account": user_id}
 
-    user_db.add_user(User(**user_info_model))
+    with create_transection() as (connection, transection):
+        user_db.add_user_without_commit(User(**user_info_model), connection)
+        user_db.update_roles_without_commit(user_id, [payload["role"]], connection)
+    
     return make_response({"status": "OK", "message": f"User {user_id} added."})
 
 
@@ -86,14 +89,17 @@ def modify_user(account: str):
     user_info_model: dict[str, Any] = {
         "id": user.id,
         "account": user.account,
+        "password": user.password,
         "name": payload["name"],
-        "role": payload["role"],
         "email": payload["email"],
         "note": payload["note"],
         "blocked": False,
     }
 
-    user_db.set_user(account, User(**user_info_model))
+    with create_transection() as (connection, transection):
+        user_db.set_user_without_commit(account, User(**user_info_model), connection)
+        user_db.update_roles_without_commit(account, [payload["role"]], connection)
+    
     return make_response({"status": "OK", "message": f"User {account} set."})
 
 
@@ -106,7 +112,7 @@ def blocked_user(account: str):
         "id": user.id,
         "account": user.account,
         "name": user.name,
-        "role": user.role,
+        "roles": user.roles,
         "email": user.email,
         "note": user.note,
         "blocked": True,
@@ -125,13 +131,15 @@ def unblocked_user(account: str):
         "id": user.id,
         "account": user.account,
         "name": user.name,
-        "role": user.role,
         "email": user.email,
         "note": user.note,
         "blocked": True,
     }
 
-    user_db.set_user(account, User(**user_info_model))
+    with create_transection() as (connection, transection):
+        user_db.set_user_without_commit(account, User(**user_info_model), connection)
+        user_db.update_roles_without_commit(account, [role.id for role in user.roles], connection)
+    
     return make_response({"status": "OK", "message": f"User {account} unblocked."})
 
 

@@ -68,7 +68,7 @@ def get_users() -> List[User]:
         
         roles: list[Role] = role_db.get_roles()
         users: list[User] = []
-        
+
         for result in results:
             user_account: str = result["account"]
             user_roles: list[UserRole] = get_user_roles(user_account)
@@ -89,13 +89,13 @@ def get_users() -> List[User]:
         return users
 
 
-def add_user(user: User) -> None:
+def add_user_without_commit(user: User, connection: Connection) -> None:
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
                 INSERT INTO public."user"
-                ("name", email, note, "blocked", "role", account, "password")
-                VALUES(%s, %s, %s, %s, %s, %s, %s);            
+                ("name", email, note, "blocked", account, "password")
+                VALUES(%s, %s, %s, %s, %s, %s);            
                 """
             cursor.execute(
                 sql,
@@ -104,34 +104,29 @@ def add_user(user: User) -> None:
                     user.email,
                     user.note,
                     user.blocked,
-                    user.role,
                     user.account,
                     None
                 ),
             )
-            cursor.connection.commit()
-            cursor.close()
     except Exception as e:
-        cursor.connection.rollback()
+        connection.rollback()
         raise e
 
 
-def set_user(account: str, user: User) -> None:
+def set_user_without_commit(account: str, user: User, connection: Connection) -> None:
     try:
-        with create_cursor() as cursor:
+        with connection.cursor() as cursor:
             sql: str = """
                 UPDATE public."user"
-                SET "name"=%s, email=%s, note=%s, "blocked"=%s, "role"=%s
+                SET "name"=%s, email=%s, note=%s, "blocked"=%s
                 WHERE account=%s;            
                 """
             cursor.execute(
                 sql,
-                (user.name, user.email, user.note, user.blocked, user.role, account),
+                (user.name, user.email, user.note, user.blocked, account),
             )
-            cursor.connection.commit()
-            cursor.close()
     except Exception as e:
-        cursor.connection.rollback()
+        connection.rollback()
         raise e
 
 
@@ -148,6 +143,42 @@ def update_password_without_commit(account: str, password: str, connection: Conn
                 sql,
                 (password_sha256, account)
             )
+    except Exception as e:
+        connection.rollback()
+        raise e
+    
+def update_roles_without_commit(account: str, role_ids: list[int], connection: Connection):
+    try:
+        delete_roles_for_user_without_commit(account, connection)
+        for role_id in role_ids:
+            add_roles_for_user(account, role_id, connection)
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def add_roles_for_user(account: str, role_id: int, connection: Connection):
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                INSERT INTO public.user_role
+                (account, "roleId")
+                VALUES(%s, %s);
+            """
+            cursor.execute(sql, (account, role_id))
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def delete_roles_for_user_without_commit(account: str, connection: Connection):
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                DELETE FROM public.user_role
+                WHERE account=%s
+            """
+            cursor.execute(sql, (account, ))
     except Exception as e:
         connection.rollback()
         raise e

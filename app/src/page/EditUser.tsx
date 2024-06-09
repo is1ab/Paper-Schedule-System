@@ -111,30 +111,30 @@ function EditUser(){
                 setRoles(roles)
             }
         })
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         const id = userId;
         if(id === "0" || id === undefined){
             return
         }
-        dispatch(getUser(id)).then((response: any) => {
+        dispatch(getUser(id)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload;
                 const data = payload["data"]
                 const account = data["account"]
                 const name = data["name"]
-                const role = data["role"]
+                const roles = data["roles"]
                 const note = data["note"]
                 const email = data["email"]
                 setStudentId(account)
                 setName(name)
-                setRole(role["id"])
+                setRole(roles[0]["id"])
                 setNote(note)
                 setEmail(email)
             }
         })
-    }, [userId])
+    }, [dispatch, userId])
 
     return (
         <Container className="p-5">

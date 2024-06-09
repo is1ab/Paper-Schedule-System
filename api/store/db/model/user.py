@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from store.db.model.role import Role
 
@@ -12,7 +12,7 @@ class User:
     note: str | None
     password: str | None
     blocked: bool
-    roles: list[Role]
+    roles: list[Role] = field(default_factory=list)
 
     def to_json(self):
         return {
