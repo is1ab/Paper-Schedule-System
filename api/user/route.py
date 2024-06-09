@@ -47,7 +47,7 @@ def get_self_user_info():
     user: User | None = user_db.get_user(studentId)
     
     schedules: list[Schedule] = generate_schedules()
-    user_schedules: list[Schedule] = filter(lambda schedule: schedule.user.id == user.id, schedules)
+    user_schedules: list[Schedule] = filter(lambda schedule: schedule.user is not None and schedule.user.id == user.id, schedules)
 
     result = user.to_json()
     result |= {"schedules": [schedule.to_json() for schedule in user_schedules]}

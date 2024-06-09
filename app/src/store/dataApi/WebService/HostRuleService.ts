@@ -18,4 +18,8 @@ export class HostRuleService extends BaseService {
     getHostRuleUserCount = (hostRuleId: number) => {
         return axios.get(`/host/${hostRuleId}/count`, this.getAxiosRequestConfig())
     }
+
+    removeHostRule = (hostRuleId: number) => {
+        return axios.delete(`/host/${hostRuleId}/`, this.getAxiosRequestConfig())
+    }
 }

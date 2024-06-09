@@ -3,17 +3,76 @@ import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hook";
 import { useEffect, useState } from "react";
-import { getHostRules } from "../store/dataApi/HostRuleApiSlice";
+import { getHostRules, removeHostRule } from "../store/dataApi/HostRuleApiSlice";
 import { ColumnProps } from "antd/es/table";
 import dayjs from "dayjs";
 import { getWeekdayLabelByValue } from "../items/WeekdayItems";
 import { getPeriodLabelByValue } from "../items/PeriodItems";
 import { getScheduleRuleLabelByValue } from "../items/ScheduleItems";
+import Swal from "sweetalert2";
 
 export default function ManageHostSchedule(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [tableData, setTableData] = useState([])
+
+    const deleteHostRule = (hostRuleId: number, hostRuleName: string) => {
+        Swal.fire({
+            icon: "question",
+            title: `確認要刪除規則「${hostRuleName}」嗎？`,
+            showConfirmButton: true,
+            showDenyButton: true,
+            confirmButtonColor: "#0d6efd",
+            confirmButtonText: "確認",
+            denyButtonColor: "#dc3545",
+            denyButtonText: "取消"
+        }).then((result) => {
+            if(result.isConfirmed){
+                dispatch(removeHostRule(hostRuleId)).then((response) => {
+                    if(response.meta.requestStatus === 'fulfilled'){
+                        Swal.fire({
+                            icon: "success",
+                            title: `規則 ${hostRuleName} 刪除成功`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        })
+                    }else{
+                        Swal.fire({
+                            icon: "error",
+                            title: `規則 ${hostRuleName} 刪除失敗，請聯繫管理員`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        })
+                    }
+                    refreshTable()
+                })
+            }
+        })
+    }
+
+    const refreshTable = () => {
+        dispatch(getHostRules()).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                const payload = response.payload;
+                const datas = payload["data"]
+                const tableDatas = datas.map((data: any) => {
+                    return {
+                        key: data.name,
+                        id: data.id,
+                        name: data.name,
+                        users: data.users,
+                        period: data.period,
+                        weekday: data.weekday,
+                        startDate: dayjs(data.startDate, "YYYY-MM-DD"),
+                        endDate: dayjs(data.endDate, "YYYY-MM-DD"),
+                        rule: data.rule
+                    }
+                })
+                setTableData(tableDatas)
+            }
+        })
+    }
+
     const columns: ColumnProps<any>[] = [
         {
             title: "#",
@@ -88,36 +147,19 @@ export default function ManageHostSchedule(){
             className: "text-center",
             title: "操作",
             width: 300,
-            render: () => {
+            render: (_text: any, record: any, _index: number) => {
                 return <div className="d-flex flex-row gap-2 justify-content-center">
                     <Button type="primary">修改規則</Button>
-                    <Button danger type="primary">刪除規則</Button>
+                    <Button danger type="primary" onClick={() => deleteHostRule(record.id, record.name)}>刪除規則</Button>
                 </div>
             }
         }
     ]
+
     useEffect(() => {
-        dispatch(getHostRules()).then((response) => {
-            if(response.meta.requestStatus === 'fulfilled'){
-                const payload = response.payload;
-                const datas = payload["data"]
-                const tableDatas = datas.map((data: any) => {
-                    return {
-                        key: data.name,
-                        id: data.id,
-                        name: data.name,
-                        users: data.users,
-                        period: data.period,
-                        weekday: data.weekday,
-                        startDate: dayjs(data.startDate, "YYYY-MM-DD"),
-                        endDate: dayjs(data.endDate, "YYYY-MM-DD"),
-                        rule: data.rule
-                    }
-                })
-                setTableData(tableDatas)
-            }
-        })
+        refreshTable()
     }, [])
+
     return (
         <div>
             <Container className="p-5 text-center">

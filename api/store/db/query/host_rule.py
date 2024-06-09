@@ -225,3 +225,59 @@ def get_temporary_events(host_rule_id: int) -> list[HostRuleTemporaryEvent]:
                 is_replace=result["isReplace"]
             ) for result in results
         ]
+    
+
+def remove_host_rule_without_commit(host_rule_id: int, connection: Connection) -> None:
+    try:
+        remove_host_rule_user_without_commit(host_rule_id, connection)
+        remove_host_rule_temporary_event_without_commit(host_rule_id, connection)
+        remove_host_rule_schedule_without_commit(host_rule_id, connection)
+        
+        with connection.cursor() as cursor:
+            sql: str = """
+                DELETE FROM public.host_rule
+                WHERE id=%s
+            """
+            cursor.execute(sql, (host_rule_id, ))
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def remove_host_rule_user_without_commit(host_rule_id: int, connection: Connection) -> None:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                DELETE FROM public.host_rule_user
+                WHERE "hostRuleId"= %s
+            """
+            cursor.execute(sql, (host_rule_id, ))
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def remove_host_rule_temporary_event_without_commit(host_rule_id: int, connection: Connection) -> None:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                DELETE FROM public.host_rule_temporary_event
+                WHERE "hostRuleId"= %s
+            """
+            cursor.execute(sql, (host_rule_id, ))
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def remove_host_rule_schedule_without_commit(host_rule_id: int, connection: Connection) -> None:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                DELETE FROM public.host_rule_schedule
+                WHERE "hostRuleId"= %s
+            """
+            cursor.execute(sql, (host_rule_id, ))
+    except Exception as e:
+        connection.rollback()
+        raise e
