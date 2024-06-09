@@ -276,3 +276,20 @@ def get_arranged_schedules_by_specific_host_rule(host_rule_id: int) -> list[Sche
                 )
             )
         return schedule_list
+
+
+def get_attachment_realname(attachment_id: str) -> str | None:
+    with create_cursor(row_factory=dict_row) as cursor:
+        sql: str = """
+            SELECT "fileRealName"
+            FROM public.schedule_attachment
+            WHERE "fileName" = %s
+        """
+        cursor.execute(sql, (attachment_id, ))
+        result = cursor.fetchone()
+
+        if result is None:
+            return None
+
+        file_real_name = result["fileRealName"]
+        return file_real_name

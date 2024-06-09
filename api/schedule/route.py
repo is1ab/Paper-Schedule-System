@@ -160,15 +160,20 @@ def upload_attachment():
 
 
 @audit_route(schedule_bp, "/fetch_attachment/<attchment_id>", methods=["GET"])
-def fetch_attachment(attchment_id):
+def fetch_attachment(attachment_id):
     try:
-        uuid_obj = UUID(attchment_id, version=4)
+        uuid_obj = UUID(attachment_id, version=4)
     except ValueError:
         return make_single_message_response(HTTPStatus.FORBIDDEN, "Wrong attachment_id format. The format should be UUID.")
     
+    file_real_name = schedule_db.get_attachment_realname(attachment_id)
+
+    if file_real_name is None:
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "The specific file is not exists.")
+
     real_storage = RealStorage(TunnelCode.ATTACHMENT)
     attachment = real_storage.path / f"{str(uuid_obj)}.pdf"
-    return send_file(attachment, as_attachment=True)
+    return send_file(attachment, as_attachment=True, download_name=file_real_name)
 
 
 @audit_route(schedule_bp, "/put_off", methods=["POST"])
