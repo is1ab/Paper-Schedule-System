@@ -13,7 +13,7 @@ function ManageUser(){
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [self, setSelf] = useState<UserType | undefined>();
-    const [userTableDatas, setUserTableDatas] = useState<UserType[]>([])
+    const [userTableDatas, setUserTableDatas] = useState<UserType[]>()
 
     const columns = [
         {
@@ -110,6 +110,9 @@ function ManageUser(){
     ]
 
     const blockUser = (account: string) => {
+        if(userTableDatas === undefined){
+            return
+        }
         const user = userTableDatas.find(user => user.account == account)
         if(user === undefined){
             return
@@ -150,6 +153,9 @@ function ManageUser(){
     }
 
     const unblockUser = (account: string) => {
+        if(userTableDatas === undefined){
+            return
+        }
         const user = userTableDatas.find(user => user.account == account)
         if(user === undefined){
             return
@@ -222,7 +228,7 @@ function ManageUser(){
                 <div className="d-flex flex-row justify-content-end">
                     <Button type="primary" className="w-25" onClick={() => navigate("/User/0/Edit")}>新增使用者</Button>
                 </div> 
-                <Table columns={columns} dataSource={userTableDatas} className="w-100 text-center"></Table>
+                <Table loading={userTableDatas === undefined} columns={columns} dataSource={userTableDatas} className="w-100 text-center"></Table>
             </div>
         </Container>
     )
