@@ -79,7 +79,7 @@ function User(){
         if(userId == undefined){
             return
         }
-        dispatch(getUserAvatar(userId)).then((response: any) => {
+        dispatch(getUserAvatar(userId)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 const payload = response.payload as Blob;
                 setAvatar(URL.createObjectURL(payload))
