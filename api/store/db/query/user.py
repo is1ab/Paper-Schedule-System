@@ -19,8 +19,6 @@ def get_user(account: str) -> User | None:
         """
         cursor.execute(sql, (account,))
         result: dict[str, Any] = cursor.fetchone()
-        roles: list[Role] = role_db.get_roles()
-        user_roles: list[UserRole] = get_user_roles(account)
 
         if result == None:
             return None
@@ -34,15 +32,16 @@ def get_user(account: str) -> User | None:
             result["note"],
             result["password"],
             result["blocked"],
-            [role for role in [list(filter(lambda role: user_role.roleId == role.id, roles))[0] for user_role in user_roles]]
+            get_user_roles(result["account"])
         )
     
 
-def get_user_roles(account: str) -> list[UserRole]:
+def get_user_roles(account: str) -> list[Role]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
-            SELECT account, "roleId" 
+            SELECT account, "roleId", r."name" as "roleName"
             FROM public.user_role
+            JOIN "role" r on r.id = "roleId"
             WHERE "account" = %s
             ORDER BY "roleId" asc;
         """
@@ -50,9 +49,9 @@ def get_user_roles(account: str) -> list[UserRole]:
         results: list[dict[str, Any]] = cursor.fetchall()
 
         return [
-            UserRole(
-                account=result["account"],
-                roleId=result["roleId"]
+            Role(
+                id=result["roleId"],
+                name=result["roleName"]
             ) for result in results
         ]
 
@@ -67,27 +66,18 @@ def get_users() -> List[User]:
         results: List[dict[str, Any]] = cursor.fetchall()
         cursor.close()
         
-        roles: list[Role] = role_db.get_roles()
-        users: list[User] = []
-
-        for result in results:
-            user_account: str = result["account"]
-            user_roles: list[UserRole] = get_user_roles(user_account)
-
-            users.append(
-                User(
-                    result["id"],
-                    result["account"],
-                    result["email"],
-                    result["name"],
-                    result["note"],
-                    result["password"],
-                    result["blocked"],
-                    [role for role in [list(filter(lambda role: user_role.roleId == role.id, roles))[0] for user_role in user_roles]]
-                )
-            )
-
-        return users
+        return [
+            User(
+                result["id"],
+                result["account"],
+                result["email"],
+                result["name"],
+                result["note"],
+                result["password"],
+                result["blocked"],
+                get_user_roles(result["account"])
+            ) for result in results
+        ]
 
 
 def add_user_without_commit(user: User, connection: Connection) -> None:

@@ -2,6 +2,7 @@ from typing import Any, Tuple
 
 from psycopg.rows import dict_row
 
+import store.db.query.user as user_db
 from store.db.db import Connection, create_cursor
 from store.db.model.host_rule import HostRule, HostRuleOrder, HostRuleSchedule, HostRuleTemporaryEvent
 from store.db.model.role import Role
@@ -137,11 +138,9 @@ def get_host_rule_users(host_rule_id: int) -> list[User]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             SELECT hur."hostRuleId", hur.account, 
-            u.id, u."name", u.email, u."note", u."blocked", u."role", 
-            r."name" as "roleName"
+            u.id, u."name", u.email, u."note", u."blocked", u."password"
             FROM public.host_rule_user hur
             JOIN "user" u ON u.account = hur.account
-            join "role" r on u."role" = r.id 
             where hur."hostRuleId" = %s;
         """
         cursor.execute(sql, (host_rule_id,))
@@ -154,7 +153,8 @@ def get_host_rule_users(host_rule_id: int) -> list[User]:
                 email=result["email"],
                 note=result["note"],
                 blocked=result["blocked"],
-                role=Role(id=result["role"], name=result["roleName"]),
+                roles=user_db.get_user_roles(result["account"]),
+                password=result["password"]
             )
             for result in results
         ]
