@@ -8,11 +8,11 @@ import { UserType } from "../type/user/userType";
 import dayjs, { Dayjs } from "dayjs";
 import { NoUndefinedRangeValueType } from "rc-picker/lib/PickerInput/RangePicker"
 import { DefaultOptionType, LabeledValue } from "antd/es/select";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DragableTable from "../components/DragableTable";
 import DeletableTable from "../components/DeletableTable";
-import { addHostRule } from "../store/dataApi/HostRuleApiSlice";
-import { HostRulePayloadType } from "../type/host/HostRuleType";
+import { addHostRule, editHostRule, getHostRule } from "../store/dataApi/HostRuleApiSlice";
+import { HostRulePayloadWithIdType } from "../type/host/HostRuleType";
 import { periodItems, getPeriodLabelByValue } from "../items/PeriodItems";
 import { scheduleRuleItems } from "../items/ScheduleItems";
 import { getWeekdayLabelByValue, weekdayItems } from "../items/WeekdayItems";
@@ -25,6 +25,7 @@ interface UserTypeWithKey extends UserType {
 }
 
 export default function ProcessHostSchedule(){
+    const { hostRuleId } = useParams()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const [steps, setSteps] = useState<number>(0)
@@ -147,7 +148,9 @@ export default function ProcessHostSchedule(){
     }
 
     const submit = () => {
-        dispatch(addHostRule({
+        const method = hostRuleId === "0" ? addHostRule : editHostRule;
+        dispatch(method({
+            id: hostRuleId,
             name: scheduleRuleName,
             weekday: Number.parseInt(scheduleRuleWeekday),
             period: Number.parseInt(scheduleRulePeriod),
@@ -160,7 +163,7 @@ export default function ProcessHostSchedule(){
                     index: index,
                 }
             ))
-        } as HostRulePayloadType)).then((response) => {
+        } as HostRulePayloadWithIdType)).then((response) => {
             if(response.meta.requestStatus === 'fulfilled'){
                 setSteps(steps + 1)
             }
@@ -187,7 +190,7 @@ export default function ProcessHostSchedule(){
                 setOptions(options)
             }
         })
-    }, [])
+    }, [dispatch, hostRuleId])
 
     useEffect(() => {
         setShowError(false)
@@ -198,6 +201,41 @@ export default function ProcessHostSchedule(){
             setSelectedUser(options[0].value as string);
         }
     }, [options])
+
+    useEffect(() => {
+        if(hostRuleId === undefined){
+            navigate("/")
+            return
+        }
+        if(isNaN(Number.parseInt(hostRuleId))){
+            navigate("/")
+            return
+        }
+        dispatch(getHostRule(Number.parseInt(hostRuleId))).then((response) => {
+            if(response.meta.requestStatus === 'fulfilled'){
+                if(periodItems === undefined){
+                    throw Error("periodItems should not be undefined!")
+                }
+                if(weekdayItems === undefined){
+                    throw Error("weekdayItems should not be undefined!")
+                }
+                const payload = response.payload;
+                const data = payload["data"]
+                setUsers(data.users)
+                setUserTableDatas(data.users.map((user: UserType) => {
+                    return {
+                        ...user,
+                        key: user.account
+                    }
+                }))
+                setScheduleRuleName(data.name)
+                setScheduleRange([dayjs(data.startDate), dayjs(data.endDate)])
+                setScheduleRulePeriod(String(data.period))
+                setScheduleRuleWeekday(String(data.weekday))
+                setScheduleRule(data.rule)
+            }
+        })
+    }, [hostRuleId])
 
     return (
         <Container className="p-5">
@@ -340,10 +378,10 @@ export default function ProcessHostSchedule(){
                 <div className="border rounded p-5 d-flex flex-column gap-5">
                     <Result
                         status={"success"}
-                        title="新增規則成功"
+                        title={ hostRuleId == "0" ? "新增規則成功" : "修改規則成功" }
                         subTitle={`主持人已規劃至活動頁面上，由 ${scheduleRange[0].format("YYYY-MM-DD")} 開始，在 ${scheduleRange[1].format("YYYY-MM-DD")} 結束`}
                         extra={[
-                            <Button type="primary" className="w-100" onClick={() => navigate("/")}>回到首頁</Button>
+                            <Button type="primary" className="w-100" onClick={() => navigate("/manageHostSchedule")}>回到「管理主持人排定規則」</Button>
                         ]}
                     />
                 </div>

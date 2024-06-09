@@ -36,6 +36,41 @@ def add_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> 
     except Exception as e:
         connection.rollback()
         raise e
+    
+
+def edit_host_rule_without_commit(hostRule: HostRule, connection: Connection) -> int:
+    try:
+        with connection.cursor() as cursor:
+            sql: str = """
+                UPDATE public.host_rule
+                SET "name"=%s, "startDate"=%s, "endDate"=%s, "period"=%s, weekday=%s, "rule"=%s, deleted=%s
+                WHERE id=%s
+            """
+            cursor.execute(
+                sql,
+                (
+                    hostRule.name,
+                    hostRule.startDate,
+                    hostRule.endDate,
+                    hostRule.period,
+                    hostRule.weekday,
+                    hostRule.rule,
+                    hostRule.deleted,
+                    hostRule.id
+                ),
+            )
+    except Exception as e:
+        connection.rollback()
+        raise e
+
+
+def update_host_rule_user_without_commit(orders: list[HostRuleOrder], connection: Connection):
+    try:
+        remove_host_rule_user_without_commit(orders[0].host_rule_id, connection)
+        add_host_rule_user_without_commit(orders, connection)
+    except Exception as e:
+        connection.rollback()
+        raise e
 
 
 def add_host_rule_user_without_commit(
@@ -141,7 +176,8 @@ def get_host_rule_users(host_rule_id: int) -> list[User]:
             u.id, u."name", u.email, u."note", u."blocked", u."password"
             FROM public.host_rule_user hur
             JOIN "user" u ON u.account = hur.account
-            where hur."hostRuleId" = %s;
+            where hur."hostRuleId" = %s
+            ORDER BY hur."index" asc;
         """
         cursor.execute(sql, (host_rule_id,))
         results: list[dict[str, Any]] = cursor.fetchall()

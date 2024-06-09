@@ -149,7 +149,7 @@ export default function ManageHostSchedule(){
             width: 300,
             render: (_text: any, record: any, _index: number) => {
                 return <div className="d-flex flex-row gap-2 justify-content-center">
-                    <Button type="primary">修改規則</Button>
+                    <Button type="primary" onClick={() => navigate(`/manageHostSchedule/${record.id}/Edit`)}>修改規則</Button>
                     <Button danger type="primary" onClick={() => deleteHostRule(record.id, record.name)}>刪除規則</Button>
                 </div>
             }

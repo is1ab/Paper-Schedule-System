@@ -53,7 +53,7 @@ const router = createBrowserRouter(
         <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
         <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
         <Route path="/ManageHostSchedule" element={<ManageHostSchedule/>}></Route>
-        <Route path="/ManageHostSchedule/0/Edit" element={<ProcessHostSchedule/>}></Route>
+        <Route path="/ManageHostSchedule/:hostRuleId/Edit" element={<ProcessHostSchedule/>}></Route>
       </Route>
       <Route element={<RootAuthorizedLayout />}>
         <Route path="/System" element={<Home/>}></Route>

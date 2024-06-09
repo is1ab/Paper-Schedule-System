@@ -8,6 +8,10 @@ export interface HostRulePayloadType {
     orders: []
 }
 
+export interface HostRulePayloadWithIdType extends HostRulePayloadType {
+    id: string
+}
+
 export interface HostRuleOrdersPayloadType {
     account: string,
     index: number

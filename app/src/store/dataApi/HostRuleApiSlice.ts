@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { HostRulePayloadType } from "../../type/host/HostRuleType";
+import { HostRulePayloadType, HostRulePayloadWithIdType } from "../../type/host/HostRuleType";
 import { RootState } from "../store";
 import { HostRuleService } from "./WebService/HostRuleService";
 
@@ -45,6 +45,24 @@ export const getHostRules = createAsyncThunk(
     }
 )
 
+export const getHostRule = createAsyncThunk(
+    'hostRuleApi/getHostRules',
+    async (hostRule: number, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new HostRuleService(token);
+            const res = await service.getHostRule(hostRule)
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`hostRuleApi/getHostRules: ${err}`)
+            })
+        }
+    }
+)
+
 export const getHostRuleUserCount = createAsyncThunk(
     'hostRuleApi/getHostRules',
     async (hostRuleId: number, thunkApi) => {
@@ -76,6 +94,24 @@ export const removeHostRule = createAsyncThunk(
         } catch (err: any){
             return thunkApi.rejectWithValue(() => {
                 console.log(`hostRuleApi/getHostRules: ${err}`)
+            })
+        }
+    }
+)
+
+export const editHostRule = createAsyncThunk(
+    'hostRuleApi/addHostRule',
+    async (payload: HostRulePayloadWithIdType, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new HostRuleService(token);
+            const res = await service.editHostRule(payload)
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`hostRuleApi/addHostRule: ${err}`)
             })
         }
     }
