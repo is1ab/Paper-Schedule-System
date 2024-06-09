@@ -91,8 +91,8 @@ export default function ProcessHostSchedule(){
             className: "text-center",
             key: "role",
             width: "16%",
-            render: (_text: string, record: any, _index: number) => {
-                return <span>{record.role.name}</span>
+            render: (_text: string, record: UserType, _index: number) => {
+                return <span>{record.roles.map((role) => role.name).join(", ")}</span>
             }
         },
         {
