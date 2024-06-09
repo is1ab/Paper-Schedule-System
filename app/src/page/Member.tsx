@@ -12,6 +12,14 @@ function Member(){
     const [roles, setRoles] = useState<RoleType[]>([]);
     const dispatch = useAppDispatch()
 
+    const isAnyUserHaveThisRole = (role: RoleType) => {
+        return getUsersHaveThisRole(role).length !== 0;
+    }
+
+    const getUsersHaveThisRole = (role: RoleType) => {
+        return users.filter((user) => user.roles.find((userRole) => userRole.id == role.id) !== undefined);
+    }
+
     useEffect(() => {
         dispatch(getUsers()).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
@@ -21,7 +29,7 @@ function Member(){
                 setUsers(users);
             }
         })
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         dispatch(getRoles()).then((response) => {
@@ -31,7 +39,7 @@ function Member(){
                 setRoles(roles.filter((role) => role.id < 4))
             }
         })
-    }, [])
+    }, [dispatch])
 
     return (
         <Container className="p-5 text-center">
@@ -41,12 +49,11 @@ function Member(){
                 roles.map((role: RoleType) => {
                     return (
                         <div className="pb-4 d-flex flex-column gap-3">
-                            { users.filter((user) => user.role.id == role.id).length == 0 ? null :  
+                            { !isAnyUserHaveThisRole(role) ? null :  
                                 <h4>{role.name}</h4>
                             }
                             <div className="d-flex flex-row" style={{flexWrap: "wrap"}}>
-                            {
-                                users.filter((user) => user.role.id == role.id).map((user) => {
+                            { getUsersHaveThisRole(role).map((user) => {
                                     return (
                                         <UserCard
                                             account={user.account}

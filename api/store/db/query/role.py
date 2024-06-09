@@ -6,7 +6,7 @@ from store.db.db import create_cursor
 from store.db.model.role import Role
 
 
-def get_role() -> list[Role]:
+def get_roles() -> list[Role]:
     with create_cursor(row_factory=dict_row) as cursor:
         sql: str = """
             select r.id as "roleId", r.name as "roleName"

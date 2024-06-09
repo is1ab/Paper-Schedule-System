@@ -7,12 +7,15 @@ from flask import Blueprint, Response, make_response, request
 from magic import Magic
 
 import store.db.query.user as user_db
+import store.db.query.role as role_db
 import store.db.query.schedule as schedule_db
 from auth.jwt_util import fetch_token, decode_jwt
 from schedule.route import generate_schedules
 from route_util import audit_route
 from store.db.model.schedule import Schedule
+from store.db.model.role import Role
 from store.db.model.user import User
+from store.db.model.user_role import UserRole
 from store.storage import TunnelCode
 from store.storage.real import RealStorage
 from util import make_single_message_response
@@ -46,7 +49,7 @@ def get_self_user_info():
     user_schedules: list[Schedule] = filter(lambda schedule: schedule.user.id == user.id, schedules)
 
     result = user.to_json()
-    result |= {"schedules": [schedule.to_json() for schedule in schedules]}
+    result |= {"schedules": [schedule.to_json() for schedule in user_schedules]}
 
     return make_response({"status": "OK", "data": result})
 

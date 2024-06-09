@@ -12,6 +12,7 @@ from auth.validator import (
 from route_util import audit_route
 from store.db.db import create_transection
 from store.db.model.user import User
+from store.db.model.user_role import UserRole
 from util import make_single_message_response
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
@@ -65,5 +66,5 @@ def _password_login(account: str, password: str, user: User):
     if hashlib.sha256(password.encode()).hexdigest() != user.password:
         return make_single_message_response(HTTPStatus.FORBIDDEN, "Incorrect password.")
 
-    jwt: str = make_jwt(user.name, account, user.role)
+    jwt: str = make_jwt(user.name, account, user)
     return make_response({"status": "OK", "token": jwt})

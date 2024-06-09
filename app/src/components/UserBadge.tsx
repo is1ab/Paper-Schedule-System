@@ -65,31 +65,37 @@ function UserBadge(){
     ]
 
     const getItemChildrenByRole = () => {
-        const items = [] as any[]
+        let items: ({type: string} | {label: JSX.Element, key: number})[] = []
         if(user === undefined){
             return items
         }
-        items.push.apply(items, guestItemChildren)
-        if(user.role.name === "Guest"){
-            items.push.apply(items, logoutItemChildren)
+
+        const highestPermissionRole = user.roles.slice(-1)[0];
+        
+        items = [...items, ...guestItemChildren]
+        if(highestPermissionRole.name == "Guest"){
+            items = [...items, ...logoutItemChildren]
             return items
         }
-        items.push.apply(items, studentItemChildren)
-        if(user.role.name === "Student"){
-            items.push.apply(items, logoutItemChildren)
+
+        items = [...items, ...studentItemChildren]
+        if(user.roles.find((role) => role.name === "Student")){
+            items = [...items, ...logoutItemChildren]
             return items
         }
-        items.push.apply(items, adminItemChildren)
-        if(user.role.name === "Professor" || user.role.name === "Admin"){
-            items.push.apply(items, logoutItemChildren)
+
+        items = [...items, ...adminItemChildren]
+        if(user.roles.find((role) => role.name === "Admin" || role.name === "Professor")){
+            items = [...items, ...logoutItemChildren]
             return items
         }
-        items.push.apply(items, rootItemChildren)
-        if(user.role.name === "Root"){
-            items.push.apply(items, logoutItemChildren)
+
+        items = [...items, ...rootItemChildren]
+        if(user.roles.find((role) => role.name === "Root")){
+            items = [...items, ...logoutItemChildren]
             return items
         }
-        return []
+        return items;
     }
 
     useEffect(() => {

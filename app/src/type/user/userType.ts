@@ -7,7 +7,7 @@ export interface UserType {
     id: number,
     account: string,
     name: string,
-    role: RoleType,
+    roles: RoleType[],
     note: string,
     weight: number,
     schedules: ScheduleType[]

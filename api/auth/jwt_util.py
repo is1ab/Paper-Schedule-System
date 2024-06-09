@@ -4,7 +4,7 @@ import re
 from typing import Any, Final
 from datetime import datetime, timedelta, timezone
 
-from store.db.model.role import Role
+from store.db.model.user import User
 
 class HS256JWTCodec:
     def __init__(self, key: str) -> None:
@@ -63,15 +63,12 @@ def fetch_token(jwt: str | None):
         return groups[0]
 
 
-def make_jwt(username: str, student_id: str, role: Role) -> str:
+def make_jwt(username: str, student_id: str, user: User) -> str:
     codec = HS256JWTCodec("some_random_key")
     return codec.encode({
         "username": username, 
         "studentId": student_id,
-        "role": {
-            "id": role.id,
-            "name": role.name
-        }
+        "role": [role.to_json() for role in user.roles]
     })
 
 

@@ -14,7 +14,7 @@ setting_bp = Blueprint("setting", __name__, url_prefix="/api/setting")
 
 @setting_bp.route("/role", methods=["GET"])
 def get_role():
-    roles: List[Role] = role_db.get_role()
+    roles: List[Role] = role_db.get_roles()
 
     return make_response({"status": "OK", "data": [role.to_json() for role in roles]})
 

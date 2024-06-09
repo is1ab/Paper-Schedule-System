@@ -12,7 +12,7 @@ class User:
     note: str | None
     password: str | None
     blocked: bool
-    role: Role
+    roles: list[Role]
 
     def to_json(self):
         return {
@@ -22,7 +22,7 @@ class User:
             "name": self.name,
             "note": self.note,
             "blocked": self.blocked,
-            "role": self.role.to_json(),
+            "roles": [role.to_json() for role in self.roles]
         }
 
 
@@ -34,5 +34,8 @@ anonymousUser: User = User(
     note=None,
     password=None,
     blocked=False,
-    role=Role(id=0, name="Anonymous"),
+    roles=[{
+        "id": "3",
+        "name": "Guest"      
+    }]
 )
