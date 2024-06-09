@@ -108,7 +108,7 @@ function EditUser(){
             if(response.meta.requestStatus == "fulfilled"){
                 const payload = response.payload;
                 const roles = payload["data"] as RoleType[]
-                setRoles(roles)
+                setRoles(roles.filter((role) => role.id < 4))
             }
         })
     }, [dispatch])
