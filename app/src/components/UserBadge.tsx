@@ -71,27 +71,27 @@ function UserBadge(){
         }
 
         const highestPermissionRole = user.roles.slice(-1)[0];
-        
+
         items = [...items, ...guestItemChildren]
-        if(highestPermissionRole.name == "Guest"){
+        if(highestPermissionRole.name === "Guest"){
             items = [...items, ...logoutItemChildren]
             return items
         }
 
         items = [...items, ...studentItemChildren]
-        if(user.roles.find((role) => role.name === "Student")){
+        if(highestPermissionRole.name === "Student"){
             items = [...items, ...logoutItemChildren]
             return items
         }
 
         items = [...items, ...adminItemChildren]
-        if(user.roles.find((role) => role.name === "Admin" || role.name === "Professor")){
+        if(highestPermissionRole.name === "Admin" || highestPermissionRole.name === "Professor"){
             items = [...items, ...logoutItemChildren]
             return items
         }
 
         items = [...items, ...rootItemChildren]
-        if(user.roles.find((role) => role.name === "Root")){
+        if(highestPermissionRole.name === "Root"){
             items = [...items, ...logoutItemChildren]
             return items
         }
