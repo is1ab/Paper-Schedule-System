@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from flask import Blueprint, make_response, request
+from flask import Blueprint, make_response, request, send_file
 
 import store.db.query.host_rule as host_rule_db
 import store.db.query.schedule as schedule_db
@@ -157,6 +157,18 @@ def upload_attachment():
         file.write(data)
 
     return make_response({"status": "OK", "data": f"{file_uuid}"})
+
+
+@audit_route(schedule_bp, "/fetch_attachment/<attchment_id>", methods=["GET"])
+def fetch_attachment(attchment_id):
+    try:
+        uuid_obj = UUID(attchment_id, version=4)
+    except ValueError:
+        return make_single_message_response(HTTPStatus.FORBIDDEN, "Wrong attachment_id format. The format should be UUID.")
+    
+    real_storage = RealStorage(TunnelCode.ATTACHMENT)
+    attachment = real_storage.path / f"{str(uuid_obj)}.pdf"
+    return send_file(attachment, as_attachment=True)
 
 
 @audit_route(schedule_bp, "/put_off", methods=["POST"])
