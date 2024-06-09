@@ -172,7 +172,7 @@ function User(){
                                 </div>
                                 <div className="d-flex flex-row gap-3">
                                     <UserOutlined></UserOutlined>
-                                    <span>{user.roles.map((role) => role.name)}</span>
+                                    <span>{user.roles.map((role) => role.name).join(", ")}</span>
                                 </div>
                                 <div className="d-flex flex-row gap-3">
                                     <FileOutlined></FileOutlined>
