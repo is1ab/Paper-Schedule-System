@@ -43,7 +43,8 @@ def get_user_roles(account: str) -> list[UserRole]:
         sql: str = """
             SELECT account, "roleId" 
             FROM public.user_role
-            WHERE "account" = %s;
+            WHERE "account" = %s
+            ORDER BY "roleId" asc;
         """
         cursor.execute(sql, (account, ))
         results: list[dict[str, Any]] = cursor.fetchall()
