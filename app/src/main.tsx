@@ -23,7 +23,6 @@ import ManageUser from './page/ManageUser.tsx';
 import EditUser from './page/EditUser.tsx';
 import Schedule from './page/Schedule.tsx';
 import ManageScheduleRequest from './page/ManageScheduleRequest.tsx';
-import ManageUserWeight from './page/ManageUserWeight.tsx';
 import ProcessScheduleRequest from './page/ProcessScheduleRequest.tsx';
 import ManageHostSchedule from './page/ManageHostSchedule.tsx';
 import ProcessHostSchedule from './page/ProcessHostShedule.tsx';
@@ -48,7 +47,6 @@ const router = createBrowserRouter(
       </Route>
       <Route element={<AdminAuthorizedLayout />}>
         <Route path="/ManageUser" element={<ManageUser/>}></Route>
-        <Route path="/ManageUserWeight" element={<ManageUserWeight/>}></Route>
         <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
         <Route path="/ManageScheduleRequest" element={<ManageScheduleRequest/>}></Route>
         <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
