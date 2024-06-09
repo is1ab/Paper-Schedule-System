@@ -41,7 +41,7 @@ function ManageUser(){
             key: "role",
             width: "16%",
             render: (_text: string, record: UserType, _index: number) => {
-                return <span>{record.roles.map((role) => role.name)}</span>
+                return <span>{record.roles.map((role) => role.name).join(", ")}</span>
             }
         },
         {
