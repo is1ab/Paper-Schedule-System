@@ -30,6 +30,7 @@ import ProcessHostSchedule from './page/ProcessHostShedule.tsx';
 import AuthorizedLayout from './layout/AuthorizedLayout.tsx';
 import RootAuthorizedLayout from './layout/RootAuthorizedLayout.tsx';
 import UnauthorizedLayout from './layout/UnauthorizedLayout.tsx';
+import AdminAuthorizedLayout from './layout/AdminAuthorizedLayout.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -45,7 +46,7 @@ const router = createBrowserRouter(
         <Route path="/AddSchedule" element={<AddSchedule/>}></Route>
         <Route path="/Schedule/:scheduleId" element={<Schedule/>}></Route>
       </Route>
-      <Route element={<RootAuthorizedLayout />}>
+      <Route element={<AdminAuthorizedLayout />}>
         <Route path="/ManageUser" element={<ManageUser/>}></Route>
         <Route path="/ManageUserWeight" element={<ManageUserWeight/>}></Route>
         <Route path="/User/:userId/Edit" element={<EditUser/>}></Route>
@@ -53,6 +54,9 @@ const router = createBrowserRouter(
         <Route path="/ManageScheduleRequest/:scheduleId" element={<ProcessScheduleRequest/>}></Route>
         <Route path="/ManageHostSchedule" element={<ManageHostSchedule/>}></Route>
         <Route path="/ManageHostSchedule/0/Edit" element={<ProcessHostSchedule/>}></Route>
+      </Route>
+      <Route element={<RootAuthorizedLayout />}>
+        <Route path="/System" element={<Home/>}></Route>
       </Route>
     </Route>
   )
