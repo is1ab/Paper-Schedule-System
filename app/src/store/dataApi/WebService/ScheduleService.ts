@@ -26,6 +26,10 @@ export class ScheduleService extends BaseService {
         return axios.get("/schedule/", this.getAxiosRequestConfig())
     }
 
+    get_all_pending_approve_schedule = () => {
+        return axios.get("/schedule/pending", this.getAxiosRequestConfig())
+    }
+
     getSchedule = (scheduleId: string) => {
         return axios.get(`/schedule/${scheduleId}`, this.getAxiosRequestConfig())
     }

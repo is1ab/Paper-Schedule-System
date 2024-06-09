@@ -70,10 +70,11 @@ export default function ProcessScheduleRequest(){
             key: "6",
             label: "附件",
             children: <>
-                <Button type="link" icon={<LinkOutlined />}>附件 1</Button>
-                <Button type="link" icon={<LinkOutlined />}>附件 2</Button>
-                <Button type="link" icon={<LinkOutlined />}>附件 3</Button>
-                <Button type="link" icon={<LinkOutlined />}>附件 4</Button>
+                { 
+                    specificSchedule?.attachments.map((attachment) => {
+                        return <Button type="link" icon={<LinkOutlined />} href={`/api/schedule/fetch_attachment/${attachment.virtualName}`}>{attachment.realName}</Button>
+                    })
+                }
             </>,
             span: 1
         }

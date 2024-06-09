@@ -35,10 +35,21 @@ def get_all_schedules():
         }
     )
 
+@audit_route(schedule_bp, "/pending", methods=["GET"])
+def get_all_pending_approve_schedule():
+   schedules: list[Schedule] = schedule_db.get_schedules()
+   schedules = filter(lambda schedule: schedule.status.id == 1, schedules)
+
+   return make_response(
+       {
+           "status": "OK",
+           "data": [schedule.to_json_without_attachment() for schedule in schedules]
+       }
+   )
 
 @audit_route(schedule_bp, "/<schedule_uuid>", methods=["GET"])
 def get_schedule(schedule_uuid: str):
-    results: list[Schedule] = generate_schedules()
+    results: list[Schedule] = schedule_db.get_schedules()
     schedule: Schedule | None = next(
         (schedule for schedule in results if str(schedule.id) == schedule_uuid), None
     )
@@ -159,7 +170,7 @@ def upload_attachment():
     return make_response({"status": "OK", "data": f"{file_uuid}"})
 
 
-@audit_route(schedule_bp, "/fetch_attachment/<attchment_id>", methods=["GET"])
+@audit_route(schedule_bp, "/fetch_attachment/<attachment_id>", methods=["GET"])
 def fetch_attachment(attachment_id):
     try:
         uuid_obj = UUID(attachment_id, version=4)

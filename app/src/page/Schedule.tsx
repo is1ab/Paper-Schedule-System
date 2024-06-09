@@ -33,12 +33,12 @@ function Schedule(){
         {
             title: "活動日程",
             icon: <CalendarOutlined style={{fontSize: "3rem"}}></CalendarOutlined>,
-            description: schedule?.datetime
+            description: schedule?.datetime ?? "尚未排定"
         },
         {
             title: "活動規則",
             icon: <ImportOutlined  style={{fontSize: "3rem"}}></ImportOutlined>,
-            description: schedule?.hostRule?.name
+            description: schedule?.hostRule?.name ?? "尚未排定"
         },
         {
             title: "活動連結",
@@ -48,7 +48,14 @@ function Schedule(){
         {
             title: "活動附件",
             icon: <FolderOutlined  style={{fontSize: "3rem"}}></FolderOutlined>,
-            description: schedule?.attachments.map((attachment) => attachment.realName)
+            description: schedule?.attachments.map((attachment) => 
+                <Button 
+                    type="link" 
+                    icon={<LinkOutlined />} 
+                    href={`/api/schedule/fetch_attachment/${attachment.virtualName}`}
+                    className="m-0"
+                >{attachment.realName}</Button>
+            )
         }
     ]
 

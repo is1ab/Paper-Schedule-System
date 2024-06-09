@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { ScheduleType } from "../type/schedule/ScheduleType";
 import { useAppDispatch } from "../store/hook";
-import { getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
+import { getAllPendingApproveSchedule, getAllSchedule } from "../store/dataApi/ScheduleApiSlice";
 import { Table } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getScheduleColumn } from "../columns/ScheduleColumns";
@@ -14,14 +14,10 @@ function ManageScheduleRequest(){
     
 
     useEffect(() => {
-        dispatch(getAllSchedule()).then((response) => {
+        dispatch(getAllPendingApproveSchedule()).then((response) => {
             if(response.meta.requestStatus == 'fulfilled'){
                 const payload = response.payload;
-                const datas = (payload["data"] as ScheduleType[]).filter(data => {
-                    if([1, 2, 3].includes(data.status.id)){
-                        return (data.hostRule != null && data.hostRule.rule == "SCHEDULE") || (data.hostRule == null)
-                    }
-                });
+                const datas = (payload["data"] as ScheduleType[])
                 setSchedules(datas);
             }
         })

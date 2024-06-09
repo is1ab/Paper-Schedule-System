@@ -63,6 +63,24 @@ export const getAllSchedule = createAsyncThunk(
     }
 )
 
+export const getAllPendingApproveSchedule = createAsyncThunk(
+    'scheduleApi/getAllPendingApproveSchedule',
+    async (_, thunkApi) => {
+        try {
+            const state: RootState = thunkApi.getState() as RootState;
+            const token = state.authApi.token;
+            const service = new ScheduleService(token);
+            const res = await service.get_all_pending_approve_schedule()
+            const data = res.data;
+            return data;
+        } catch (err: any){
+            return thunkApi.rejectWithValue(() => {
+                console.log(`scheduleApi/addSchedule: ${err}`)
+            })
+        }
+    }
+)
+
 export const checkDuplicateUrl = createAsyncThunk(
     'scheduleApi/checkDuplicateUrl',
     async (url: string, thunkApi) => {
